@@ -14,33 +14,53 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv;
+package io.novaordis.events.csv.cli;
 
-import org.junit.Test;
+import io.novaordis.events.processing.Procedure;
+import io.novaordis.utilities.UserErrorException;
+import io.novaordis.utilities.help.InLineHelp;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 7/31/17
  */
-public class MainTest {
+public class Main {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
+    public static final String APPLICATION_NAME = "csv";
+
     // Static ----------------------------------------------------------------------------------------------------------
+
+    public static void main(String[] args) throws Exception {
+
+
+        try {
+
+            Configuration c = new Configuration(args);
+
+            Procedure p = c.getProcedure();
+
+            if (p instanceof Help) {
+
+                String s = InLineHelp.get(APPLICATION_NAME);
+                System.out.println(s);
+            }
+
+
+        }
+        catch(UserErrorException e) {
+
+            System.err.println(e.getMessage());
+        }
+
+    }
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
     // Public ----------------------------------------------------------------------------------------------------------
-
-    // Tests -----------------------------------------------------------------------------------------------------------
-
-    @Test
-    public void mainTest() throws Exception {
-
-        Main.main(new String[0]);
-    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 

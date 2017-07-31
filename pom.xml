@@ -8,7 +8,7 @@
 
     <groupId>io.novaordis.events.csv</groupId>
     <artifactId>events-csv-root</artifactId>
-    <version>1.0.0-SNAPSHOT-1</version>
+    <version>1.0.0-SNAPSHOT-2</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -17,7 +17,10 @@
             Dependencies
         -->
 
+        <novaordis.utilities.version>4.7.9</novaordis.utilities.version>
         <events.api.version>1.2.1</events.api.version>
+        <events.processing.version>1.1.0</events.processing.version>
+
         <slf4j.version>1.7.6</slf4j.version>
         <junit.version>4.12</junit.version>
 
@@ -42,9 +45,19 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.novaordis.utilities</groupId>
+            <artifactId>novaordis-utilities</artifactId>
+            <version>${novaordis.utilities.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.novaordis.events.api</groupId>
             <artifactId>events-api</artifactId>
             <version>${events.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.novaordis.events.processing</groupId>
+            <artifactId>events-processing</artifactId>
+            <version>${events.processing.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

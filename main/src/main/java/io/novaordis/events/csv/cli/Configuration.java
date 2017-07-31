@@ -14,28 +14,38 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv;
+package io.novaordis.events.csv.cli;
+
+import io.novaordis.events.processing.Procedure;
+import io.novaordis.utilities.UserErrorException;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 7/31/17
  */
-public class Main {
+public class Configuration {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
     // Static ----------------------------------------------------------------------------------------------------------
 
-    public static void main(String[] args) throws Exception {
-
-        System.out.println(".");
-    }
-
     // Attributes ------------------------------------------------------------------------------------------------------
+
+    private Procedure procedure;
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
+    public Configuration(String[] args) throws UserErrorException {
+
+        procedure = new Help();
+    }
+
     // Public ----------------------------------------------------------------------------------------------------------
+
+    public Procedure getProcedure() {
+
+        return procedure;
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 

@@ -1,0 +1,11 @@
+A CSV line parser.
+
+Usage:
+
+    csv [query] ./input.csv
+
+    tail -f ./input.csv | csv [query]
+
+More details:
+
+    https://kb.novaordis.com/index.php/Events-csv_User_Manual
