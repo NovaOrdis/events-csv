@@ -16,7 +16,7 @@
 
 package io.novaordis.events.csv.cli;
 
-import io.novaordis.events.processing.Procedure;
+import io.novaordis.events.cli.EventParserRuntime;
 import io.novaordis.utilities.UserErrorException;
 import io.novaordis.utilities.help.InLineHelp;
 
@@ -24,6 +24,7 @@ import io.novaordis.utilities.help.InLineHelp;
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 7/31/17
  */
+
 public class Main {
 
     // Constants -------------------------------------------------------------------------------------------------------
@@ -34,26 +35,23 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-
         try {
 
-            Configuration c = new Configuration(args);
+            EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, null);
 
-            Procedure p = c.getProcedure();
+            if (runtime.getConfiguration().isHelp()) {
 
-            if (p instanceof Help) {
-
-                String s = InLineHelp.get(APPLICATION_NAME);
-                System.out.println(s);
+                displayHelpAndExit();
+                return;
             }
 
+            runtime.run();
 
         }
         catch(UserErrorException e) {
 
             System.err.println(e.getMessage());
         }
-
     }
 
     // Attributes ------------------------------------------------------------------------------------------------------
@@ -67,6 +65,13 @@ public class Main {
     // Protected -------------------------------------------------------------------------------------------------------
 
     // Private ---------------------------------------------------------------------------------------------------------
+
+    private static void displayHelpAndExit() throws UserErrorException {
+
+        String content = InLineHelp.get();
+
+        System.err.print(content);
+    }
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 
