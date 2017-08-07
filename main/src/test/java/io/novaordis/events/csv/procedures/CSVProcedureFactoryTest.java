@@ -14,47 +14,24 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.cli;
+package io.novaordis.events.csv.procedures;
 
-import io.novaordis.events.cli.EventParserRuntime;
-import io.novaordis.events.csv.procedures.CSVProcedureFactory;
-import io.novaordis.utilities.UserErrorException;
-import io.novaordis.utilities.help.InLineHelp;
+import io.novaordis.events.processing.Procedure;
+import org.junit.Test;
+
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 7/31/17
+ * @since 8/7/17
  */
-
-public class Main {
+public class CSVProcedureFactoryTest {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
-    public static final String APPLICATION_NAME = "csv";
-
     // Static ----------------------------------------------------------------------------------------------------------
-
-    public static void main(String[] args) throws Exception {
-
-        try {
-
-            CSVProcedureFactory f = new CSVProcedureFactory();
-            EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, f);
-
-            if (runtime.getConfiguration().isHelp()) {
-
-                displayHelpAndExit();
-                return;
-            }
-
-            runtime.run();
-
-        }
-        catch(UserErrorException e) {
-
-            System.err.println(e.getMessage());
-        }
-    }
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
@@ -62,18 +39,23 @@ public class Main {
 
     // Public ----------------------------------------------------------------------------------------------------------
 
+    // Tests -----------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void find_NoSuchProcedure() throws Exception {
+
+        CSVProcedureFactory f = new CSVProcedureFactory();
+
+        Procedure p = f.find("I-am-sure-there-is-no-such-procedure", 0, new ArrayList<>());
+
+        assertNull(p);
+    }
+
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
 
     // Private ---------------------------------------------------------------------------------------------------------
-
-    private static void displayHelpAndExit() throws UserErrorException {
-
-        String content = InLineHelp.get();
-
-        System.err.print(content);
-    }
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 

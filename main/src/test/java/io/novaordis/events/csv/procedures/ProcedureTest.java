@@ -14,47 +14,20 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.cli;
+package io.novaordis.events.csv.procedures;
 
-import io.novaordis.events.cli.EventParserRuntime;
-import io.novaordis.events.csv.procedures.CSVProcedureFactory;
-import io.novaordis.utilities.UserErrorException;
-import io.novaordis.utilities.help.InLineHelp;
+import io.novaordis.events.processing.Procedure;
+import org.junit.Test;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 7/31/17
+ * @since 8/7/17
  */
-
-public class Main {
+public abstract class ProcedureTest {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
-    public static final String APPLICATION_NAME = "csv";
-
     // Static ----------------------------------------------------------------------------------------------------------
-
-    public static void main(String[] args) throws Exception {
-
-        try {
-
-            CSVProcedureFactory f = new CSVProcedureFactory();
-            EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, f);
-
-            if (runtime.getConfiguration().isHelp()) {
-
-                displayHelpAndExit();
-                return;
-            }
-
-            runtime.run();
-
-        }
-        catch(UserErrorException e) {
-
-            System.err.println(e.getMessage());
-        }
-    }
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
@@ -62,18 +35,22 @@ public class Main {
 
     // Public ----------------------------------------------------------------------------------------------------------
 
+    // Tests -----------------------------------------------------------------------------------------------------------
+
+    /**
+     * Each implementation must make sure it is built by ProcedureFactory.find().
+     */
+    @Test
+    public abstract void procedureFactoryFind() throws Exception;
+
+
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
 
+    protected abstract Procedure getProcedureToTest() throws Exception;
+
     // Private ---------------------------------------------------------------------------------------------------------
-
-    private static void displayHelpAndExit() throws UserErrorException {
-
-        String content = InLineHelp.get();
-
-        System.err.print(content);
-    }
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 

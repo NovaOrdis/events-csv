@@ -14,51 +14,54 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.cli;
+package io.novaordis.events.csv.procedures.headers;
 
-import io.novaordis.events.cli.EventParserRuntime;
-import io.novaordis.events.csv.procedures.CSVProcedureFactory;
-import io.novaordis.utilities.UserErrorException;
-import io.novaordis.utilities.help.InLineHelp;
+import io.novaordis.events.api.event.Event;
+import io.novaordis.events.processing.EventProcessingException;
+import io.novaordis.events.processing.Procedure;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 7/31/17
+ * @since 8/7/17
  */
-
-public class Main {
+public class Headers implements Procedure {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
-    public static final String APPLICATION_NAME = "csv";
+    public static final String COMMAND_LINE_LABEL = "headers";
 
     // Static ----------------------------------------------------------------------------------------------------------
-
-    public static void main(String[] args) throws Exception {
-
-        try {
-
-            CSVProcedureFactory f = new CSVProcedureFactory();
-            EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, f);
-
-            if (runtime.getConfiguration().isHelp()) {
-
-                displayHelpAndExit();
-                return;
-            }
-
-            runtime.run();
-
-        }
-        catch(UserErrorException e) {
-
-            System.err.println(e.getMessage());
-        }
-    }
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
     // Constructors ----------------------------------------------------------------------------------------------------
+
+    // Procedure implementation ----------------------------------------------------------------------------------------
+
+    @Override
+    public List<String> getCommandLineLabels() {
+
+        return Collections.singletonList(COMMAND_LINE_LABEL);
+    }
+
+    @Override
+    public void process(Event in) throws EventProcessingException {
+        throw new RuntimeException("process() NOT YET IMPLEMENTED");
+    }
+
+    @Override
+    public void process(List<Event> in) throws EventProcessingException {
+        throw new RuntimeException("process() NOT YET IMPLEMENTED");
+    }
+
+    @Override
+    public long getInvocationCount() {
+        throw new RuntimeException("getInvocationCount() NOT YET IMPLEMENTED");
+    }
+
 
     // Public ----------------------------------------------------------------------------------------------------------
 
@@ -67,13 +70,6 @@ public class Main {
     // Protected -------------------------------------------------------------------------------------------------------
 
     // Private ---------------------------------------------------------------------------------------------------------
-
-    private static void displayHelpAndExit() throws UserErrorException {
-
-        String content = InLineHelp.get();
-
-        System.err.print(content);
-    }
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 
