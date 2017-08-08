@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * The default implementation displays the first header (^ *#.+) encountered in the stream.
+ *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/7/17
  */

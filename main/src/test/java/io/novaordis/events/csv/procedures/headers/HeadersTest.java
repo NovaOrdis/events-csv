@@ -16,13 +16,19 @@
 
 package io.novaordis.events.csv.procedures.headers;
 
+import io.novaordis.events.api.event.Event;
+import io.novaordis.events.api.event.GenericEvent;
+import io.novaordis.events.api.event.GenericTimedEvent;
 import io.novaordis.events.csv.procedures.CSVProcedureFactory;
 import io.novaordis.events.csv.procedures.ProcedureTest;
+import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -44,6 +50,7 @@ public class HeadersTest extends ProcedureTest {
 
     // Overrides -------------------------------------------------------------------------------------------------------
 
+    @Test
     @Override
     public void procedureFactoryFind() throws Exception {
 
@@ -67,6 +74,46 @@ public class HeadersTest extends ProcedureTest {
     }
 
     // Tests -----------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void process_NonHeaderGoesThrough() throws Exception {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        Headers h = new Headers(baos);
+
+        h.process(new GenericEvent());
+
+        assertEquals(0, baos.toByteArray().length);
+
+        assertFalse(h.isExitLoop());
+    }
+
+    @Test
+    public void process_HeaderGeneratesOutputAndBreaksTheLoop() throws Exception {
+
+        String header = "# timestamp, A, B, C";
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        Headers h = new Headers(baos);
+
+        //Event e = new CSVHeader();
+
+        Event e = new GenericTimedEvent();
+
+        h.process(e);
+
+        String expected =
+                "1: timestamp\n" +
+                        "2: A\n" +
+                        "3: C\n" +
+                        "4: D\n";
+
+        assertEquals(expected, new String(baos.toByteArray()));
+
+        assertTrue(h.isExitLoop());
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 
