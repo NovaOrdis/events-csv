@@ -19,15 +19,17 @@ package io.novaordis.events.csv.procedures.headers;
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.Procedure;
+import io.novaordis.events.processing.ProcedureBase;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/7/17
  */
-public class Headers implements Procedure {
+public class Headers extends ProcedureBase {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -47,21 +49,14 @@ public class Headers implements Procedure {
         return Collections.singletonList(COMMAND_LINE_LABEL);
     }
 
+    // ProcedureBase overrides -----------------------------------------------------------------------------------------
+
     @Override
-    public void process(Event in) throws EventProcessingException {
+    protected void process(AtomicLong invocationCount, Event e) throws EventProcessingException {
+
         throw new RuntimeException("process() NOT YET IMPLEMENTED");
-    }
 
-    @Override
-    public void process(List<Event> in) throws EventProcessingException {
-        throw new RuntimeException("process() NOT YET IMPLEMENTED");
     }
-
-    @Override
-    public long getInvocationCount() {
-        throw new RuntimeException("getInvocationCount() NOT YET IMPLEMENTED");
-    }
-
 
     // Public ----------------------------------------------------------------------------------------------------------
 
