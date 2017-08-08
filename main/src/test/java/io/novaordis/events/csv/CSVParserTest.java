@@ -196,7 +196,11 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("a, b, c");
 
-        GenericEvent event = (GenericEvent)parser.parse(7L, "A, B, C");
+        List<Event> result = parser.parse(7L, "A, B, C");
+        assertEquals(1, result.size());
+
+        GenericEvent event = (GenericEvent)result.get(0);
+
         assertNotNull(event);
 
         List<Property> properties = event.getPropertyList();
@@ -225,7 +229,11 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("a, b, c");
 
-        GenericEvent event = (GenericEvent)parser.parse(7L, "A, B, C, D");
+        List<Event> result = parser.parse(7L, "A, B, C, D");
+        assertEquals(1, result.size());
+
+        GenericEvent event = (GenericEvent)result.get(0);
+
         assertNotNull(event);
 
         List<Property> properties = event.getPropertyList();
@@ -254,7 +262,10 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("a, b, c");
 
-        GenericEvent event = (GenericEvent)parser.parse(1L, "A, B");
+        List<Event> result = parser.parse(1L, "A, B");
+        assertEquals(1, result.size());
+
+        GenericEvent event = (GenericEvent)result.get(0);
         assertNotNull(event);
 
         List<Property> properties = event.getPropertyList();
@@ -279,7 +290,10 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("brand(string), count(int)");
 
-        GenericEvent event = (GenericEvent)parser.parse(5L, "Audi, 5");
+        List<Event> result = parser.parse(5L, "Audi, 5");
+        assertEquals(1, result.size());
+
+        GenericEvent event = (GenericEvent)result.get(0);
 
         assertNotNull(event);
 
@@ -305,7 +319,10 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("T(time:MMM-dd yyyy HH:mm:ss), brand(string), count(int)");
 
-        GenericTimedEvent event = (GenericTimedEvent)parser.parse(1L, "Jan-01 2016 12:01:01, BMW, 7");
+        List<Event> result = parser.parse(1L, "Jan-01 2016 12:01:01, BMW, 7");
+        assertEquals(1, result.size());
+
+        GenericTimedEvent event = (GenericTimedEvent)result.get(0);
         assertNotNull(event);
 
         Long timestamp = event.getTime();
@@ -334,7 +351,10 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("brand(string), T(time:MMM-dd yyyy HH:mm:ss), count(int)");
 
-        GenericTimedEvent event = (GenericTimedEvent)parser.parse(1L, "BMW, Jan-01 2016 12:01:01, 7");
+        List<Event> result = parser.parse(1L, "BMW, Jan-01 2016 12:01:01, 7");
+        assertEquals(1, result.size());
+
+        GenericTimedEvent event = (GenericTimedEvent)result.get(0);
         assertNotNull(event);
 
         Long timestamp = event.getTime();
@@ -365,7 +385,10 @@ public class CSVParserTest {
 
         String line = "something, \"something, else\"";
 
-        GenericEvent e = (GenericEvent)parser.parse(77L, line);
+        List<Event> result = parser.parse(77L, line);
+        assertEquals(1, result.size());
+
+        GenericEvent e = (GenericEvent)result.get(0);
 
         List<Property> props = e.getPropertyList();
 
@@ -388,7 +411,10 @@ public class CSVParserTest {
 
         String line = "\"blah\", \"blah blah\"";
 
-        GenericEvent e = (GenericEvent)parser.parse(77L, line);
+        List<Event> result = parser.parse(77L, line);
+        assertEquals(1, result.size());
+
+        GenericEvent e = (GenericEvent)result.get(0);
 
         List<Property> props = e.getPropertyList();
 
@@ -402,6 +428,16 @@ public class CSVParserTest {
 
         StringProperty p3 = (StringProperty)props.get(2);
         assertEquals("blah blah", p3.getString());
+    }
+
+    // close() ---------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void close() throws Exception {
+
+        CSVParser parser = new CSVParser("a, b, c");
+        List<Event> result = parser.close(1L);
+        assertTrue(result.isEmpty());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

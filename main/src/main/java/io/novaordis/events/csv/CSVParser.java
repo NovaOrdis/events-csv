@@ -21,12 +21,14 @@ import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.GenericTimedEvent;
 import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
+import io.novaordis.events.api.parser.ParserBase;
 import io.novaordis.events.api.parser.ParsingException;
 import io.novaordis.utilities.time.Timestamp;
 import io.novaordis.utilities.time.TimestampImpl;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -35,7 +37,7 @@ import java.util.StringTokenizer;
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 2/6/16
  */
-public class CSVParser {
+public class CSVParser extends ParserBase {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -61,7 +63,18 @@ public class CSVParser {
     // Constructors ----------------------------------------------------------------------------------------------------
 
     /**
-     * @param formatSpecification: a CSVFormat specification.
+     * A CSV parser that relies on instrospection and not on an externally specified format.
+     *
+     * @throws IllegalArgumentException
+     * @throws CSVFormatException
+     */
+    public CSVParser() throws IllegalArgumentException, CSVFormatException {
+
+        this(null);
+    }
+
+    /**
+     * @param formatSpecification: a CSVFormat specification. May be null.
      *
      * @throws IllegalArgumentException if the given format specification cannot be used to build a CSV format.
      *
@@ -100,10 +113,26 @@ public class CSVParser {
         return csvFormat;
     }
 
-    /**
-     * @param lineNumber may be null, in case the line number information is not available.
-     */
-    public Event parse(Long lineNumber, String line) throws ParsingException {
+    @Override
+    public String toString() {
+
+        return "CSVParser[format: " + csvFormat + "]";
+    }
+
+    // Package protected -----------------------------------------------------------------------------------------------
+
+    List<CSVField> getHeaders() {
+        return headers;
+    }
+
+    int getTimestampFieldIndex() {
+        return timestampFieldIndex;
+    }
+
+    // Protected -------------------------------------------------------------------------------------------------------
+
+    @Override
+    protected List<Event> parse(long lineNumber, String line) throws ParsingException {
 
         //
         // we ignore empty lines
@@ -200,26 +229,19 @@ public class CSVParser {
             headerIndex ++;
         }
 
-        return event;
+        return Collections.singletonList(event);
+
     }
 
     @Override
-    public String toString() {
+    protected List<Event> close(long lineNumber) throws ParsingException {
 
-        return "CSVParser[format: " + csvFormat + "]";
+        //
+        // since we are strictly line-based, there's nothing to close
+        //
+
+        return Collections.emptyList();
     }
-
-    // Package protected -----------------------------------------------------------------------------------------------
-
-    List<CSVField> getHeaders() {
-        return headers;
-    }
-
-    int getTimestampFieldIndex() {
-        return timestampFieldIndex;
-    }
-
-    // Protected -------------------------------------------------------------------------------------------------------
 
     // Private ---------------------------------------------------------------------------------------------------------
 

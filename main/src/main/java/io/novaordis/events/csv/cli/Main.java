@@ -17,6 +17,7 @@
 package io.novaordis.events.csv.cli;
 
 import io.novaordis.events.cli.EventParserRuntime;
+import io.novaordis.events.csv.CSVParser;
 import io.novaordis.events.csv.procedures.CSVProcedureFactory;
 import io.novaordis.utilities.UserErrorException;
 import io.novaordis.utilities.help.InLineHelp;
@@ -38,8 +39,9 @@ public class Main {
 
         try {
 
-            CSVProcedureFactory f = new CSVProcedureFactory();
-            EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, f);
+            CSVParser parser = new CSVParser();
+            CSVProcedureFactory procedureFactory = new CSVProcedureFactory();
+            EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, procedureFactory, parser);
 
             if (runtime.getConfiguration().isHelp()) {
 
