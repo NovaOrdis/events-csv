@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv;
+package io.novaordis.events.csv.event.field;
 
 import io.novaordis.events.api.event.DateProperty;
 import io.novaordis.events.api.event.DoubleProperty;

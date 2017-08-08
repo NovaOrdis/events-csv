@@ -23,7 +23,7 @@ import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.parser.ParserBase;
 import io.novaordis.events.api.parser.ParsingException;
-import io.novaordis.events.csv.CSVField;
+import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.CSVFormat;
 import io.novaordis.events.csv.CSVFormatException;
 import io.novaordis.utilities.time.Timestamp;

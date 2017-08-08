@@ -19,6 +19,7 @@ package io.novaordis.events.csv.procedures.headers;
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.GenericTimedEvent;
+import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.csv.procedures.CSVProcedureFactory;
 import io.novaordis.events.csv.procedures.ProcedureTest;
 import org.junit.Test;
@@ -98,9 +99,10 @@ public class HeadersTest extends ProcedureTest {
 
         Headers h = new Headers(baos);
 
-        //Event e = new CSVHeader();
+        CSVHeaders e = new CSVHeaders();
 
-        Event e = new GenericTimedEvent();
+
+
 
         h.process(e);
 

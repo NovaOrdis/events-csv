@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv;
+package io.novaordis.events.csv.event.field;
 
 import io.novaordis.events.api.event.FloatProperty;
 import io.novaordis.events.api.metric.MockAddress;
+import io.novaordis.events.csv.MockMetricDefinition;
+import io.novaordis.events.csv.event.field.CSVFieldTest;
+import io.novaordis.events.csv.event.field.MetricDefinitionBasedCSVField;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

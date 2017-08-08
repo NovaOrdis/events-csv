@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv;
+package io.novaordis.events.csv.event.field;
 
-import io.novaordis.events.api.event.Property;
-import io.novaordis.events.api.metric.MetricDefinition;
-import io.novaordis.events.api.metric.MetricException;
-
-import java.text.Format;
+import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.csv.event.field.CSVFieldImpl;
 
 /**
+ * A timestamp CSV field.
+ *
+ * The name is conventionally use TimedEvent.TIMESTAMP_PROPERTY_NAME and the type is Long.
+ *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 6/20/17
+ * @since 2/6/16
  */
-public class MetricDefinitionBasedCSVField implements CSVField {
+public class TimestampCSVField extends CSVFieldImpl {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -34,76 +35,26 @@ public class MetricDefinitionBasedCSVField implements CSVField {
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
-    private MetricDefinition metricDefinition;
-
     // Constructors ----------------------------------------------------------------------------------------------------
 
-    public MetricDefinitionBasedCSVField(MetricDefinition md) {
+    public TimestampCSVField() {
 
-        if (md == null) {
-
-            throw new IllegalArgumentException("null metric definition");
-        }
-
-        this.metricDefinition = md;
+        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class);
     }
 
-    // CSVField implementation -----------------------------------------------------------------------------------------
+    public TimestampCSVField(String name) {
 
-    @Override
-    public String getName() {
-
-        return metricDefinition.getId();
-    }
-
-    @Override
-    public Class getType() {
-
-        return metricDefinition.getType();
-    }
-
-    @Override
-    public Format getFormat() {
-
-        //
-        // TODO shouldn't MetricDefinition maintain a format?
-        //
-
-        return null;
-    }
-
-    @Override
-    public Property toProperty(String s) throws IllegalArgumentException {
-
-        try {
-
-            return metricDefinition.buildProperty(s);
-        }
-        catch(MetricException e) {
-
-            throw new IllegalArgumentException(e);
-        }
+        super(Long.class);
+        setName(name);
     }
 
     @Override
     public boolean isTimestamp() {
 
-        return false;
+        return true;
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
-
-    public MetricDefinition getMetricDefinition() {
-
-        return metricDefinition;
-    }
-
-    @Override
-    public String toString() {
-
-        return "CSV Field (" + metricDefinition + ")";
-    }
-
 
     // Package protected -----------------------------------------------------------------------------------------------
 

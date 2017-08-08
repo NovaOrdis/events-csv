@@ -23,6 +23,8 @@ import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.metric.MetricDefinition;
 import io.novaordis.events.api.parser.ParsingException;
+import io.novaordis.events.csv.event.field.CSVField;
+import io.novaordis.events.csv.event.field.MetricDefinitionBasedCSVField;
 import io.novaordis.utilities.time.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

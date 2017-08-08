@@ -14,28 +14,21 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv;
+package io.novaordis.events.csv.event.field;
 
-import io.novaordis.events.api.event.DateProperty;
-import io.novaordis.events.api.event.DoubleProperty;
-import io.novaordis.events.api.event.FloatProperty;
-import io.novaordis.events.api.event.IntegerProperty;
-import io.novaordis.events.api.event.LongProperty;
-import io.novaordis.events.api.event.StringProperty;
+import io.novaordis.events.csv.event.field.CSVFieldTest;
+import io.novaordis.events.csv.event.field.TimestampCSVField;
 import org.junit.Test;
 
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 6/20/17
+ * @since 2/6/16
  */
-public abstract class CSVFieldTest {
+public class TimestampCSVFieldTest extends CSVFieldTest {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -47,109 +40,99 @@ public abstract class CSVFieldTest {
 
     // Public ----------------------------------------------------------------------------------------------------------
 
-    // Tests -----------------------------------------------------------------------------------------------------------
+    // Overrides -------------------------------------------------------------------------------------------------------
 
     @Test
+    @Override
     public void identity_NullType() throws Exception {
 
-        CSVField f = getCSVFieldToTest("something", null);
-
-        assertEquals("something", f.getName());
-        assertNull(f.getType());
-        assertNull(f.getFormat());
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
     }
 
     @Test
     public void identity() throws Exception {
 
-        CSVField f = getCSVFieldToTest("something", String.class);
+        TimestampCSVField f = new TimestampCSVField("something");
 
         assertEquals("something", f.getName());
-        assertEquals(String.class, f.getType());
+        assertEquals(Long.class, f.getType());
         assertNull(f.getFormat());
-        assertFalse(f.isTimestamp());
-
+        assertTrue(f.isTimestamp());
     }
 
-    // toProperty() ----------------------------------------------------------------------------------------------------
 
     @Test
+    @Override
     public void toProperty_Integer() throws Exception {
 
-        CSVField f = getCSVFieldToTest("something", Integer.class);
-
-        IntegerProperty p = (IntegerProperty)f.toProperty("7");
-
-        assertNotNull(p);
-
-        assertEquals(7, p.getInteger().intValue());
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
     }
 
     @Test
+    @Override
     public void toProperty_String() throws Exception {
 
-        CSVField f = getCSVFieldToTest("something", String.class);
-
-        StringProperty p = (StringProperty)f.toProperty("7");
-
-        assertNotNull(p);
-
-        assertEquals("7", p.getString());
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
     }
 
     @Test
+    @Override
     public void toProperty_Long() throws Exception {
 
-        CSVField f = getCSVFieldToTest("something", Long.class);
-
-        LongProperty p = (LongProperty)f.toProperty("7");
-
-        assertNotNull(p);
-
-        assertEquals(7L, p.getLong().longValue());
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
     }
 
     @Test
+    @Override
     public void toProperty_Float() throws Exception {
 
-        CSVField f = getCSVFieldToTest("something", Float.class);
-
-        FloatProperty p = (FloatProperty)f.toProperty("7");
-
-        assertNotNull(p);
-
-        assertEquals(7f, p.getFloat().floatValue(), 0.00001);
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
     }
 
     @Test
+    @Override
     public void toProperty_Double() throws Exception {
 
-        CSVField f = getCSVFieldToTest("something", Double.class);
-
-        DoubleProperty p = (DoubleProperty)f.toProperty("7");
-
-        assertNotNull(p);
-
-        assertEquals(7d, p.getDouble().doubleValue(), 0.00001);
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
     }
 
     @Test
+    @Override
     public void toProperty_Date() throws Exception {
 
-        CSVField f = getCSVFieldToTest("something", Date.class);
-
-        DateProperty p = (DateProperty)f.toProperty("7");
-
-        assertNotNull(p);
-
-        assertEquals(7L, p.getDate().getTime());
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
     }
+
+    // Tests -----------------------------------------------------------------------------------------------------------
 
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
 
-    protected abstract CSVField getCSVFieldToTest(String name, Class type) throws Exception;
+    @Override
+    protected TimestampCSVField getCSVFieldToTest(String name, Class type) throws Exception {
+
+        if (!Long.class.equals(type)) {
+
+            throw new RuntimeException("RETURN HERE, I am getting " + type);
+        }
+
+        return new TimestampCSVField(name);
+    }
 
     // Private ---------------------------------------------------------------------------------------------------------
 

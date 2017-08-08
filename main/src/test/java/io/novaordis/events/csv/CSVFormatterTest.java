@@ -23,6 +23,8 @@ import io.novaordis.events.api.event.GenericTimedEvent;
 import io.novaordis.events.api.event.MapProperty;
 import io.novaordis.events.api.event.MockProperty;
 import io.novaordis.events.api.metric.MockAddress;
+import io.novaordis.events.csv.event.field.CSVField;
+import io.novaordis.events.csv.event.field.CSVFieldFactory;
 import io.novaordis.utilities.time.Timestamp;
 import io.novaordis.utilities.time.TimestampImpl;
 import org.junit.Test;

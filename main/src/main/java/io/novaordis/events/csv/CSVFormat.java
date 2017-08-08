@@ -18,6 +18,11 @@ package io.novaordis.events.csv;
 
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.metric.MetricDefinition;
+import io.novaordis.events.csv.event.field.CSVField;
+import io.novaordis.events.csv.event.field.CSVFieldFactory;
+import io.novaordis.events.csv.event.field.CSVFieldImpl;
+import io.novaordis.events.csv.event.field.MetricDefinitionBasedCSVField;
+import io.novaordis.events.csv.event.field.TimestampCSVField;
 
 import java.util.ArrayList;
 import java.util.List;

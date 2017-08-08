@@ -18,6 +18,8 @@ package io.novaordis.events.csv;
 
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.metric.MockAddress;
+import io.novaordis.events.csv.event.field.CSVField;
+import io.novaordis.events.csv.event.field.CSVFieldFactory;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
