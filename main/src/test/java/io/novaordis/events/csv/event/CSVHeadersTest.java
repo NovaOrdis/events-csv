@@ -14,49 +14,17 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.cli;
-
-import io.novaordis.events.cli.EventParserRuntime;
-import io.novaordis.events.csv.event.CSVParser;
-import io.novaordis.events.csv.procedures.CSVProcedureFactory;
-import io.novaordis.utilities.UserErrorException;
-import io.novaordis.utilities.help.InLineHelp;
+package io.novaordis.events.csv.event;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 7/31/17
+ * @since 8/8/17
  */
-
-public class Main {
+public class CSVHeadersTest extends CSVEventTest {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
-    public static final String APPLICATION_NAME = "csv";
-
     // Static ----------------------------------------------------------------------------------------------------------
-
-    public static void main(String[] args) throws Exception {
-
-        try {
-
-            CSVParser parser = new CSVParser();
-            CSVProcedureFactory procedureFactory = new CSVProcedureFactory();
-            EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, procedureFactory, parser);
-
-            if (runtime.getConfiguration().isHelp()) {
-
-                displayHelpAndExit();
-                return;
-            }
-
-            runtime.run();
-
-        }
-        catch(UserErrorException e) {
-
-            System.err.println(e.getMessage());
-        }
-    }
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
@@ -64,18 +32,19 @@ public class Main {
 
     // Public ----------------------------------------------------------------------------------------------------------
 
+    // Tests -----------------------------------------------------------------------------------------------------------
+
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
 
-    // Private ---------------------------------------------------------------------------------------------------------
+    @Override
+    protected CSVHeaders getCSVEventToTest() throws Exception {
 
-    private static void displayHelpAndExit() throws UserErrorException {
-
-        String content = InLineHelp.get();
-
-        System.err.print(content);
+        return new CSVHeaders();
     }
+
+    // Private ---------------------------------------------------------------------------------------------------------
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 

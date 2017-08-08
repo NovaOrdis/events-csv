@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv;
+package io.novaordis.events.csv.event;
 
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
@@ -23,6 +23,9 @@ import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.parser.ParserBase;
 import io.novaordis.events.api.parser.ParsingException;
+import io.novaordis.events.csv.CSVField;
+import io.novaordis.events.csv.CSVFormat;
+import io.novaordis.events.csv.CSVFormatException;
 import io.novaordis.utilities.time.Timestamp;
 import io.novaordis.utilities.time.TimestampImpl;
 
@@ -34,6 +37,15 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
+ * A CSV parser.
+ *
+ * Works in two modes:
+ *
+ * 1. Introspection.
+ * 2. Format-driven.
+ *
+ * The parser can dynamically switch from introspection mode to format-driven mode if it encounters a header line.
+ *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 2/6/16
  */
@@ -138,6 +150,7 @@ public class CSVParser extends ParserBase {
         // we ignore empty lines
         //
         if (line == null || line.trim().length() == 0) {
+
             return null;
         }
 
