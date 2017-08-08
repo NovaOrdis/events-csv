@@ -20,7 +20,11 @@ import io.novaordis.events.api.event.Event;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.processing.ProcedureBase;
+import io.novaordis.events.processing.TextOutputProcedure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,9 +33,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/7/17
  */
-public class Headers extends ProcedureBase {
+public class Headers extends TextOutputProcedure {
 
     // Constants -------------------------------------------------------------------------------------------------------
+
+    private static final Logger log = LoggerFactory.getLogger(Headers.class);
 
     public static final String COMMAND_LINE_LABEL = "headers";
 
@@ -54,8 +60,19 @@ public class Headers extends ProcedureBase {
     @Override
     protected void process(AtomicLong invocationCount, Event e) throws EventProcessingException {
 
-        throw new RuntimeException("process() NOT YET IMPLEMENTED");
+        if (log.isDebugEnabled()) {
 
+            log.debug(this + " processing line " + invocationCount.get() + ": " + e);
+        }
+
+        try {
+            
+            println(invocationCount.get());
+        }
+        catch(IOException ioe) {
+
+            throw new EventProcessingException(ioe);
+        }
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
