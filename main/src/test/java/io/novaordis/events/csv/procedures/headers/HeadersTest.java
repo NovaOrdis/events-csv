@@ -24,6 +24,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
@@ -58,6 +59,11 @@ public class HeadersTest extends ProcedureTest {
         assertEquals("arg1", extraArguments.get(0));
         assertEquals("arg2", extraArguments.get(1));
         assertEquals("arg3", extraArguments.get(2));
+
+        //
+        // make sure the procedure is initialized
+        //
+        assertTrue(System.out.equals(h.getOutputStream()));
     }
 
     // Tests -----------------------------------------------------------------------------------------------------------
@@ -69,7 +75,7 @@ public class HeadersTest extends ProcedureTest {
     @Override
     protected Headers getProcedureToTest() throws Exception {
 
-        return new Headers();
+        return new Headers(System.out);
     }
 
     // Private ---------------------------------------------------------------------------------------------------------

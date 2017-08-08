@@ -47,7 +47,7 @@ public class CSVProcedureFactory implements ProcedureFactory {
 
         if (Headers.COMMAND_LINE_LABEL.equals(commandLineLabel)) {
 
-            return new Headers();
+            return new Headers(System.out);
         }
         else {
 

@@ -18,13 +18,12 @@ package io.novaordis.events.csv.procedures.headers;
 
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.processing.EventProcessingException;
-import io.novaordis.events.processing.Procedure;
-import io.novaordis.events.processing.ProcedureBase;
 import io.novaordis.events.processing.TextOutputProcedure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -47,6 +46,11 @@ public class Headers extends TextOutputProcedure {
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
+    public Headers(OutputStream os) {
+
+        super(os);
+    }
+
     // Procedure implementation ----------------------------------------------------------------------------------------
 
     @Override
@@ -66,7 +70,7 @@ public class Headers extends TextOutputProcedure {
         }
 
         try {
-            
+
             println(invocationCount.get());
         }
         catch(IOException ioe) {
