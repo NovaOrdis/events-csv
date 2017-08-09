@@ -17,7 +17,6 @@
 package io.novaordis.events.csv.event.field;
 
 import io.novaordis.events.api.event.TimedEvent;
-import io.novaordis.events.csv.event.field.CSVFieldImpl;
 
 /**
  * A timestamp CSV field.

@@ -16,8 +16,6 @@
 
 package io.novaordis.events.csv.event.field;
 
-import io.novaordis.events.csv.event.field.CSVFieldTest;
-import io.novaordis.events.csv.event.field.TimestampCSVField;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

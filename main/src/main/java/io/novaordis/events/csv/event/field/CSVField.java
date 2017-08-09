@@ -21,6 +21,8 @@ import io.novaordis.events.api.event.Property;
 import java.text.Format;
 
 /**
+ * A CSV field definition.
+ *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 6/20/17
  */

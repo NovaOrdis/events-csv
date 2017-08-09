@@ -16,6 +16,11 @@
 
 package io.novaordis.events.csv.event;
 
+import io.novaordis.events.api.parser.ParsingException;
+import io.novaordis.events.csv.event.field.CSVField;
+
+import java.util.List;
+
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
@@ -31,6 +36,21 @@ public class CSVHeaders extends CSVEvent {
     // Constructors ----------------------------------------------------------------------------------------------------
 
     // Public ----------------------------------------------------------------------------------------------------------
+
+    /**
+     * @return the header fields, in order.
+     */
+    public List<CSVField> getFields() {
+
+        throw new RuntimeException("NYE");
+    }
+
+    /**
+     * Initializes the event from the content of a comma-separated header line, *without* the leading comment.
+     */
+    public void load(String commaSeparatedHeaderLine) throws ParsingException {
+
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 

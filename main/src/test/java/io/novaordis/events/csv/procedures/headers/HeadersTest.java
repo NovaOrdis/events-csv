@@ -16,9 +16,7 @@
 
 package io.novaordis.events.csv.procedures.headers;
 
-import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
-import io.novaordis.events.api.event.GenericTimedEvent;
 import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.csv.procedures.CSVProcedureFactory;
 import io.novaordis.events.csv.procedures.ProcedureTest;
@@ -93,7 +91,7 @@ public class HeadersTest extends ProcedureTest {
     @Test
     public void process_HeaderGeneratesOutputAndBreaksTheLoop() throws Exception {
 
-        String header = "# timestamp, A, B, C";
+        String header = "timestamp, A, B, C";
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -101,8 +99,7 @@ public class HeadersTest extends ProcedureTest {
 
         CSVHeaders e = new CSVHeaders();
 
-
-
+        e.load(header);
 
         h.process(e);
 

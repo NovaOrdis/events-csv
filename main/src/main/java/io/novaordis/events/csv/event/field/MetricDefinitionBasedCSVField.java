@@ -19,7 +19,6 @@ package io.novaordis.events.csv.event.field;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.metric.MetricDefinition;
 import io.novaordis.events.api.metric.MetricException;
-import io.novaordis.events.csv.event.field.CSVField;
 
 import java.text.Format;
 

@@ -17,8 +17,6 @@
 package io.novaordis.events.csv.event.field;
 
 import io.novaordis.events.csv.CSVFormatException;
-import io.novaordis.events.csv.event.field.CSVField;
-import io.novaordis.events.csv.event.field.CSVFieldFactory;
 import org.junit.Test;
 
 import java.text.Format;
