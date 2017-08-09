@@ -16,15 +16,17 @@
 
 package io.novaordis.events.csv.event;
 
-import io.novaordis.events.api.event.GenericTimedEvent;
+import io.novaordis.events.api.event.Event;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
  */
-public class CSVEvent extends GenericTimedEvent {
+public interface CSVEvent extends Event {
 
     // Constants -------------------------------------------------------------------------------------------------------
+
+    public static final char SEPARATOR = ',';
 
     // Static ----------------------------------------------------------------------------------------------------------
 

@@ -99,7 +99,7 @@ public class HeadersTest extends ProcedureTest {
 
         CSVHeaders e = new CSVHeaders();
 
-        e.load(header);
+        e.load(7L, header);
 
         h.process(e);
 

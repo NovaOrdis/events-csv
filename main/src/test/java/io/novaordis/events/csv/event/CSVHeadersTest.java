@@ -16,6 +16,19 @@
 
 package io.novaordis.events.csv.event;
 
+import io.novaordis.events.api.event.Property;
+import io.novaordis.events.api.event.StringProperty;
+import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.api.parser.ParsingException;
+import org.junit.Test;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
@@ -33,6 +46,96 @@ public class CSVHeadersTest extends CSVEventTest {
     // Public ----------------------------------------------------------------------------------------------------------
 
     // Tests -----------------------------------------------------------------------------------------------------------
+
+    // load() ----------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void load() throws Exception {
+
+        CSVHeaders h = getCSVEventToTest();
+
+        h.load(7L, "timestamp, A, B");
+
+        List<Property> properties = h.getPropertyList();
+
+        assertEquals(3, properties.size());
+
+        StringProperty p = (StringProperty)properties.get(0);
+        assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "0", p.getName());
+        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, p.getString());
+
+        StringProperty p2 = (StringProperty)properties.get(1);
+        assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "1", p2.getName());
+        assertEquals("A", p2.getString());
+
+        StringProperty p3 = (StringProperty)properties.get(2);
+        assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "2", p3.getName());
+        assertEquals("B", p3.getString());
+    }
+
+    @Test
+    public void load_headerGaps() throws Exception {
+
+        CSVHeaders h = getCSVEventToTest();
+
+        try {
+
+            h.load(7L, "timestamp, , B");
+            fail("should have thrown exception");
+        }
+        catch (ParsingException e) {
+
+            assertEquals(7L, e.getLineNumber().longValue());
+            assertNull(e.getPositionInLine());
+            String msg = e.getMessage();
+            assertTrue(msg.contains("missing header"));
+        }
+    }
+
+    @Test
+    public void load_headerGaps2() throws Exception {
+
+        CSVHeaders h = getCSVEventToTest();
+
+        try {
+
+            h.load(7L, "timestamp, A, ");
+            fail("should have thrown exception");
+        }
+        catch (ParsingException e) {
+
+            assertEquals(7L, e.getLineNumber().longValue());
+            assertNull(e.getPositionInLine());
+            String msg = e.getMessage();
+            assertTrue(msg.contains("missing header"));
+        }
+    }
+
+    @Test
+    public void load_NoTimestamp() throws Exception {
+
+        CSVHeaders h = getCSVEventToTest();
+
+        // we accept CSV lines with no timestamp
+
+        h.load(7L, "A, B, C");
+
+        List<Property> properties = h.getPropertyList();
+
+        assertEquals(3, properties.size());
+
+        StringProperty p = (StringProperty)properties.get(0);
+        assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "0", p.getName());
+        assertEquals("A", p.getString());
+
+        StringProperty p2 = (StringProperty)properties.get(1);
+        assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "1", p2.getName());
+        assertEquals("B", p2.getString());
+
+        StringProperty p3 = (StringProperty)properties.get(2);
+        assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "2", p3.getName());
+        assertEquals("C", p3.getString());
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 

@@ -16,11 +16,13 @@
 
 package io.novaordis.events.csv.event;
 
+import io.novaordis.events.api.event.GenericTimedEvent;
+
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
  */
-public class CSVLine extends CSVEvent {
+public class CSVLine extends GenericTimedEvent implements CSVEvent {
 
     // Constants -------------------------------------------------------------------------------------------------------
 

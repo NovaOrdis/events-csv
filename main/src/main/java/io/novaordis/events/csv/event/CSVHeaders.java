@@ -16,6 +16,8 @@
 
 package io.novaordis.events.csv.event;
 
+import io.novaordis.events.api.event.GenericEvent;
+import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.parser.ParsingException;
 import io.novaordis.events.csv.event.field.CSVField;
 
@@ -25,9 +27,11 @@ import java.util.List;
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
  */
-public class CSVHeaders extends CSVEvent {
+public class CSVHeaders extends GenericEvent implements CSVEvent {
 
     // Constants -------------------------------------------------------------------------------------------------------
+
+    public static final String HEADER_NAME_PREFIX = "header_";
 
     // Static ----------------------------------------------------------------------------------------------------------
 
@@ -46,10 +50,32 @@ public class CSVHeaders extends CSVEvent {
     }
 
     /**
-     * Initializes the event from the content of a comma-separated header line, *without* the leading comment.
+     * Initializes the event from the content of a comma-separated header line. The header line must be stripped off of
+     * its leading comment by the upper layer.
      */
-    public void load(String commaSeparatedHeaderLine) throws ParsingException {
+    public void load(Long lineNumber, String commaSeparatedHeaderLine) throws ParsingException {
 
+        List<String> tokens = CSVTokenizer.split(lineNumber, commaSeparatedHeaderLine, SEPARATOR);
+
+        int index = 0;
+
+        for(String token: tokens) {
+
+            if (token == null) {
+
+                throw new ParsingException("missing header", lineNumber);
+            }
+            else if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(token)) {
+
+                setStringProperty(HEADER_NAME_PREFIX + index, TimedEvent.TIMESTAMP_PROPERTY_NAME);
+            }
+            else {
+
+                setStringProperty(HEADER_NAME_PREFIX + index, token);
+            }
+
+            index ++;
+        }
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
