@@ -56,7 +56,7 @@ public class CSVHeadersTest extends CSVEventTest {
 
         h.load(7L, "timestamp, A, B");
 
-        List<Property> properties = h.getPropertyList();
+        List<Property> properties = h.getProperties();
 
         assertEquals(3, properties.size());
 
@@ -120,7 +120,7 @@ public class CSVHeadersTest extends CSVEventTest {
 
         h.load(7L, "A, B, C");
 
-        List<Property> properties = h.getPropertyList();
+        List<Property> properties = h.getProperties();
 
         assertEquals(3, properties.size());
 

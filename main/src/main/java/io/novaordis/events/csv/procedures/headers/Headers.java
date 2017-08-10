@@ -17,6 +17,7 @@
 package io.novaordis.events.csv.procedures.headers;
 
 import io.novaordis.events.api.event.Event;
+import io.novaordis.events.api.event.Property;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.TextOutputProcedure;
 import org.slf4j.Logger;
@@ -71,9 +72,15 @@ public class Headers extends TextOutputProcedure {
             log.debug(this + " processing line " + invocationCount.get() + ": " + e);
         }
 
+        int index = 1;
+
         try {
 
-            println(invocationCount.get());
+            for (Property p : e.getProperties()) {
+
+                String line = (index++) + ": " + p.getValue();
+                println(line);
+            }
         }
         catch(IOException ioe) {
 

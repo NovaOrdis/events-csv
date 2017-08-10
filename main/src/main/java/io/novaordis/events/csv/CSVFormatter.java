@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Instances of this class convert events into comma-separated value lines containing event's properties values, usually
@@ -432,7 +431,7 @@ public class CSVFormatter {
 
         String s = "";
 
-        Set<Property> properties = event.getProperties();
+        List<Property> properties = event.getProperties();
         List <Property> orderedProperties = new ArrayList<>(properties);
         Collections.sort(orderedProperties);
 
@@ -517,7 +516,7 @@ public class CSVFormatter {
 
         String s = "# ";
 
-        Set<Property> properties = event.getProperties();
+        List<Property> properties = event.getProperties();
         List <Property> orderedProperties = new ArrayList<>(properties);
         Collections.sort(orderedProperties);
 

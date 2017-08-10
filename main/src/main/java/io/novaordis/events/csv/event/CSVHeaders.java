@@ -17,10 +17,12 @@
 package io.novaordis.events.csv.event;
 
 import io.novaordis.events.api.event.GenericEvent;
+import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.parser.ParsingException;
 import io.novaordis.events.csv.event.field.CSVField;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -76,6 +78,28 @@ public class CSVHeaders extends GenericEvent implements CSVEvent {
 
             index ++;
         }
+    }
+
+    @Override
+    public String toString() {
+
+        List<Property> properties = getProperties();
+
+        String s = "";
+
+        for(Iterator<Property> i = properties.iterator(); i.hasNext(); ) {
+
+            Property p = i.next();
+
+            s += p.getValue();
+
+            if (i.hasNext()) {
+
+                s += ", ";
+            }
+        }
+
+        return s;
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

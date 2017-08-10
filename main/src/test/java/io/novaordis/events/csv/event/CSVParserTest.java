@@ -206,7 +206,7 @@ public class CSVParserTest {
 
         assertNotNull(event);
 
-        List<Property> properties = event.getPropertyList();
+        List<Property> properties = event.getProperties();
 
         assertEquals(4, properties.size());
 
@@ -239,7 +239,7 @@ public class CSVParserTest {
 
         assertNotNull(event);
 
-        List<Property> properties = event.getPropertyList();
+        List<Property> properties = event.getProperties();
 
         assertEquals(4, properties.size());
 
@@ -271,7 +271,7 @@ public class CSVParserTest {
         GenericEvent event = (GenericEvent)result.get(0);
         assertNotNull(event);
 
-        List<Property> properties = event.getPropertyList();
+        List<Property> properties = event.getProperties();
 
         assertEquals(3, properties.size());
 
@@ -300,7 +300,7 @@ public class CSVParserTest {
 
         assertNotNull(event);
 
-        List<Property> properties = event.getPropertyList();
+        List<Property> properties = event.getProperties();
 
         assertEquals(3, properties.size());
 
@@ -332,7 +332,7 @@ public class CSVParserTest {
         assertEquals(timestamp.longValue(),
                 new SimpleDateFormat("yy/MM/dd HH:mm:ss").parse("16/01/01 12:01:01").getTime());
 
-        List<Property> properties = event.getPropertyList();
+        List<Property> properties = event.getProperties();
 
         assertEquals(3, properties.size());
 
@@ -364,7 +364,7 @@ public class CSVParserTest {
         assertEquals(timestamp.longValue(),
                 new SimpleDateFormat("yy/MM/dd HH:mm:ss").parse("16/01/01 12:01:01").getTime());
 
-        List<Property> properties = event.getPropertyList();
+        List<Property> properties = event.getProperties();
 
         assertEquals(3, properties.size());
 
@@ -393,7 +393,7 @@ public class CSVParserTest {
 
         GenericEvent e = (GenericEvent)result.get(0);
 
-        List<Property> props = e.getPropertyList();
+        List<Property> props = e.getProperties();
 
         assertEquals(3, props.size());
 
@@ -419,7 +419,7 @@ public class CSVParserTest {
 
         GenericEvent e = (GenericEvent)result.get(0);
 
-        List<Property> props = e.getPropertyList();
+        List<Property> props = e.getProperties();
 
         assertEquals(3, props.size());
 
