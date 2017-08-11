@@ -93,7 +93,7 @@ public class MockMetricDefinition extends MetricDefinitionBase {
     @Override
     public String toString() {
 
-        return "" + getId();
+        return "" + getMetricSourceAddress() + "." + getId();
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

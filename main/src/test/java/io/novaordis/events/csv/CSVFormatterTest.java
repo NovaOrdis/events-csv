@@ -25,6 +25,9 @@ import io.novaordis.events.api.event.MockProperty;
 import io.novaordis.events.api.metric.MockAddress;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.CSVFieldFactory;
+import io.novaordis.events.csv.event.field.MetricDefinitionBasedCSVField;
+import io.novaordis.utilities.address.Address;
+import io.novaordis.utilities.address.AddressImpl;
 import io.novaordis.utilities.time.Timestamp;
 import io.novaordis.utilities.time.TimestampImpl;
 import org.junit.Test;
@@ -40,6 +43,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
@@ -547,6 +551,166 @@ public class CSVFormatterTest {
         String header = CSVFormatter.outputFormatToHeader(format);
 
         assertEquals("# A, \"this.field.contains.dots.in.its.name\"", header);
+    }
+
+    // extractValueForMetricDefinitionBasedCSVField() ------------------------------------------------------------------
+
+    @Test
+    public void extractValueForMetricDefinitionBasedCSVField_NullEvent() throws Exception {
+
+        MetricDefinitionBasedCSVField f =
+                new MetricDefinitionBasedCSVField(new MockMetricDefinition(new AddressImpl("test")));
+
+        try {
+
+            CSVFormatter.extractValueForMetricDefinitionBasedCSVField(null, f);
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("null event"));
+        }
+    }
+
+    @Test
+    public void extractValueForMetricDefinitionBasedCSVField_NullField() throws Exception {
+
+        GenericTimedEvent e = new GenericTimedEvent();
+
+        try {
+
+            CSVFormatter.extractValueForMetricDefinitionBasedCSVField(e, null);
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException iae) {
+
+            String msg = iae.getMessage();
+            assertTrue(msg.contains("null CSV field"));
+        }
+    }
+
+    @Test
+    public void extractValueForMetricDefinitionBasedCSVField_NoEventPropertyForAddress() throws Exception {
+
+        Address a = new AddressImpl("address-1");
+        MockMetricDefinition mmd = new MockMetricDefinition(a, "does-not-matter");
+        MetricDefinitionBasedCSVField f = new MetricDefinitionBasedCSVField(mmd);
+
+        GenericTimedEvent e = new GenericTimedEvent();
+
+        //
+        // no event property corresponding to "address-1"
+        //
+
+        String addressLiteral = a.getLiteral();
+        assertNull(e.getProperty(addressLiteral));
+
+        String result = CSVFormatter.extractValueForMetricDefinitionBasedCSVField(e, f);
+        assertNull(result);
+    }
+
+    @Test
+    public void extractValueForMetricDefinitionBasedCSVField_NoSecondLevelPropertyForMetricID() throws Exception {
+
+        Address a = new AddressImpl("address-1");
+        MockMetricDefinition mmd = new MockMetricDefinition(a, "no-such-metric-id");
+        MetricDefinitionBasedCSVField f = new MetricDefinitionBasedCSVField(mmd);
+
+        GenericTimedEvent topLevelEvent = new GenericTimedEvent(1L);
+
+        //
+        // we load the top-level event with an event property that carries a second-level event. However, the
+        // second-level event has a property for "metric-1", but not "metric-2"
+        //
+
+        GenericTimedEvent secondLevelEvent = new GenericTimedEvent(2L);
+        secondLevelEvent.setStringProperty("metric-1", "something");
+
+        String addressLiteral = a.getLiteral();
+
+        topLevelEvent.setEventProperty(addressLiteral, secondLevelEvent);
+
+        String result = CSVFormatter.extractValueForMetricDefinitionBasedCSVField(topLevelEvent, f);
+
+        assertNull(result);
+    }
+
+    @Test
+    public void extractValueForMetricDefinitionBasedCSVField() throws Exception {
+
+        Address a = new AddressImpl("address-1");
+        MockMetricDefinition mmd = new MockMetricDefinition(a, "metric-1");
+        MetricDefinitionBasedCSVField f = new MetricDefinitionBasedCSVField(mmd);
+
+        GenericTimedEvent topLevelEvent = new GenericTimedEvent(1L);
+
+        GenericTimedEvent secondLevelEvent = new GenericTimedEvent(2L);
+        secondLevelEvent.setStringProperty("metric-1", "something");
+
+        String addressLiteral = a.getLiteral();
+
+        topLevelEvent.setEventProperty(addressLiteral, secondLevelEvent);
+
+        String result = CSVFormatter.extractValueForMetricDefinitionBasedCSVField(topLevelEvent, f);
+
+        assertEquals("something", result);
+    }
+
+    // extractValueForPropertyWithGivenName() --------------------------------------------------------------------------
+
+    @Test
+    public void extractValueForPropertyWithGivenName_NullEvent() throws Exception {
+
+        try {
+
+            CSVFormatter.extractValueForPropertyWithGivenName(null, "something");
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("null event"));
+        }
+    }
+
+    @Test
+    public void extractValueForPropertyWithGivenName_NullName() throws Exception {
+
+        GenericTimedEvent e = new GenericTimedEvent();
+
+        try {
+
+            CSVFormatter.extractValueForPropertyWithGivenName(e, null);
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException iae) {
+
+            String msg = iae.getMessage();
+            assertTrue(msg.contains("null property name"));
+        }
+    }
+
+    @Test
+    public void extractValueForPropertyWithGivenName_NoPropertyWithSuchName() throws Exception {
+
+        GenericTimedEvent e = new GenericTimedEvent();
+
+        String result = CSVFormatter.extractValueForPropertyWithGivenName(e, "no-such-name");
+
+        assertNull(result);
+    }
+
+    @Test
+    public void extractValueForPropertyWithGivenName() throws Exception {
+
+        GenericTimedEvent e = new GenericTimedEvent(1L);
+
+        e.setStringProperty("property-name-1", "something");
+
+        String result = CSVFormatter.extractValueForPropertyWithGivenName(e, "property-name-1");
+
+        assertEquals("something", result);
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

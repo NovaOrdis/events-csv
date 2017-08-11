@@ -17,8 +17,14 @@
 package io.novaordis.events.csv.event.field;
 
 import io.novaordis.events.api.event.FloatProperty;
+import io.novaordis.events.api.event.GenericTimedEvent;
+import io.novaordis.events.api.metric.MetricDefinition;
 import io.novaordis.events.api.metric.MockAddress;
+import io.novaordis.events.csv.CSVFormat;
+import io.novaordis.events.csv.CSVFormatter;
 import io.novaordis.events.csv.MockMetricDefinition;
+import io.novaordis.utilities.address.Address;
+import io.novaordis.utilities.address.AddressImpl;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -74,6 +80,40 @@ public class MetricDefinitionBasedCSVFieldTest extends CSVFieldTest {
         assertEquals(1.2f, fp.getFloat(), 0.00001);
 
         assertEquals(md, f.getMetricDefinition());
+    }
+
+    // format() --------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void csvFormatter_format() throws Exception {
+
+        //
+        // logically, we model "address-1.metric-1"
+        //
+
+        Address a = new AddressImpl("address-1");
+        MetricDefinition md = new MockMetricDefinition(a, "metric-1");
+        MetricDefinitionBasedCSVField mdbf = new MetricDefinitionBasedCSVField(md);
+
+        CSVFormat format = new CSVFormat();
+        format.addField(mdbf);
+
+        //
+        // two-level event hierarchy
+        //
+
+        GenericTimedEvent topLevelEvent = new GenericTimedEvent(1L);
+        GenericTimedEvent secondLevelEvent = new GenericTimedEvent(2L);
+        secondLevelEvent.setStringProperty("metric-1", "blah");
+
+        topLevelEvent.setEventProperty(a.getLiteral(), secondLevelEvent);
+
+        CSVFormatter formatter = new CSVFormatter();
+        formatter.setFormat(format);
+
+        String result = formatter.format(topLevelEvent);
+
+        assertEquals("blah\n", result);
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
