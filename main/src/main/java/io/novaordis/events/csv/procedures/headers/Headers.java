@@ -18,6 +18,7 @@ package io.novaordis.events.csv.procedures.headers;
 
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.Property;
+import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.TextOutputProcedure;
 import org.slf4j.Logger;
@@ -47,11 +48,15 @@ public class Headers extends TextOutputProcedure {
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
+    private boolean exitLoop;
+
     // Constructors ----------------------------------------------------------------------------------------------------
 
     public Headers(OutputStream os) {
 
         super(os);
+
+        this.exitLoop = false;
     }
 
     // Procedure implementation ----------------------------------------------------------------------------------------
@@ -72,6 +77,16 @@ public class Headers extends TextOutputProcedure {
             log.debug(this + " processing line " + invocationCount.get() + ": " + e);
         }
 
+        if (!(e instanceof CSVHeaders)) {
+
+            //
+            // not a header line
+            //
+            return;
+        }
+
+        exitLoop = true;
+
         int index = 1;
 
         try {
@@ -86,6 +101,12 @@ public class Headers extends TextOutputProcedure {
 
             throw new EventProcessingException(ioe);
         }
+    }
+
+    @Override
+    public boolean isExitLoop() {
+
+        return exitLoop;
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
