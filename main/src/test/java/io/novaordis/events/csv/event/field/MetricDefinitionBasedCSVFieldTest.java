@@ -27,6 +27,10 @@ import io.novaordis.utilities.address.Address;
 import io.novaordis.utilities.address.AddressImpl;
 import org.junit.Test;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -47,6 +51,64 @@ public class MetricDefinitionBasedCSVFieldTest extends CSVFieldTest {
     // Constructors ----------------------------------------------------------------------------------------------------
 
     // Public ----------------------------------------------------------------------------------------------------------
+
+    // Overrides -------------------------------------------------------------------------------------------------------
+
+    @Test
+    @Override
+    public void toSpecification_String() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", String.class);
+        assertEquals("mock://mock-host:1000/test(string)", f.getSpecification());
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Integer() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Integer.class);
+        assertEquals("mock://mock-host:1000/test(int)", f.getSpecification());
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Long() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Long.class);
+        assertEquals("mock://mock-host:1000/test(long)", f.getSpecification());
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Float() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Float.class);
+        assertEquals("mock://mock-host:1000/test(float)", f.getSpecification());
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Double() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Double.class);
+        assertEquals("mock://mock-host:1000/test(double)", f.getSpecification());
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Time() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Date.class);
+        assertEquals("mock://mock-host:1000/test(time)", f.getSpecification());
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Time_Format() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Date.class, new SimpleDateFormat("yy/MM/dd"));
+        assertEquals("mock://mock-host:1000/test(time:yy/MM/dd)", f.getSpecification());
+    }
 
     // Tests -----------------------------------------------------------------------------------------------------------
 
@@ -121,11 +183,11 @@ public class MetricDefinitionBasedCSVFieldTest extends CSVFieldTest {
     // Protected -------------------------------------------------------------------------------------------------------
 
     @Override
-    protected MetricDefinitionBasedCSVField   getCSVFieldToTest(String name, Class type) throws Exception {
+    protected MetricDefinitionBasedCSVField getCSVFieldToTest(String name, Class type, Format format) throws Exception {
 
         MockAddress ma = new MockAddress("mock://mock-host:1000");
         MockMetricDefinition mmd = new MockMetricDefinition(ma, name, type);
-        return new MetricDefinitionBasedCSVField(mmd);
+        return new MetricDefinitionBasedCSVField(mmd, format);
     }
 
     // Private ---------------------------------------------------------------------------------------------------------

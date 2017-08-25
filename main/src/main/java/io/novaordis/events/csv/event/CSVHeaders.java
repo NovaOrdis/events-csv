@@ -20,12 +20,22 @@ import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.parser.ParsingException;
+import io.novaordis.events.csv.CSVFormatException;
 import io.novaordis.events.csv.event.field.CSVField;
+import io.novaordis.events.csv.event.field.CSVFieldFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 /**
+ * A non-timed event that signals a header change in an event stream generated from CSV text.
+ *
+ * The headers are maintained as StringProperty instances, whose names are indexed "header_" strings, and values are
+ * the string specification of the corresponding CSVField.
+ *
+ * For more details see https://kb.novaordis.com/index.php/Events-csv_Concepts#CSV_Field_Specification
+ *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
  */
@@ -41,20 +51,105 @@ public class CSVHeaders extends GenericEvent implements CSVEvent {
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
+    public CSVHeaders() {
+
+        this(null, null);
+    }
+
+    /**
+     * @param lineNumber may be null.
+     *
+     * @param csvFields may be null.
+     */
+    public CSVHeaders(Long lineNumber, List<CSVField> csvFields) {
+
+        super(lineNumber);
+
+        if (csvFields != null) {
+
+            setCSVFields(csvFields);
+        }
+    }
+
     // Public ----------------------------------------------------------------------------------------------------------
 
     /**
+     * The implementation recreates the CSVFields from their internal representation and may throw an
+     * IllegalStateException if restoring the fields fails.
+     *
      * @return the header fields, in order.
+     *
+     * @exception IllegalStateException if restoration of the CSV fields from internal representation fails.
      */
-    public List<CSVField> getFields() {
+    public List<CSVField> getFields() throws IllegalStateException {
 
-        throw new RuntimeException("NYE");
+        //
+        // recreate the CSVField instances from the property content
+        //
+
+        List<CSVField> result = new ArrayList<>();
+
+        List<Property> properties = getProperties();
+
+        int nextIndex = 0;
+
+        for(Property p: properties) {
+
+            String name = p.getName();
+
+            if (name.startsWith(HEADER_NAME_PREFIX)) {
+
+                String index = name.substring(HEADER_NAME_PREFIX.length());
+
+                int i;
+
+                try {
+
+                    i = Integer.parseInt(index);
+                }
+                catch(Exception e) {
+
+                    throw new IllegalStateException("invalid header property name: " + name);
+                }
+
+                if (nextIndex != i) {
+
+                    throw new IllegalStateException("CSV header out of sequence: " + name);
+                }
+
+                Object o = p.getValue();
+
+                if (o == null) {
+
+                    throw new IllegalStateException("null CSV header specification");
+                }
+
+                String csvFieldSpecification = o.toString();
+
+                try {
+
+                    CSVField f = CSVFieldFactory.fromSpecification(csvFieldSpecification);
+
+                    result.add(f);
+                }
+                catch(CSVFormatException e) {
+
+                    throw new IllegalStateException("invalid CSV header specification: " + csvFieldSpecification, e);
+                }
+
+                nextIndex ++;
+            }
+        }
+
+        return result;
     }
 
     /**
      * Initializes the event from the content of a comma-separated header line. The header line must be stripped off of
      * its leading comment by the upper layer.
      */
+    @Deprecated
+    // do we really need this? If yes, remove @Deprecated
     public void load(Long lineNumber, String commaSeparatedHeaderLine) throws ParsingException {
 
         List<String> tokens = CSVTokenizer.split(lineNumber, commaSeparatedHeaderLine, SEPARATOR);
@@ -65,7 +160,7 @@ public class CSVHeaders extends GenericEvent implements CSVEvent {
 
             if (token == null) {
 
-                throw new ParsingException("missing header", lineNumber);
+                throw new ParsingException(lineNumber, "missing header");
             }
             else if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(token)) {
 
@@ -84,6 +179,11 @@ public class CSVHeaders extends GenericEvent implements CSVEvent {
     public String toString() {
 
         List<Property> properties = getProperties();
+
+        if (properties == null) {
+
+            return "UNINITIALIZED";
+        }
 
         String s = "";
 
@@ -105,6 +205,19 @@ public class CSVHeaders extends GenericEvent implements CSVEvent {
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
+
+    void setCSVFields(List<CSVField> csvFields) {
+
+        int index = 0;
+
+        for (CSVField f : csvFields) {
+
+            String propertyName = HEADER_NAME_PREFIX + index;
+            String csvFieldSpecification = f.getSpecification();
+            setStringProperty(propertyName, csvFieldSpecification);
+            index++;
+        }
+    }
 
     // Private ---------------------------------------------------------------------------------------------------------
 

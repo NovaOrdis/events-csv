@@ -48,14 +48,14 @@ public class CSVFieldFactoryTest {
 
     // Tests -----------------------------------------------------------------------------------------------------------
 
-    // fromFieldSpecification() ----------------------------------------------------------------------------------------
+    // fromSpecification() ----------------------------------------------------------------------------------------
 
     @Test
     public void fromFieldSpecification_Null() throws Exception {
 
         try {
 
-            CSVFieldFactory.fromFieldSpecification(null);
+            CSVFieldFactory.fromSpecification(null);
             fail("should have thrown exception");
         }
         catch(IllegalArgumentException e) {
@@ -70,7 +70,7 @@ public class CSVFieldFactoryTest {
 
         try {
 
-            CSVFieldFactory.fromFieldSpecification("something something else) and more");
+            CSVFieldFactory.fromSpecification("something something else) and more");
             fail("should have thrown exception");
         }
         catch(CSVFormatException e) {
@@ -85,7 +85,7 @@ public class CSVFieldFactoryTest {
 
         try {
 
-            CSVFieldFactory.fromFieldSpecification("a)");
+            CSVFieldFactory.fromSpecification("a)");
             fail("should throw exception");
         }
         catch(CSVFormatException e) {
@@ -98,21 +98,39 @@ public class CSVFieldFactoryTest {
     @Test
     public void fromFieldSpecification_NoTypeInformation() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("something");
+        String specification = "something";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("something", f.getName());
         assertEquals(String.class, f.getType());
         assertFalse(f.isTimestamp());
+
+        String specification2 = f.getSpecification();
+
+        //
+        // adds canonical type info
+        //
+        assertEquals(specification + "(string)", specification2);
     }
 
     @Test
     public void fromFieldSpecification_NoTypeInformation_Timestamp() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("timestamp");
+        String specification = "timestamp";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("timestamp", f.getName());
         assertEquals(Long.class, f.getType());
         assertTrue(f.isTimestamp());
+
+        String specification2 = f.getSpecification();
+
+        //
+        // adds canonical type info
+        //
+        assertEquals(specification + "(time)", specification2);
     }
 
     @Test
@@ -120,7 +138,7 @@ public class CSVFieldFactoryTest {
 
         try {
 
-            CSVFieldFactory.fromFieldSpecification("something(blah)");
+            CSVFieldFactory.fromSpecification("something(blah)");
             fail("should have thrown exception");
         }
         catch(CSVFormatException e) {
@@ -134,86 +152,128 @@ public class CSVFieldFactoryTest {
     @Test
     public void fromFieldSpecification_TypeInformation_String() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("something(string)");
+        String specification = "something(string)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("something", f.getName());
         assertEquals(String.class, f.getType());
         assertFalse(f.isTimestamp());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
     public void fromFieldSpecification_TypeInformation_Integer() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("something(int)");
+        String specification = "something(int)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("something", f.getName());
         assertEquals(Integer.class, f.getType());
         assertFalse(f.isTimestamp());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
     public void fromFieldSpecification_TypeInformation_Long() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("something(long)");
+        String specification = "something(long)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("something", f.getName());
         assertEquals(Long.class, f.getType());
         assertFalse(f.isTimestamp());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
     public void fromFieldSpecification_TypeInformation_Float() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("something(float)");
+        String specification = "something(float)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("something", f.getName());
         assertEquals(Float.class, f.getType());
         assertFalse(f.isTimestamp());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
     public void fromFieldSpecification_TypeInformation_Double() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("something(double)");
+        String specification = "something(double)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("something", f.getName());
         assertEquals(Double.class, f.getType());
         assertFalse(f.isTimestamp());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
     public void fromFieldSpecification_TypeInformation_Time() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("something(time)");
+        String specification = "something(time)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("something", f.getName());
         assertEquals(Date.class, f.getType());
         assertFalse(f.isTimestamp());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
     public void fromFieldSpecification_StringField() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("some-string(string)");
+        String specification = "some-string(string)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("some-string", f.getName());
         assertEquals(String.class, f.getType());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
     public void fieldSpecificationParsing_SimpleString() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("some-string");
+        String specification = "some-string";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("some-string", f.getName());
         assertEquals(String.class, f.getType());
         assertFalse(f.isTimestamp());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification + "(string)", specification2);
     }
 
     @Test
     public void fieldSpecificationParsing_Time() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("timestamp(time:yy/MM/dd HH:mm:ss)");
+        String specification = "timestamp(time:yy/MM/dd HH:mm:ss)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertTrue(f.isTimestamp());
 
@@ -226,6 +286,9 @@ public class CSVFieldFactoryTest {
 
         assertEquals(sdf.parse("16/01/01 01:01:01"),
                 new SimpleDateFormat("MM/dd/yy hh:mm:ss a").parse("01/01/16 01:01:01 AM"));
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
@@ -233,7 +296,7 @@ public class CSVFieldFactoryTest {
 
         try {
 
-            CSVFieldFactory.fromFieldSpecification("timestamp(time:blah)");
+            CSVFieldFactory.fromSpecification("timestamp(time:blah)");
         }
         catch(CSVFormatException e) {
 
@@ -247,46 +310,72 @@ public class CSVFieldFactoryTest {
     @Test
     public void fieldSpecificationParsing_Integer() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("a(int)");
+        String specification = "a(int)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("a", f.getName());
         assertEquals(Integer.class, f.getType());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
     public void fieldSpecificationParsing_Integer_Space() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("something (int)");
+        String specification = "something (int)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("something", f.getName());
         assertEquals(Integer.class, f.getType());
+
+        String specification2 = f.getSpecification();
+        assertEquals("something(int)", specification2);
     }
 
     @Test
     public void fieldSpecificationParsing_Long() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("a(long)");
+        String specification = "a(long)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("a", f.getName());
         assertEquals(Long.class, f.getType());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
     public void fieldSpecificationParsing_Float() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("a(float)");
+        String specification = "a(float)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("a", f.getName());
         assertEquals(Float.class, f.getType());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
     public void fieldSpecificationParsing_Double() throws Exception {
 
-        CSVField f = CSVFieldFactory.fromFieldSpecification("a(double)");
+        String specification = "a(double)";
+
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("a", f.getName());
         assertEquals(Double.class, f.getType());
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
@@ -294,13 +383,28 @@ public class CSVFieldFactoryTest {
 
         try {
 
-            CSVFieldFactory.fromFieldSpecification("fieldA(ms)");
+            CSVFieldFactory.fromSpecification("fieldA(ms)");
             fail("should throw exception");
         }
         catch(CSVFormatException e) {
 
             String msg = e.getMessage();
             assertTrue(msg.contains("invalid field type specification \"ms\""));
+        }
+    }
+
+    @Test
+    public void fieldSpecificationParsing_UnbalancedParantheses() throws Exception {
+
+        try {
+
+            CSVFieldFactory.fromSpecification("a(");
+            fail("should throw exception");
+        }
+        catch(CSVFormatException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("unbalanced parentheses"));
         }
     }
 

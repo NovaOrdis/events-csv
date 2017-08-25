@@ -22,9 +22,10 @@ import io.novaordis.events.api.event.FloatProperty;
 import io.novaordis.events.api.event.IntegerProperty;
 import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.StringProperty;
-import io.novaordis.events.csv.event.field.CSVField;
 import org.junit.Test;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
@@ -146,11 +147,71 @@ public abstract class CSVFieldTest {
         assertEquals(7L, p.getDate().getTime());
     }
 
+    // getSpecification()------------------------------------------------------------------------------------------------
+
+    //
+    // getSpecification() for TimestampCSVField and subclasses is tested in the corresponding test subclasses.
+    //
+
+    @Test
+    public void toSpecification_String() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", String.class);
+        assertEquals("test(string)", f.getSpecification());
+    }
+
+    @Test
+    public void toSpecification_Integer() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Integer.class);
+        assertEquals("test(int)", f.getSpecification());
+    }
+
+    @Test
+    public void toSpecification_Long() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Long.class);
+        assertEquals("test(long)", f.getSpecification());
+    }
+
+    @Test
+    public void toSpecification_Float() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Float.class);
+        assertEquals("test(float)", f.getSpecification());
+    }
+
+    @Test
+    public void toSpecification_Double() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Double.class);
+        assertEquals("test(double)", f.getSpecification());
+    }
+
+    @Test
+    public void toSpecification_Time() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Date.class);
+        assertEquals("test(time)", f.getSpecification());
+    }
+
+    @Test
+    public void toSpecification_Time_Format() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Date.class, new SimpleDateFormat("yy/MM/dd"));
+        assertEquals("test(time:yy/MM/dd)", f.getSpecification());
+    }
+
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
 
-    protected abstract CSVField getCSVFieldToTest(String name, Class type) throws Exception;
+    public CSVField getCSVFieldToTest(String name, Class type) throws Exception {
+
+        return getCSVFieldToTest(name, type, null);
+    }
+
+    protected abstract CSVField getCSVFieldToTest(String name, Class type, Format format) throws Exception;
 
     // Private ---------------------------------------------------------------------------------------------------------
 

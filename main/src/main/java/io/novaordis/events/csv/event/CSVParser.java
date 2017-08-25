@@ -23,11 +23,14 @@ import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.parser.ParserBase;
 import io.novaordis.events.api.parser.ParsingException;
-import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.CSVFormat;
 import io.novaordis.events.csv.CSVFormatException;
+import io.novaordis.events.csv.event.field.CSVField;
+import io.novaordis.events.csv.event.field.TimestampCSVField;
 import io.novaordis.utilities.time.Timestamp;
 import io.novaordis.utilities.time.TimestampImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -39,10 +42,11 @@ import java.util.StringTokenizer;
 /**
  * A CSV parser.
  *
- * Works in two modes:
+ * Works in three modes:
  *
  * 1. Introspection.
  * 2. Format-driven.
+ * 3. Combined: detects header lines and adjusts internal format specification based on the header line content.
  *
  * The parser can dynamically switch from introspection mode to format-driven mode if it encounters a header line.
  *
@@ -53,8 +57,14 @@ public class CSVParser extends ParserBase {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
+    private static final Logger log = LoggerFactory.getLogger(CSVParser.class);
+
     private static final String COMMA = ",";
     private static final String DOUBLE_QUOTE = "\"";
+
+    private static final List<Event> EMPTY_LIST = Collections.emptyList();
+
+    private static final char HEADER_LEADER = '#';
 
     // Static ----------------------------------------------------------------------------------------------------------
 
@@ -86,7 +96,8 @@ public class CSVParser extends ParserBase {
     }
 
     /**
-     * @param formatSpecification: a CSVFormat specification. May be null.
+     * @param formatSpecification: a CSVFormat specification. May be null, in which case the parser will be
+     *                           "format-less".
      *
      * @throws IllegalArgumentException if the given format specification cannot be used to build a CSV format.
      *
@@ -97,47 +108,93 @@ public class CSVParser extends ParserBase {
      */
     public CSVParser(String formatSpecification) throws IllegalArgumentException, CSVFormatException {
 
-        csvFormat = new CSVFormat(formatSpecification);
+        if (formatSpecification != null) {
 
-        int i = 0;
-        timestampFieldIndex = -1;
-        headers = new ArrayList<>();
-        for(CSVField f: csvFormat.getFields()) {
-
-            headers.add(f);
-
-            //
-            // the first "Date" fields will be used as timestamp
-            //
-            if (Date.class.equals(f.getType()) && timestampFieldIndex == -1) {
-                // this is our timestamp
-                timestampFieldIndex = i;
-            }
-
-            i++;
+            CSVFormat f = new CSVFormat(formatSpecification);
+            setFormat(f);
         }
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
 
+    /**
+     * May return null if no format was installed. CSVParser will still function and parse CSV lines based on
+     * introspection.
+     */
     public CSVFormat getFormat() {
 
         return csvFormat;
     }
 
+    /**
+     * Installs a format. May be null, in which case re-sets the state and remove a previously installed format, if any.
+     */
+    public void setFormat(CSVFormat format) {
+
+        if (log.isDebugEnabled()) {
+
+            log.debug(this + " is installing CSV format \"" + format + "\"");
+        }
+
+        if (format == null) {
+
+            timestampFieldIndex = -1;
+            headers = null;
+            csvFormat = null;
+        }
+        else {
+
+            int i = 0;
+
+            timestampFieldIndex = -1;
+
+            headers = new ArrayList<>();
+
+            for (CSVField f : format.getFields()) {
+
+                headers.add(f);
+
+                //
+                // the first "Date" fields will be used as timestamp
+                //
+                if ((Date.class.equals(f.getType()) || f instanceof TimestampCSVField) && timestampFieldIndex == -1) {
+
+                    //
+                    // this is our timestamp
+                    //
+                    timestampFieldIndex = i;
+                }
+
+                i++;
+            }
+
+            csvFormat = format;
+        }
+
+    }
+
     @Override
     public String toString() {
 
-        return "CSVParser[format: " + csvFormat + "]";
+        return "CSVParser[" + (csvFormat == null ? "NO FORMAT" : csvFormat) + "]";
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
 
+    /**
+     * May return null if no headers were previously installed.
+     */
+
     List<CSVField> getHeaders() {
+
         return headers;
     }
 
+    /**
+     * @return may return -1 if no timestamp field is known.
+     */
     int getTimestampFieldIndex() {
+
         return timestampFieldIndex;
     }
 
@@ -146,103 +203,157 @@ public class CSVParser extends ParserBase {
     @Override
     protected List<Event> parse(long lineNumber, String line) throws ParsingException {
 
+        if (line == null) {
+
+            return EMPTY_LIST;
+
+        }
+
+        //
+        // blank edges are ignored
+        //
+
+        line = line.trim();
+
         //
         // we ignore empty lines
         //
-        if (line == null || line.trim().length() == 0) {
+        if (line.isEmpty()) {
 
-            return null;
+            return EMPTY_LIST;
         }
 
-        Event event;
+        List<Event> result;
 
-        if (timestampFieldIndex >= 0) {
+        //
+        // look for header lines, they always start with the header leader
+        //
 
-            event = new GenericTimedEvent();
+        if (line.charAt(0) == HEADER_LEADER) {
+
+            //
+            // header
+            //
+
+            try {
+
+                CSVFormat f = new CSVFormat(line.substring(1));
+
+                //
+                // install the format ...
+                //
+
+                setFormat(f);
+            }
+            catch(CSVFormatException e) {
+
+                throw new ParsingException(lineNumber, e);
+            }
+
+            //
+            // ... and then issue the header
+            //
+
+            CSVHeaders event = new CSVHeaders(lineNumber, headers);
+
+            if (log.isDebugEnabled()) {
+
+                log.debug(this + " is issuing a header event: " + event);
+            }
+
+            result = Collections.singletonList(event);
         }
         else {
 
-            event = new GenericEvent();
-        }
+            Event event;
 
-        event.setProperty(new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, lineNumber));
+            if (timestampFieldIndex >= 0) {
 
-        int headerIndex = 0;
+                event = new GenericTimedEvent();
+            } else {
 
-        String quotedField = null;
-        String blank = null;
+                event = new GenericEvent();
+            }
 
-        for(StringTokenizer st = new StringTokenizer(line, ",\"", true);
-            st.hasMoreTokens() && headerIndex < headers.size(); ) {
+            event.setProperty(new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, lineNumber));
 
-            String tok = st.nextToken();
+            int headerIndex = 0;
 
-            if (COMMA.equals(tok)) {
+            String quotedField = null;
+            String blank = null;
 
-                if (blank != null) {
+            for (StringTokenizer st = new StringTokenizer(line, ",\"", true);
+                 st.hasMoreTokens() && headerIndex < headers.size(); ) {
 
-                    //
-                    // empty field
-                    //
-                    insertNewEventProperty(event, headerIndex, blank);
-                    headerIndex ++;
-                    blank = null;
+                String tok = st.nextToken();
+
+                if (COMMA.equals(tok)) {
+
+                    if (blank != null) {
+
+                        //
+                        // empty field
+                        //
+                        insertNewEventProperty(event, headerIndex, blank);
+                        headerIndex++;
+                        blank = null;
+                    } else if (quotedField != null) {
+
+                        quotedField += tok;
+                    }
+
+                    continue;
                 }
-                else if (quotedField != null) {
 
+                if (DOUBLE_QUOTE.equals(tok)) {
+
+                    if (blank != null) {
+                        //
+                        // blank between comma and double quote, ignore it ...
+                        //
+                        blank = null;
+                    }
+
+                    if (quotedField == null) {
+                        //
+                        // start a quoted field
+                        //
+                        quotedField = "";
+                        continue;
+                    } else {
+                        //
+                        // end a quoted field
+                        //
+                        insertNewEventProperty(event, headerIndex, quotedField);
+                        headerIndex++;
+                        quotedField = null;
+                        continue;
+                    }
+                }
+
+                if (quotedField != null) {
+
+                    //
+                    // append to the quoted field, do not insert a property yet
+                    //
                     quotedField += tok;
-                }
-
-                continue;
-            }
-
-            if (DOUBLE_QUOTE.equals(tok)) {
-
-                if (blank != null) {
-                    //
-                    // blank between comma and double quote, ignore it ...
-                    //
-                    blank = null;
-                }
-
-                if (quotedField == null) {
-                    //
-                    // start a quoted field
-                    //
-                    quotedField = "";
                     continue;
                 }
-                else {
-                    //
-                    // end a quoted field
-                    //
-                    insertNewEventProperty(event, headerIndex, quotedField);
-                    headerIndex ++;
-                    quotedField = null;
+
+                if (tok.trim().length() == 0) {
+
+                    blank = tok;
                     continue;
                 }
+
+                insertNewEventProperty(event, headerIndex, tok);
+                headerIndex++;
             }
 
-            if (quotedField != null) {
-
-                //
-                // append to the quoted field, do not insert a property yet
-                //
-                quotedField += tok;
-                continue;
-            }
-
-            if (tok.trim().length() == 0) {
-
-                blank = tok;
-                continue;
-            }
-
-            insertNewEventProperty(event, headerIndex, tok);
-            headerIndex ++;
+            result = Collections.singletonList(event);
         }
 
-        return Collections.singletonList(event);
+        return result;
 
     }
 

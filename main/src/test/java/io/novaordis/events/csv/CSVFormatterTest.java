@@ -248,7 +248,7 @@ public class CSVFormatterTest {
         assertFalse(c.isHeaderOn());
         
         CSVFormat format = new CSVFormat();
-        format.addField(CSVFieldFactory.fromFieldSpecification("test-map-property-name.test-map-key"));
+        format.addField(CSVFieldFactory.fromSpecification("test-map-property-name.test-map-key"));
         
         c.setFormat(format);
 

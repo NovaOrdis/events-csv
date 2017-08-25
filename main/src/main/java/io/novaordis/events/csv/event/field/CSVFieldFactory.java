@@ -24,6 +24,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
+ * A static class that builds CSVField instances from their string field specification. The reverse operation
+ * - obtaining the field specification from a CSVField instance is CSVField.getSpecification().
+ *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 7/26/17
  */
@@ -33,7 +36,13 @@ public class CSVFieldFactory {
 
     // Static ----------------------------------------------------------------------------------------------------------
 
-    public static CSVField fromFieldSpecification(String fieldSpecification) throws CSVFormatException {
+    /**
+     * Convert a string CSV field specification into the corresponding CSVField instance. It is the inverse operation
+     * of CSVField.getSpecification().
+     *
+     * @see CSVField#getSpecification()
+     */
+    public static CSVField fromSpecification(String fieldSpecification) throws CSVFormatException {
 
         if (fieldSpecification == null) {
 
@@ -65,6 +74,11 @@ public class CSVFieldFactory {
             //
             // there is type information
             //
+
+            if (rightParenthesis == -1) {
+
+                throw new CSVFormatException("unbalanced parentheses");
+            }
 
             name = fieldSpecification.substring(0, leftParenthesis).trim();
 

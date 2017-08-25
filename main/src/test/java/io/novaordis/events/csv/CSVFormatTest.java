@@ -285,7 +285,7 @@ public class CSVFormatTest {
 
         assertTrue(f.getFields().isEmpty());
 
-        CSVField fd = CSVFieldFactory.fromFieldSpecification("something (int)");
+        CSVField fd = CSVFieldFactory.fromSpecification("something (int)");
 
         f.addField(fd);
 

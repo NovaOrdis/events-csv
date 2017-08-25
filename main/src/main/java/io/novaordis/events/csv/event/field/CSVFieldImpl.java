@@ -28,6 +28,7 @@ import io.novaordis.events.api.event.TimedEvent;
 
 import java.text.DateFormat;
 import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -76,7 +77,18 @@ public class CSVFieldImpl implements CSVField {
 
             if (format != null) {
 
-                s += ":" + format.toString();
+                String pattern;
+
+                if (format instanceof SimpleDateFormat) {
+
+                    pattern = ((SimpleDateFormat)format).toPattern();
+                }
+                else {
+
+                    pattern = format.toString();
+                }
+
+                s += ":" + pattern;
             }
         }
 
@@ -230,6 +242,12 @@ public class CSVFieldImpl implements CSVField {
         return false;
     }
 
+    @Override
+    public String getSpecification() {
+
+        return name + typeToCommandLineLiteral(type, format);
+    }
+
     // Public ----------------------------------------------------------------------------------------------------------
 
     public void setName(String name) {
@@ -253,7 +271,6 @@ public class CSVFieldImpl implements CSVField {
 
     // Private ---------------------------------------------------------------------------------------------------------
 
-
     /**
      * We want to enforce using a specialized type for timestamps, so we check the name against known labels.
      *
@@ -261,7 +278,7 @@ public class CSVFieldImpl implements CSVField {
      */
     private void timestampFieldConsistencyCheck() throws IllegalArgumentException {
 
-        if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(name)) {
+        if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(name) && !getClass().equals(TimestampCSVField.class)) {
 
             throw new IllegalArgumentException(
                     "CSVFieldImpl cannot be used to represent timestamp fields, use TimestampCSVField");

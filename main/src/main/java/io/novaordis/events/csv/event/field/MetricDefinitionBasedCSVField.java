@@ -19,6 +19,7 @@ package io.novaordis.events.csv.event.field;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.metric.MetricDefinition;
 import io.novaordis.events.api.metric.MetricException;
+import io.novaordis.utilities.address.Address;
 
 import java.text.Format;
 
@@ -35,10 +36,16 @@ public class MetricDefinitionBasedCSVField implements CSVField {
     // Attributes ------------------------------------------------------------------------------------------------------
 
     private MetricDefinition metricDefinition;
+    private Format format;
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
     public MetricDefinitionBasedCSVField(MetricDefinition md) {
+
+        this(md, null);
+    }
+
+    public MetricDefinitionBasedCSVField(MetricDefinition md, Format format) {
 
         if (md == null) {
 
@@ -46,7 +53,9 @@ public class MetricDefinitionBasedCSVField implements CSVField {
         }
 
         this.metricDefinition = md;
+        this.format = format;
     }
+
 
     // CSVField implementation -----------------------------------------------------------------------------------------
 
@@ -65,11 +74,7 @@ public class MetricDefinitionBasedCSVField implements CSVField {
     @Override
     public Format getFormat() {
 
-        //
-        // TODO shouldn't MetricDefinition maintain a format?
-        //
-
-        return null;
+        return format;
     }
 
     @Override
@@ -91,6 +96,30 @@ public class MetricDefinitionBasedCSVField implements CSVField {
         return false;
     }
 
+    @Override
+    public String getSpecification() {
+
+        if (metricDefinition == null) {
+
+            return null;
+        }
+
+        String s = "";
+
+        Address a = metricDefinition.getMetricSourceAddress();
+
+        if (a != null) {
+
+            s = a.getLiteral() + "/";
+        }
+
+        s += metricDefinition.getId();
+
+        s += CSVFieldImpl.typeToCommandLineLiteral(metricDefinition.getType(), getFormat());
+
+        return s;
+    }
+
     // Public ----------------------------------------------------------------------------------------------------------
 
     public MetricDefinition getMetricDefinition() {
@@ -103,7 +132,6 @@ public class MetricDefinitionBasedCSVField implements CSVField {
 
         return "CSV Field (" + metricDefinition + ")";
     }
-
 
     // Package protected -----------------------------------------------------------------------------------------------
 

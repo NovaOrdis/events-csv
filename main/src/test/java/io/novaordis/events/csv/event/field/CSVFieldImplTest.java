@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -232,9 +233,9 @@ public class CSVFieldImplTest extends CSVFieldTest {
     // Protected -------------------------------------------------------------------------------------------------------
 
     @Override
-    protected CSVFieldImpl getCSVFieldToTest(String name, Class type) throws Exception {
+    protected CSVFieldImpl getCSVFieldToTest(String name, Class type, Format format) throws Exception {
 
-        return new CSVFieldImpl(name, type);
+        return new CSVFieldImpl(name, type, format);
     }
 
     // Private ---------------------------------------------------------------------------------------------------------

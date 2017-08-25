@@ -18,6 +18,9 @@ package io.novaordis.events.csv.event.field;
 
 import org.junit.Test;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -115,21 +118,100 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
         //
     }
 
+    // getSpecification()------------------------------------------------------------------------------------------------
+
+    @Test
+    @Override
+    public void toSpecification_String() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Integer() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Long() throws Exception {
+
+        CSVField f = getCSVFieldToTest("test", Long.class);
+        assertEquals("test(time)", f.getSpecification());
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Float() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Double() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Time() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
+    public void toSpecification_Time_Format() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
     // Tests -----------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void toSpecification_Timestamp_NoFormat() throws Exception {
+
+        TimestampCSVField f = new TimestampCSVField();
+        assertEquals("timestamp(time)", f.getSpecification());
+    }
+
+    @Test
+    public void toSpecification_Timestamp_Format() throws Exception {
+
+        SimpleDateFormat fmt = new SimpleDateFormat("yy/MM/dd hh:mm");
+        TimestampCSVField f = new TimestampCSVField(fmt);
+        assertEquals("timestamp(time:yy/MM/dd hh:mm)", f.getSpecification());
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
 
     @Override
-    protected TimestampCSVField getCSVFieldToTest(String name, Class type) throws Exception {
+    protected TimestampCSVField getCSVFieldToTest(String name, Class type, Format format) throws Exception {
 
         if (!Long.class.equals(type)) {
 
             throw new RuntimeException("RETURN HERE, I am getting " + type);
         }
 
-        return new TimestampCSVField(name);
+        return new TimestampCSVField(name, format);
     }
 
     // Private ---------------------------------------------------------------------------------------------------------

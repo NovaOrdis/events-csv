@@ -18,6 +18,9 @@ package io.novaordis.events.csv.event.field;
 
 import io.novaordis.events.api.event.TimedEvent;
 
+import java.text.Format;
+import java.util.Date;
+
 /**
  * A timestamp CSV field.
  *
@@ -43,14 +46,37 @@ public class TimestampCSVField extends CSVFieldImpl {
 
     public TimestampCSVField(String name) {
 
-        super(Long.class);
-        setName(name);
+        super(name, Long.class);
     }
+
+    public TimestampCSVField(Format format) {
+
+        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, format);
+    }
+
+    public TimestampCSVField(String name, Format format) {
+
+        super(name, Long.class, format);
+    }
+
+    // CSVFieldImpl overrides ------------------------------------------------------------------------------------------
 
     @Override
     public boolean isTimestamp() {
 
         return true;
+    }
+
+    @Override
+    public String getSpecification() {
+
+        return getName() + typeToCommandLineLiteral(Date.class, getFormat());
+    }
+
+    @Override
+    public String toString() {
+
+        return "TIMESTAMP";
     }
 
     // Public ----------------------------------------------------------------------------------------------------------

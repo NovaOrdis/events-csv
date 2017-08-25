@@ -115,7 +115,7 @@ class CSVTokenizer {
                     // unterminated quoted sequence
                     //
 
-                    throw new ParsingException("unbalanced quotes", lineNumber, quotedStart);
+                    throw new ParsingException(lineNumber, quotedStart, "unbalanced quotes");
                 }
 
                 if (crt == separator) {

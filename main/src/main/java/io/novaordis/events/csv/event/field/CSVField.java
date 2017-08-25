@@ -21,7 +21,7 @@ import io.novaordis.events.api.event.Property;
 import java.text.Format;
 
 /**
- * A CSV field definition.
+ * A CSV field definition, used by CSVFormat.
  *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 6/20/17
@@ -59,5 +59,15 @@ public interface CSVField {
      * on the name heuristics.
      */
     boolean isTimestamp();
+
+    /**
+     * The string specification of this CSVField. The string specification can be converted back into a equal CSVField
+     * via the CSVFieldFactory.fromSpecification() operation.
+     *
+     * Example: An integer CSV field named "example" is specified as "example(int)".
+     *
+     * @see CSVFieldFactory#fromSpecification(String)
+     */
+    String getSpecification();
 
 }
