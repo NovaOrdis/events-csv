@@ -23,6 +23,7 @@ import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.parser.ParsingException;
 import io.novaordis.events.csv.CSVFormatException;
+import io.novaordis.events.csv.Constants;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.CSVFieldImpl;
 import io.novaordis.events.csv.event.field.TimestampCSVField;
@@ -78,7 +79,8 @@ public class CSVHeadersTest extends CSVEventTest {
 
         StringProperty p2 = (StringProperty)properties.get(1);
         assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "0", p2.getName());
-        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME + "(time)", p2.getString());
+        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME + "(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL + ")",
+                p2.getString());
 
         StringProperty p3 = (StringProperty)properties.get(2);
         assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "1", p3.getName());
@@ -117,7 +119,7 @@ public class CSVHeadersTest extends CSVEventTest {
         CSVField field6 = csvFields.get(0);
         assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, field6.getName());
         assertEquals(Long.class, field6.getType());
-        assertNull(field6.getFormat());
+        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT, field6.getFormat());
         assertTrue(field6.isTimestamp());
 
         CSVField field7 = csvFields.get(1);

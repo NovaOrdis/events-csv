@@ -24,15 +24,19 @@ import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.api.event.TimestampProperty;
 import io.novaordis.events.api.parser.ParsingException;
 import io.novaordis.events.csv.CSVFormat;
 import io.novaordis.events.csv.CSVFormatException;
+import io.novaordis.events.csv.Constants;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.TimestampCSVField;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -163,7 +167,7 @@ public class CSVParserTest {
 
         CSVParser p = new CSVParser("a, b, c");
 
-        List<CSVField> headers = p.getHeaders();
+        List<CSVField> headers = p.getFormat().getFields();
         assertEquals(3, headers.size());
 
         CSVField h = headers.get(0);
@@ -177,8 +181,6 @@ public class CSVParserTest {
         CSVField h3 = headers.get(2);
         assertEquals("c", h3.getName());
         assertTrue(String.class.equals(h3.getType()));
-
-        assertEquals(-1, p.getTimestampFieldIndex());
     }
 
     @Test
@@ -186,7 +188,7 @@ public class CSVParserTest {
 
         CSVParser p = new CSVParser("T(time:yyyy), b, c");
 
-        List<CSVField> headers = p.getHeaders();
+        List<CSVField> headers = p.getFormat().getFields();
         assertEquals(3, headers.size());
 
         CSVField h = headers.get(0);
@@ -201,8 +203,6 @@ public class CSVParserTest {
         CSVField h3 = headers.get(2);
         assertEquals("c", h3.getName());
         assertTrue(String.class.equals(h3.getType()));
-
-        assertEquals(0, p.getTimestampFieldIndex());
     }
 
     // parse() ---------------------------------------------------------------------------------------------------------
@@ -333,12 +333,14 @@ public class CSVParserTest {
     @Test
     public void parse_TimedEvent_TimestampFirstInLine() throws Exception {
 
-        CSVParser parser = new CSVParser("T(time:MMM-dd yyyy HH:mm:ss), brand(string), count(int)");
+        String format = "timestamp(time:MMM-dd yyyy HH:mm:ss), brand(string), count(int)";
+
+        CSVParser parser = new CSVParser(format);
 
         List<Event> result = parser.parse(1L, "Jan-01 2016 12:01:01, BMW, 7");
         assertEquals(1, result.size());
 
-        GenericTimedEvent event = (GenericTimedEvent)result.get(0);
+        TimedCSVLine event = (TimedCSVLine)result.get(0);
         assertNotNull(event);
 
         Long timestamp = event.getTime();
@@ -347,25 +349,28 @@ public class CSVParserTest {
 
         List<Property> properties = event.getProperties();
 
-        assertEquals(3, properties.size());
+        assertEquals(4, properties.size());
 
-        LongProperty p0 = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p0.getName());
-        assertEquals(1L, p0.getValue());
+        TimestampProperty p = (TimestampProperty)properties.get(0);
+        assertEquals("01/01/16 12:01:01", Constants.DEFAULT_TIMESTAMP_FORMAT.format(p.getValue()));
 
-        StringProperty p = (StringProperty)properties.get(1);
-        assertEquals("brand", p.getName());
-        assertEquals("BMW", p.getValue());
+        LongProperty p2 = (LongProperty)properties.get(1);
+        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p2.getName());
+        assertEquals(1L, p2.getValue());
 
-        IntegerProperty p2 = (IntegerProperty)properties.get(2);
-        assertEquals("count", p2.getName());
-        assertEquals(7, p2.getValue());
+        StringProperty p3 = (StringProperty)properties.get(2);
+        assertEquals("brand", p3.getName());
+        assertEquals("BMW", p3.getValue());
+
+        IntegerProperty p4 = (IntegerProperty)properties.get(3);
+        assertEquals("count", p4.getName());
+        assertEquals(7, p4.getValue());
     }
 
     @Test
     public void parse_TimedEvent_TimestampNotFirstInLine() throws Exception {
 
-        CSVParser parser = new CSVParser("brand(string), T(time:MMM-dd yyyy HH:mm:ss), count(int)");
+        CSVParser parser = new CSVParser("brand(string), timestamp(time:MMM-dd yyyy HH:mm:ss), count(int)");
 
         List<Event> result = parser.parse(1L, "BMW, Jan-01 2016 12:01:01, 7");
         assertEquals(1, result.size());
@@ -379,19 +384,22 @@ public class CSVParserTest {
 
         List<Property> properties = event.getProperties();
 
-        assertEquals(3, properties.size());
+        assertEquals(4, properties.size());
 
-        LongProperty p0 = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p0.getName());
-        assertEquals(1L, p0.getValue());
+        TimestampProperty p = (TimestampProperty)properties.get(0);
+        assertEquals("01/01/16 12:01:01", Constants.DEFAULT_TIMESTAMP_FORMAT.format(p.getValue()));
 
-        StringProperty p = (StringProperty)properties.get(1);
-        assertEquals("brand", p.getName());
-        assertEquals("BMW", p.getValue());
+        LongProperty p2 = (LongProperty)properties.get(1);
+        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p2.getName());
+        assertEquals(1L, p2.getValue());
 
-        IntegerProperty p2 = (IntegerProperty)properties.get(2);
-        assertEquals("count", p2.getName());
-        assertEquals(7, p2.getValue());
+        StringProperty p3 = (StringProperty)properties.get(2);
+        assertEquals("brand", p3.getName());
+        assertEquals("BMW", p3.getValue());
+
+        IntegerProperty p4 = (IntegerProperty)properties.get(3);
+        assertEquals("count", p4.getName());
+        assertEquals(7, p4.getValue());
     }
 
     @Test
@@ -471,6 +479,56 @@ public class CSVParserTest {
 
         List<Event> events = parser.parse(1L, "    ");
         assertTrue(events.isEmpty());
+    }
+
+    @Test
+    public void parse_DataLineNoHeader() throws Exception {
+
+        String[] content = new String[] {
+
+                "12/25/16 13:00:00, blue,  10",
+        };
+
+        CSVParser parser = new CSVParser();
+
+        assertNull(parser.getFormat());
+
+        List<Event> events = new ArrayList<>();
+
+        for(int i = 0; i < content.length; i ++) {
+
+            List<Event> es = parser.parse(i + 1, content[i]);
+            events.addAll(es);
+        }
+
+        assertEquals(1, events.size());
+
+        TimedCSVLine e = (TimedCSVLine)events.get(0);
+
+        assertNotNull(e);
+
+        List<Property> properties = e.getProperties();
+        assertEquals(4, properties.size());
+
+        TimestampProperty p = (TimestampProperty)properties.get(0);
+        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, p.getName());
+        //
+        // original format does not survive storage of the property in the event
+        //
+        assertNull(p.getFormat());
+        assertEquals("12/25/16 13:00:00", Constants.DEFAULT_TIMESTAMP_FORMAT.format(p.getValue()));
+
+        LongProperty p2 = (LongProperty)properties.get(1);
+        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p2.getName());
+        assertEquals(1L, p2.getLong().longValue());
+
+        StringProperty p3 = (StringProperty)properties.get(2);
+        assertEquals("field_1", p3.getName());
+        assertEquals("blue", p3.getValue());
+
+        IntegerProperty p4 = (IntegerProperty)properties.get(3);
+        assertEquals("field_2", p4.getName());
+        assertEquals(10, p4.getValue());
     }
 
     @Test
@@ -567,17 +625,11 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_DifferenceBetweenHeaderAndComment() throws Exception {
-
-        fail("return here");
-    }
-
-    @Test
     public void parse_HeaderLineFollowedByDataLine() throws Exception {
 
         String[] content = new String[] {
 
-                "# timestamp,       color, size(int)",
+                "# timestamp(MM/dd/yy HH:mm:ss),       color, size(int)",
                 "12/25/16 13:00:00, blue,  10",
         };
 
@@ -601,12 +653,76 @@ public class CSVParserTest {
         assertEquals("color(string)", fields.get(1).getSpecification());
         assertEquals("size(int)", fields.get(2).getSpecification());
 
-        CSVLine e2 = (CSVLine)events.get(1);
+        TimedCSVLine e2 = (TimedCSVLine)events.get(1);
 
         assertNotNull(e2);
 
+        Long time = e2.getTime();
+        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/25/16 13:00:00").getTime(), time.longValue());
+
         assertEquals("blue", e2.getStringProperty("color").getString());
         assertEquals(10, e2.getIntegerProperty("size").getInteger().intValue());
+    }
+
+    /**
+     * The goal of this test is to make sure that a change in headers influences the data line parsing algoritm.
+     * @throws Exception
+     */
+    @Test
+    public void parse_HeaderLineFollowedByDataLineFollowedByAnotherHeaderFollowedByAnotherDataLine() throws Exception {
+
+        String[] content = new String[] {
+
+                "# timestamp(MM/dd/yy HH:mm:ss),       color, size(int)",
+                "12/25/16 13:00:01, blue,  10",
+                "",
+                "# weight(float), index(int), something, timestamp(yy/MM/dd HH:mm:ss)",
+                "11.11, 10, nine, 15/12/30 14:15:16, this will be discarded",
+        };
+
+        CSVParser parser = new CSVParser();
+
+        List<Event> events = new ArrayList<>();
+
+        for(int i = 0; i < content.length; i ++) {
+
+            List<Event> es = parser.parse(i + 1, content[i]);
+            events.addAll(es);
+        }
+
+        assertEquals(4, events.size());
+
+        CSVHeaders e = (CSVHeaders)events.get(0);
+        List<CSVField> fields = e.getFields();
+        assertEquals(3, fields.size());
+        assertTrue(fields.get(0).isTimestamp());
+        assertEquals("color(string)", fields.get(1).getSpecification());
+        assertEquals("size(int)", fields.get(2).getSpecification());
+
+        TimedCSVLine e2 = (TimedCSVLine)events.get(1);
+        assertEquals(4, e2.getProperties().size()); // includes line number
+        Long time = e2.getTime();
+        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/25/16 13:00:01").getTime(), time.longValue());
+        assertEquals("blue", e2.getStringProperty("color").getString());
+        assertEquals(10, e2.getIntegerProperty("size").getInteger().intValue());
+        assertEquals(2, e2.getLineNumber().longValue());
+
+        CSVHeaders e3 = (CSVHeaders)events.get(2);
+        List<CSVField> fields2 = e3.getFields();
+        assertEquals(4, fields2.size());
+        assertEquals("weight(float)", fields2.get(0).getSpecification());
+        assertEquals("index(int)", fields2.get(1).getSpecification());
+        assertEquals("something(string)", fields2.get(2).getSpecification());
+        assertTrue(fields2.get(3).isTimestamp());
+
+        TimedCSVLine e4 = (TimedCSVLine)events.get(3);
+        assertEquals(5, e4.getProperties().size()); // includes line number
+        assertEquals(11.11f, e4.getFloatProperty("weight").getFloat().floatValue(), 0.00001);
+        assertEquals(10, e4.getIntegerProperty("index").getInteger().intValue());
+        assertEquals("nine", e4.getStringProperty("something").getString());
+        Long time2 = e4.getTime();
+        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/30/15 14:15:16").getTime(), time2.longValue());
+        assertEquals(5, e4.getLineNumber().longValue());
     }
 
     // setFormat() -----------------------------------------------------------------------------------------------------
@@ -628,7 +744,7 @@ public class CSVParserTest {
         // check the headers
         //
 
-        List<CSVField> headers = p.getHeaders();
+        List<CSVField> headers = p.getFormat().getFields();
 
         assertEquals(3, headers.size());
 
@@ -661,8 +777,7 @@ public class CSVParserTest {
         p.setFormat(null);
 
         assertNull(p.getFormat());
-        assertNull(p.getHeaders());
-        assertEquals(-1, p.getTimestampFieldIndex());
+        assertNull(p.getFormat());
     }
 
     // close() ---------------------------------------------------------------------------------------------------------
@@ -673,6 +788,140 @@ public class CSVParserTest {
         CSVParser parser = new CSVParser("a, b, c");
         List<Event> result = parser.close(1L);
         assertTrue(result.isEmpty());
+    }
+
+    // propertyListToCSVEvent() ----------------------------------------------------------------------------------------
+
+    @Test
+    public void propertyListToCSVEvent_NullList() throws Exception {
+
+        try {
+
+            CSVParser.propertyListToCSVEvent(new MutableBoolean(false), null);
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("null property list"));
+        }
+    }
+
+    @Test
+    public void propertyListToCSVEvent_NoTimestamp_EmptyList() throws Exception {
+
+        NonTimedCSVLine csvLine = (NonTimedCSVLine)CSVParser.
+                propertyListToCSVEvent(new MutableBoolean(false), Collections.emptyList());
+        assertNotNull(csvLine);
+    }
+
+    @Test
+    public void propertyListToCSVEvent_Timestamp_EmptyList() throws Exception {
+
+        try {
+
+            CSVParser.propertyListToCSVEvent(new MutableBoolean(true), Collections.emptyList());
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("no timestamp property found"));
+        }
+    }
+
+    @Test
+    public void propertyListToCSVEvent_NoTimestamp() throws Exception {
+
+        List<Property> properties = Arrays.asList(
+                new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 7L), new StringProperty("field_0", "something"));
+
+        NonTimedCSVLine csvLine = (NonTimedCSVLine)CSVParser.
+                propertyListToCSVEvent(new MutableBoolean(false), properties);
+
+        assertNotNull(csvLine);
+
+        List<Property> properties2 = csvLine.getProperties();
+        assertEquals(2, properties2.size());
+
+        LongProperty p = (LongProperty)properties2.get(0);
+        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(7L, p.getValue());
+
+        StringProperty p2 = (StringProperty)properties2.get(1);
+        assertEquals("field_0", p2.getName());
+        assertEquals("something", p2.getValue());
+    }
+
+    // buildAndStoreProperty() -------------------------------------------------------------------------------------------------
+
+    @Test
+    public void buildAndStoreProperty_ApparentlyTimestamp_NoCSVHeader() throws Exception {
+
+        List<Property> properties = new ArrayList<>();
+
+        int index = 7;
+
+        CSVParser.buildAndStoreProperty("12/25/16 13:00:00", index, null, new MutableBoolean(false), properties);
+
+        //
+        // since there is no format guidance, we rely on internal PropertyFactory heuristics, which will convert it
+        // into a TimestampProperty.
+        //
+
+        assertEquals(1, properties.size());
+
+        Property p = properties.get(0);
+
+        TimestampProperty tp = (TimestampProperty)p;
+        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, tp.getName());
+        assertEquals("12/25/16 13:00:00", tp.getFormat().format(tp.getValue()));
+    }
+
+    @Test
+    public void buildAndStoreProperty_Integer_NoCSVHeader() throws Exception {
+
+        List<Property> properties = new ArrayList<>();
+
+        int index = 7;
+
+        CSVParser.buildAndStoreProperty("11", index, null, new MutableBoolean(false), properties);
+
+        //
+        // since there is no format guidance, we rely on internal PropertyFactory heuristics, which will convert it
+        // into a IntegerProperty.
+        //
+
+        assertEquals(1, properties.size());
+
+        Property p = properties.get(0);
+
+        IntegerProperty ip = (IntegerProperty)p;
+        assertEquals(CSVEvent.GENERIC_FIELD_NAME_PREFIX + index, ip.getName());
+        assertEquals(11, ip.getInteger().intValue());
+    }
+
+    @Test
+    public void buildAndStoreProperty_String_NoCSVHeader() throws Exception {
+
+        List<Property> properties = new ArrayList<>();
+
+        int index = 7;
+
+        CSVParser.buildAndStoreProperty("something", index, null, new MutableBoolean(false), properties);
+
+        //
+        // since there is no format guidance, we rely on internal PropertyFactory heuristics, which will convert it
+        // into a StringProperty.
+        //
+
+        assertEquals(1, properties.size());
+
+        Property p = properties.get(0);
+
+        StringProperty sp = (StringProperty)p;
+        assertEquals(CSVEvent.GENERIC_FIELD_NAME_PREFIX + index, sp.getName());
+        assertEquals("something", sp.getValue());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

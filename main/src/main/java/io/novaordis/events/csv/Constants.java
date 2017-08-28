@@ -14,28 +14,35 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.event;
+package io.novaordis.events.csv;
 
-import io.novaordis.events.api.event.Event;
+import java.text.SimpleDateFormat;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 8/8/17
+ * @since 8/26/17
  */
-public interface CSVEvent extends Event {
+public class Constants {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
-    public static final char SEPARATOR = ',';
+    //
+    // MM/dd/yy HH:mm:ss (07/25/16 14:00:00) is the default time format so it works straight away with Excel
+    //
 
-    public static final String GENERIC_FIELD_NAME_PREFIX = "field_";
+    public static final String DEFAULT_TIMESTAMP_FORMAT_LITERAL = "MM/dd/yy HH:mm:ss";
 
+    public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT =
+            new SimpleDateFormat(DEFAULT_TIMESTAMP_FORMAT_LITERAL);
 
     // Static ----------------------------------------------------------------------------------------------------------
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
     // Constructors ----------------------------------------------------------------------------------------------------
+
+    private Constants() {
+    }
 
     // Public ----------------------------------------------------------------------------------------------------------
 
@@ -44,6 +51,7 @@ public interface CSVEvent extends Event {
     // Protected -------------------------------------------------------------------------------------------------------
 
     // Private ---------------------------------------------------------------------------------------------------------
+
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 

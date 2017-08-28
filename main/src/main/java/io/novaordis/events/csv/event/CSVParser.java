@@ -17,16 +17,16 @@
 package io.novaordis.events.csv.event;
 
 import io.novaordis.events.api.event.Event;
-import io.novaordis.events.api.event.GenericEvent;
-import io.novaordis.events.api.event.GenericTimedEvent;
 import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
+import io.novaordis.events.api.event.PropertyFactory;
+import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.api.event.TimestampProperty;
 import io.novaordis.events.api.parser.ParserBase;
 import io.novaordis.events.api.parser.ParsingException;
 import io.novaordis.events.csv.CSVFormat;
 import io.novaordis.events.csv.CSVFormatException;
 import io.novaordis.events.csv.event.field.CSVField;
-import io.novaordis.events.csv.event.field.TimestampCSVField;
 import io.novaordis.utilities.time.Timestamp;
 import io.novaordis.utilities.time.TimestampImpl;
 import org.slf4j.Logger;
@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -44,7 +43,7 @@ import java.util.StringTokenizer;
  *
  * Works in three modes:
  *
- * 1. Introspection.
+ * 1. Introspection (no previously installed format).
  * 2. Format-driven.
  * 3. Combined: detects header lines and adjusts internal format specification based on the header line content.
  *
@@ -72,15 +71,7 @@ public class CSVParser extends ParserBase {
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
-    private CSVFormat csvFormat;
-
-    //
-    // we maintain a header different from the line format because this allows us to discover the structure of a
-    // CSV file dynamically, even without the presence of a line format specification
-    //
-    private List<CSVField> headers;
-
-    private int timestampFieldIndex;
+    private CSVFormat format;
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
@@ -123,7 +114,7 @@ public class CSVParser extends ParserBase {
      */
     public CSVFormat getFormat() {
 
-        return csvFormat;
+        return format;
     }
 
     /**
@@ -136,67 +127,16 @@ public class CSVParser extends ParserBase {
             log.debug(this + " is installing CSV format \"" + format + "\"");
         }
 
-        if (format == null) {
-
-            timestampFieldIndex = -1;
-            headers = null;
-            csvFormat = null;
-        }
-        else {
-
-            int i = 0;
-
-            timestampFieldIndex = -1;
-
-            headers = new ArrayList<>();
-
-            for (CSVField f : format.getFields()) {
-
-                headers.add(f);
-
-                //
-                // the first "Date" fields will be used as timestamp
-                //
-                if ((Date.class.equals(f.getType()) || f instanceof TimestampCSVField) && timestampFieldIndex == -1) {
-
-                    //
-                    // this is our timestamp
-                    //
-                    timestampFieldIndex = i;
-                }
-
-                i++;
-            }
-
-            csvFormat = format;
-        }
-
+        this.format = format;
     }
 
     @Override
     public String toString() {
 
-        return "CSVParser[" + (csvFormat == null ? "NO FORMAT" : csvFormat) + "]";
+        return "CSVParser[" + (format == null ? "NO FORMAT" : format) + "]";
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
-
-    /**
-     * May return null if no headers were previously installed.
-     */
-
-    List<CSVField> getHeaders() {
-
-        return headers;
-    }
-
-    /**
-     * @return may return -1 if no timestamp field is known.
-     */
-    int getTimestampFieldIndex() {
-
-        return timestampFieldIndex;
-    }
 
     // Protected -------------------------------------------------------------------------------------------------------
 
@@ -206,7 +146,6 @@ public class CSVParser extends ParserBase {
         if (line == null) {
 
             return EMPTY_LIST;
-
         }
 
         //
@@ -254,7 +193,7 @@ public class CSVParser extends ParserBase {
             // ... and then issue the header
             //
 
-            CSVHeaders event = new CSVHeaders(lineNumber, headers);
+            CSVHeaders event = new CSVHeaders(lineNumber, format == null ? null : format.getFields());
 
             if (log.isDebugEnabled()) {
 
@@ -265,27 +204,29 @@ public class CSVParser extends ParserBase {
         }
         else {
 
-            Event event;
+            //
+            // data line - we proceed differently if a format instance is installed or not
+            //
 
-            if (timestampFieldIndex >= 0) {
+            final List<Property> properties = new ArrayList<>();
 
-                event = new GenericTimedEvent();
-            } else {
+            properties.add(new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, lineNumber));
 
-                event = new GenericEvent();
-            }
+            //
+            // we're prepared to handle the situation when there are no headers - no format was installed
+            //
 
-            event.setProperty(new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, lineNumber));
-
-            int headerIndex = 0;
-
-            String quotedField = null;
+            int i = 0;
             String blank = null;
+            String quotedField = null;
+            final MutableBoolean timestampFound = new MutableBoolean(false);
+            List<CSVField> headers = format == null ? null : format.getFields();
+            int fieldCount = headers == null ? Integer.MAX_VALUE : headers.size();
 
-            for (StringTokenizer st = new StringTokenizer(line, ",\"", true);
-                 st.hasMoreTokens() && headerIndex < headers.size(); ) {
+            for (StringTokenizer st = new StringTokenizer(line, ",\"", true); st.hasMoreTokens() && i < fieldCount;) {
 
                 String tok = st.nextToken();
+                CSVField header = headers == null ? null : headers.get(i);
 
                 if (COMMA.equals(tok)) {
 
@@ -294,10 +235,10 @@ public class CSVParser extends ParserBase {
                         //
                         // empty field
                         //
-                        insertNewEventProperty(event, headerIndex, blank);
-                        headerIndex++;
+                        buildAndStoreProperty(blank, i++, header, timestampFound, properties);
                         blank = null;
-                    } else if (quotedField != null) {
+                    }
+                    else if (quotedField != null) {
 
                         quotedField += tok;
                     }
@@ -308,6 +249,7 @@ public class CSVParser extends ParserBase {
                 if (DOUBLE_QUOTE.equals(tok)) {
 
                     if (blank != null) {
+
                         //
                         // blank between comma and double quote, ignore it ...
                         //
@@ -315,17 +257,19 @@ public class CSVParser extends ParserBase {
                     }
 
                     if (quotedField == null) {
+
                         //
                         // start a quoted field
                         //
                         quotedField = "";
                         continue;
-                    } else {
+                    }
+                    else {
+
                         //
                         // end a quoted field
                         //
-                        insertNewEventProperty(event, headerIndex, quotedField);
-                        headerIndex++;
+                        buildAndStoreProperty(quotedField, i++, header, timestampFound, properties);
                         quotedField = null;
                         continue;
                     }
@@ -346,15 +290,14 @@ public class CSVParser extends ParserBase {
                     continue;
                 }
 
-                insertNewEventProperty(event, headerIndex, tok);
-                headerIndex++;
+                buildAndStoreProperty(tok, i++, header, timestampFound, properties);
             }
 
-            result = Collections.singletonList(event);
+            CSVEvent dataLineEvent = propertyListToCSVEvent(timestampFound, properties);
+            result = Collections.singletonList(dataLineEvent);
         }
 
         return result;
-
     }
 
     @Override
@@ -367,18 +310,65 @@ public class CSVParser extends ParserBase {
         return Collections.emptyList();
     }
 
-    // Private ---------------------------------------------------------------------------------------------------------
+    // Static package protected ----------------------------------------------------------------------------------------
 
-    private void insertNewEventProperty(Event event, int headerIndex, String tok) throws ParsingException {
+    /**
+     * @param timestampFound the calling layer already has this information, so we use it to avoid a redundant loop over
+     *                     properties.
+     *
+     * @param properties the properties to install into event. If the timestamp flag is true, then one of the
+     *                   properties must be a timestamp property, otherwise the method will throw an
+     *                   IllegalArgumentException.
+     *
+     * @exception IllegalArgumentException
+     */
+    static CSVEvent propertyListToCSVEvent(MutableBoolean timestampFound, List<Property> properties) {
+
+        if (properties == null) {
+
+            throw new IllegalArgumentException("null property list");
+        }
+
+        CSVEvent dataLineEvent;
+
+        if (timestampFound.isTrue()) {
+
+            dataLineEvent = new TimedCSVLine(properties);
+        }
+        else {
+
+            dataLineEvent = new NonTimedCSVLine(properties);
+        }
+
+        return dataLineEvent;
+    }
+
+    /**
+     * Builds the appropriate property instance and update the stack state.
+     *
+     * @param header may be null if no format was installed.
+     * @param timestampCreated a wrapper for a boolean that says whether the unique timestamp was already identified
+     *                         or not. Updated by the method if the timestamp is identified.
+     *
+     */
+    static void buildAndStoreProperty(
+            String tok, int index, CSVField header, MutableBoolean timestampCreated,  List<Property> properties)
+            throws ParsingException {
 
         tok = tok.trim();
 
-        CSVField header = headers.get(headerIndex);
+        //
+        // only the first timestamp header triggers timestamp creation
+        //
 
-        if (headerIndex == timestampFieldIndex) {
+        boolean mustBeTimestamp = header != null && header.isTimestamp() && timestampCreated.isFalse();
+
+        Property p;
+
+        if (mustBeTimestamp) {
 
             //
-            // this is our timestamp, set the timed event timestamp, and not a regular property
+            // this is our timestamp, produce a timestamp property, and not a regular property
             //
 
             Timestamp t;
@@ -393,14 +383,56 @@ public class CSVParser extends ParserBase {
                         "invalid timestamp value \"" + tok + "\", does not match the required timestamp format", e);
             }
 
-            ((GenericTimedEvent)event).setTimestamp(t);
+            p = new TimestampProperty(t.getTime());
+
+            timestampCreated.setTrue();
+        }
+
+        else if (header != null) {
+
+            //
+            // delegate the task of creating the corresponding property to the header
+            //
+
+            p = header.toProperty(tok);
         }
         else {
 
-            Property p = header.toProperty(tok);
-            event.setProperty(p);
+            //
+            // no header, we use the type heuristics built into PropertyFactory
+            //
+
+            //noinspection UnnecessaryLocalVariable
+            p = PropertyFactory.createInstance(CSVEvent.GENERIC_FIELD_NAME_PREFIX + index, null, tok, null);
+
+            if (p instanceof TimestampProperty) {
+
+                if (timestampCreated.isTrue()) {
+
+                    //
+                    // more than one timestamp, how do we handle that?
+                    //
+                    throw new RuntimeException("NOT YET IMPLEMENTED");
+                }
+                else {
+
+                    timestampCreated.setTrue();
+
+                    TimestampProperty tp = (TimestampProperty)p;
+
+                    //
+                    // normalize timestamp property name, needed in case of CSV introspection
+                    //
+
+                    tp.setName(TimedEvent.TIMESTAMP_PROPERTY_NAME);
+                }
+            }
         }
+
+        properties.add(p);
     }
+
+    // Private ---------------------------------------------------------------------------------------------------------
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 

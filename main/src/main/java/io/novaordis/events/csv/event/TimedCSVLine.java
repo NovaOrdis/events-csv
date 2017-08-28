@@ -16,26 +16,42 @@
 
 package io.novaordis.events.csv.event;
 
-import io.novaordis.events.api.event.Event;
+import io.novaordis.events.api.event.GenericTimedEvent;
+import io.novaordis.events.api.event.Property;
+
+import java.util.List;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
  */
-public interface CSVEvent extends Event {
+public class TimedCSVLine extends GenericTimedEvent implements CSVEvent {
 
     // Constants -------------------------------------------------------------------------------------------------------
-
-    public static final char SEPARATOR = ',';
-
-    public static final String GENERIC_FIELD_NAME_PREFIX = "field_";
-
 
     // Static ----------------------------------------------------------------------------------------------------------
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
     // Constructors ----------------------------------------------------------------------------------------------------
+
+    public TimedCSVLine(Long timestamp) {
+
+        super(timestamp);
+    }
+
+    /**
+     * One of these properties MUST be a TimestampProperty, otherwise the constructor will throw an
+     * IllegalArgumentException.
+     *
+     * @param properties must contain at least one TimestampProperty.
+     *
+     * @exception IllegalArgumentException if the properties do not include a TimestampProperty.
+     */
+    public TimedCSVLine(List<Property> properties) {
+
+        super(properties);
+    }
 
     // Public ----------------------------------------------------------------------------------------------------------
 

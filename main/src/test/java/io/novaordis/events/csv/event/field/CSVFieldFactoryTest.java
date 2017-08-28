@@ -51,7 +51,7 @@ public class CSVFieldFactoryTest {
     // fromSpecification() ----------------------------------------------------------------------------------------
 
     @Test
-    public void fromFieldSpecification_Null() throws Exception {
+    public void fromSpecification_Null() throws Exception {
 
         try {
 
@@ -66,7 +66,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromFieldSpecification_UnbalancedParantheses() throws Exception {
+    public void fromSpecification_UnbalancedParantheses() throws Exception {
 
         try {
 
@@ -81,7 +81,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromFieldSpecification_UnbalancedParantheses2() throws Exception {
+    public void fromSpecification_UnbalancedParantheses2() throws Exception {
 
         try {
 
@@ -96,7 +96,22 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromFieldSpecification_NoTypeInformation() throws Exception {
+    public void fromSpecification_UnbalancedParantheses3() throws Exception {
+
+        try {
+
+            CSVFieldFactory.fromSpecification("a(");
+            fail("should throw exception");
+        }
+        catch(CSVFormatException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("unbalanced parentheses"));
+        }
+    }
+
+    @Test
+    public void fromSpecification_NoTypeInformation() throws Exception {
 
         String specification = "something";
 
@@ -115,7 +130,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromFieldSpecification_NoTypeInformation_Timestamp() throws Exception {
+    public void fromSpecification_NoTypeInformation_Timestamp() throws Exception {
 
         String specification = "timestamp";
 
@@ -130,11 +145,11 @@ public class CSVFieldFactoryTest {
         //
         // adds canonical type info
         //
-        assertEquals(specification + "(time)", specification2);
+        assertEquals(specification + "(time:MM/dd/yy HH:mm:ss)", specification2);
     }
 
     @Test
-    public void fromFieldSpecification_InvalidTypeSpecification() throws Exception {
+    public void fromSpecification_InvalidTypeSpecification() throws Exception {
 
         try {
 
@@ -150,7 +165,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromFieldSpecification_TypeInformation_String() throws Exception {
+    public void fromSpecification_TypeInformation_String() throws Exception {
 
         String specification = "something(string)";
 
@@ -165,7 +180,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromFieldSpecification_TypeInformation_Integer() throws Exception {
+    public void fromSpecification_TypeInformation_Integer() throws Exception {
 
         String specification = "something(int)";
 
@@ -180,7 +195,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromFieldSpecification_TypeInformation_Long() throws Exception {
+    public void fromSpecification_TypeInformation_Long() throws Exception {
 
         String specification = "something(long)";
 
@@ -195,7 +210,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromFieldSpecification_TypeInformation_Float() throws Exception {
+    public void fromSpecification_TypeInformation_Float() throws Exception {
 
         String specification = "something(float)";
 
@@ -210,7 +225,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromFieldSpecification_TypeInformation_Double() throws Exception {
+    public void fromSpecification_TypeInformation_Double() throws Exception {
 
         String specification = "something(double)";
 
@@ -225,9 +240,25 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromFieldSpecification_TypeInformation_Time() throws Exception {
+    public void fromSpecification_TypeInformation_Time_MissingFormat() throws Exception {
 
         String specification = "something(time)";
+
+        try {
+
+            CSVFieldFactory.fromSpecification(specification);
+        }
+        catch(CSVFormatException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("invalid time specification: missing format"));
+        }
+    }
+
+    @Test
+    public void fromSpecification_TypeInformation_Time() throws Exception {
+
+        String specification = "something(HH:mm:ss)";
 
         CSVField f = CSVFieldFactory.fromSpecification(specification);
 
@@ -235,12 +266,15 @@ public class CSVFieldFactoryTest {
         assertEquals(Date.class, f.getType());
         assertFalse(f.isTimestamp());
 
+        assertEquals("HH:mm:ss", ((SimpleDateFormat)f.getFormat()).toPattern());
+
         String specification2 = f.getSpecification();
-        assertEquals(specification, specification2);
+        assertEquals("something(time:HH:mm:ss)", specification2);
     }
 
+
     @Test
-    public void fromFieldSpecification_StringField() throws Exception {
+    public void fromSpecification_StringField() throws Exception {
 
         String specification = "some-string(string)";
 
@@ -254,7 +288,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fieldSpecificationParsing_SimpleString() throws Exception {
+    public void fromSpecification_SimpleString() throws Exception {
 
         String specification = "some-string";
 
@@ -269,7 +303,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fieldSpecificationParsing_Time() throws Exception {
+    public void fromSpecification_Time_Timestamp() throws Exception {
 
         String specification = "timestamp(time:yy/MM/dd HH:mm:ss)";
 
@@ -292,7 +326,61 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fieldSpecificationParsing_Time_InvalidTimeFormatSpecification() throws Exception {
+    public void fromSpecification_Time_Timestamp2() throws Exception {
+
+        String specification = "timestamp(yy/MM/dd HH:mm:ss)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
+
+        assertTrue(f.isTimestamp());
+
+        assertEquals("timestamp", f.getName());
+        assertEquals(Long.class, f.getType());
+
+        Format format = f.getFormat();
+        assertTrue(format instanceof SimpleDateFormat);
+        SimpleDateFormat sdf = (SimpleDateFormat)format;
+
+        assertEquals(sdf.parse("16/01/01 01:01:01"),
+                new SimpleDateFormat("MM/dd/yy hh:mm:ss a").parse("01/01/16 01:01:01 AM"));
+
+        assertEquals("yy/MM/dd HH:mm:ss", sdf.toPattern());
+
+        String specification2 = f.getSpecification();
+        assertEquals("timestamp(time:yy/MM/dd HH:mm:ss)", specification2);
+    }
+
+
+    @Test
+    public void fromSpecification_Time_NotTimestamp() throws Exception {
+
+        String specification = "T(time:MMM-dd yyyy HH:mm:ss)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
+
+        //
+        // because the field name is not 'timestamp', the field won't be a TimestampCSVField, but just a regular
+        // CSVFieldImpl
+        //
+
+        assertFalse(f.isTimestamp());
+
+        assertEquals("T", f.getName());
+        assertEquals(Date.class, f.getType());
+
+        Format format = f.getFormat();
+        assertTrue(format instanceof SimpleDateFormat);
+        SimpleDateFormat sdf = (SimpleDateFormat)format;
+
+        assertEquals(sdf.parse("Jun-01 2016 01:01:01"),
+                new SimpleDateFormat("MM/dd/yy hh:mm:ss a").parse("06/01/16 01:01:01 AM"));
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
+    }
+
+    @Test
+    public void fromSpecification_Time_InvalidTimeFormatSpecification() throws Exception {
 
         try {
 
@@ -301,14 +389,13 @@ public class CSVFieldFactoryTest {
         catch(CSVFormatException e) {
 
             String msg = e.getMessage();
-            assertTrue(msg.contains("invalid timestamp format \"blah\""));
-            IllegalArgumentException cause = (IllegalArgumentException)e.getCause();
-            assertNotNull(cause);
+            assertTrue(msg.contains("invalid time specification"));
+            assertTrue(msg.contains("blah"));
         }
     }
 
     @Test
-    public void fieldSpecificationParsing_Integer() throws Exception {
+    public void fromSpecification_Integer() throws Exception {
 
         String specification = "a(int)";
 
@@ -322,7 +409,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fieldSpecificationParsing_Integer_Space() throws Exception {
+    public void fromSpecification_Integer_Space() throws Exception {
 
         String specification = "something (int)";
 
@@ -336,7 +423,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fieldSpecificationParsing_Long() throws Exception {
+    public void fromSpecification_Long() throws Exception {
 
         String specification = "a(long)";
 
@@ -350,7 +437,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fieldSpecificationParsing_Float() throws Exception {
+    public void fromSpecification_Float() throws Exception {
 
         String specification = "a(float)";
 
@@ -364,7 +451,7 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fieldSpecificationParsing_Double() throws Exception {
+    public void fromSpecification_Double() throws Exception {
 
         String specification = "a(double)";
 
@@ -379,49 +466,65 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fieldSpecificationParsing_InvalidType() throws Exception {
+    public void fromSpecification_InvalidType() throws Exception {
 
         try {
 
-            CSVFieldFactory.fromSpecification("fieldA(ms)");
+            CSVFieldFactory.fromSpecification("fieldA(MB)");
             fail("should throw exception");
         }
         catch(CSVFormatException e) {
 
             String msg = e.getMessage();
-            assertTrue(msg.contains("invalid field type specification \"ms\""));
-        }
-    }
-
-    @Test
-    public void fieldSpecificationParsing_UnbalancedParantheses() throws Exception {
-
-        try {
-
-            CSVFieldFactory.fromSpecification("a(");
-            fail("should throw exception");
-        }
-        catch(CSVFormatException e) {
-
-            String msg = e.getMessage();
-            assertTrue(msg.contains("unbalanced parentheses"));
+            assertTrue(msg.contains("invalid field type specification \"MB\""));
         }
     }
 
     // parseTimeSpecification() ----------------------------------------------------------------------------------------
 
     @Test
-    public void parseTimeSpecification_Invalid() throws Exception {
+    public void parseTimeSpecification_NoRecognizableSimpleDateFormat() throws Exception {
+
+        Format f = CSVFieldFactory.parseTimeSpecification("something");
+        assertNull(f);
+    }
+
+    @Test
+    public void parseTimeSpecification_NoRecognizableSimpleDateFormat2() throws Exception {
+
+        Format format = CSVFieldFactory.parseTimeSpecification("something that won't trigger anything");
+        assertNull(format);
+    }
+
+    @Test
+    public void parseTimeSpecification_TimeLabelButNoFormat() throws Exception {
 
         try {
 
-            CSVFieldFactory.parseTimeSpecification("something");
+            CSVFieldFactory.parseTimeSpecification("time");
             fail("should have thrown exception");
         }
-        catch(IllegalArgumentException e) {
+        catch(CSVFormatException e) {
 
             String msg = e.getMessage();
-            assertTrue(msg.startsWith("invalid time specification"));
+            assertTrue(msg.contains("invalid time specification"));
+            assertTrue(msg.contains("missing format"));
+        }
+    }
+
+    @Test
+    public void parseTimeSpecification_TimeLabelButNoFormat2() throws Exception {
+
+        try {
+
+            CSVFieldFactory.parseTimeSpecification("time:");
+            fail("should have thrown exception");
+        }
+        catch(CSVFormatException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("invalid time specification"));
+            assertTrue(msg.contains("missing format"));
         }
     }
 
@@ -436,7 +539,7 @@ public class CSVFieldFactoryTest {
         catch(CSVFormatException e) {
 
             String msg = e.getMessage();
-            assertTrue(msg.startsWith("invalid time specification"));
+            assertTrue(msg.contains("invalid time specification"));
             assertTrue(msg.contains("missing ':'"));
         }
     }
@@ -452,15 +555,9 @@ public class CSVFieldFactoryTest {
         catch(CSVFormatException e) {
 
             String msg = e.getMessage();
-            assertTrue(msg.startsWith("invalid timestamp format"));
+            assertTrue(msg.contains("invalid time specification"));
+            assertTrue(msg.contains("blahblah"));
         }
-    }
-
-    @Test
-    public void parseTimeSpecification_Null() throws Exception {
-
-        Format format = CSVFieldFactory.parseTimeSpecification("time");
-        assertNull(format);
     }
 
     @Test
@@ -471,7 +568,10 @@ public class CSVFieldFactoryTest {
         SimpleDateFormat sdf = (SimpleDateFormat)format;
 
         assertNotNull(sdf);
+
+        assertEquals("MM/dd/YY HH:mm:ss", sdf.toPattern());
     }
+
 
 
     // Package protected -----------------------------------------------------------------------------------------------

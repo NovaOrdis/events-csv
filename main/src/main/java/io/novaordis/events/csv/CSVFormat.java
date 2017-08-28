@@ -31,7 +31,7 @@ import java.util.List;
  * The class encapsulates a CSV line format specification. Instances of this class are used by CSV parsers, which
  * turn CSV text lines into events, or CSV formatters, which turn events into CSV text lines. The parsing/formatting
  * is an external concern, this class' only responsibility is to maintain the format information in a way that is as
- * flexible as possible.
+ * flexible and easy to use as possible.
  *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 2/6/16

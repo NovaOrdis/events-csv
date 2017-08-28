@@ -18,6 +18,8 @@ package io.novaordis.events.csv.event.field;
 
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.csv.CSVFormatException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -33,6 +35,8 @@ import java.util.Date;
 public class CSVFieldFactory {
 
     // Constants -------------------------------------------------------------------------------------------------------
+
+    private static final Logger log = LoggerFactory.getLogger(CSVFieldFactory.class);
 
     // Static ----------------------------------------------------------------------------------------------------------
 
@@ -104,14 +108,23 @@ public class CSVFieldFactory {
 
                 type = Double.class;
             }
-            else if (typeSpecification.startsWith("time")) {
-
-                type = Date.class;
-                format = parseTimeSpecification(typeSpecification);
-            }
             else {
 
-                throw new CSVFormatException("invalid field type specification \"" + typeSpecification + "\"");
+                //
+                // we attempt conversion to a time specification, since the date format may come in various
+                // shapes
+                //
+
+                format = parseTimeSpecification(typeSpecification);
+
+                if (format != null) {
+
+                    type = Date.class;
+                }
+                else {
+
+                    throw new CSVFormatException("invalid field type specification \"" + typeSpecification + "\"");
+                }
             }
         }
 
@@ -141,40 +154,69 @@ public class CSVFieldFactory {
     // Package protected -----------------------------------------------------------------------------------------------
 
     /**
-     * May return null if the format is not explicitly specified.
+     * Time specification is [time:]<simple-date-format>.
+     *
+     * Will return null if no valid date format is identified.
+     *
+     * If the "time:" literal is identified, but no format, a CSVFormatException is thrown.
      */
     static Format parseTimeSpecification(String timeSpecification) throws CSVFormatException {
 
-        //
-        // must start with "time"
-        //
+        if (timeSpecification.startsWith("time")) {
 
-        if (!timeSpecification.startsWith("time")) {
+            String s = timeSpecification.substring("time".length()).trim();
 
-            throw new IllegalArgumentException("invalid time specification " + timeSpecification);
+            if (s.isEmpty()) {
+
+                throw new CSVFormatException("invalid time specification: missing format");
+            }
+
+
+            if (s.charAt(0) != ':') {
+
+                throw new CSVFormatException("invalid time specification: missing ':'");
+            }
+
+
+            s = s.substring(1);
+
+            if (s.isEmpty()) {
+
+                throw new CSVFormatException("invalid time specification: missing format");
+            }
+
+            try {
+
+                return new SimpleDateFormat(s);
+            }
+            catch(Exception e) {
+
+                throw new CSVFormatException("invalid time specification: " + s, e);
+            }
         }
+        else {
 
-        timeSpecification = timeSpecification.substring("time".length());
+            //
+            // attempt to convert to an acceptable SimpleDateFormat
+            //
 
-        if (timeSpecification.isEmpty()) {
+            try {
 
-            return null;
-        }
+                return new SimpleDateFormat(timeSpecification);
+            }
+            catch(Exception e) {
 
-        if (!timeSpecification.startsWith(":")) {
+                //
+                // conversion failed
+                //
 
-            throw new CSVFormatException("invalid time specification \"" + timeSpecification + "\", missing ':'");
-        }
+                if (log.isDebugEnabled()) {
 
-        timeSpecification = timeSpecification.substring(1);
+                    log.debug("no valid time specification found in \"" + timeSpecification + "\"");
+                }
 
-        try {
-
-            return new SimpleDateFormat(timeSpecification);
-        }
-        catch(Exception e) {
-
-            throw new CSVFormatException("invalid timestamp format \"" + timeSpecification + "\"", e);
+                return null;
+            }
         }
     }
 

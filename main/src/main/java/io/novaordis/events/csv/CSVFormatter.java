@@ -22,6 +22,7 @@ import io.novaordis.events.api.event.FaultEvent;
 import io.novaordis.events.api.event.MapProperty;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.api.event.TimestampProperty;
 import io.novaordis.events.api.metric.MetricDefinition;
 import io.novaordis.events.api.parser.ParsingException;
 import io.novaordis.events.csv.event.field.CSVField;
@@ -31,8 +32,6 @@ import io.novaordis.utilities.time.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -59,10 +58,6 @@ public class CSVFormatter {
     // Constants -------------------------------------------------------------------------------------------------------
 
     private static final Logger log = LoggerFactory.getLogger(CSVFormatter.class);
-
-    // MM/dd/yy HH:mm:ss (07/25/16 14:00:00) is the default time format so it works straight away with Excel
-
-    public static final DateFormat DEFAULT_TIMESTAMP_FORMAT = new SimpleDateFormat("MM/dd/yy HH:mm:ss");
 
     public static final String NULL_EXTERNALIZATION = "";
 
@@ -459,7 +454,7 @@ public class CSVFormatter {
                 }
                 else {
 
-                    s += timestamp.format(DEFAULT_TIMESTAMP_FORMAT);
+                    s += timestamp.format(Constants.DEFAULT_TIMESTAMP_FORMAT);
                 }
             }
             else {
@@ -515,7 +510,22 @@ public class CSVFormatter {
         String s = "";
 
         List<Property> properties = event.getProperties();
-        List <Property> orderedProperties = new ArrayList<>(properties);
+
+        List <Property> orderedProperties = new ArrayList<>();
+
+        //
+        // discard the timestamp property (if any), that will be handled separately
+        //
+        for(Property p: properties) {
+
+            if (p instanceof TimestampProperty) {
+
+                continue;
+            }
+
+            orderedProperties.add(p);
+        }
+
         Collections.sort(orderedProperties);
 
         if (event instanceof TimedEvent) {
@@ -527,13 +537,16 @@ public class CSVFormatter {
             Long timestamp = ((TimedEvent)event).getTime();
 
             if (timestamp == null) {
+
                 s += NULL_EXTERNALIZATION;
             }
             else {
-                s += DEFAULT_TIMESTAMP_FORMAT.format(timestamp);
+
+                s += Constants.DEFAULT_TIMESTAMP_FORMAT.format(timestamp);
             }
 
             if (!properties.isEmpty()) {
+
                 s += ", ";
             }
         }
@@ -541,14 +554,18 @@ public class CSVFormatter {
         for(int i = 0; i < orderedProperties.size(); i++) {
 
             Property p = orderedProperties.get(i);
+
             String ev = p.externalizeValue();
 
             if (ev == null) {
+
                 ev = NULL_EXTERNALIZATION;
             }
+
             s += ev;
 
             if (i < orderedProperties.size() - 1) {
+
                 s += ", ";
             }
 
@@ -600,7 +617,24 @@ public class CSVFormatter {
         String s = "# ";
 
         List<Property> properties = event.getProperties();
-        List <Property> orderedProperties = new ArrayList<>(properties);
+
+        //
+        // filter out the timestamp property, if any, it will be dealt with separately
+        //
+
+        List <Property> orderedProperties = new ArrayList<>();
+
+        //noinspection Convert2streamapi
+        for(Property p: properties) {
+
+            if (p instanceof TimestampProperty) {
+
+                continue;
+            }
+
+            orderedProperties.add(p);
+        }
+
         Collections.sort(orderedProperties);
 
         if (event instanceof TimedEvent) {

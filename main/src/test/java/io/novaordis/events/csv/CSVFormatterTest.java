@@ -132,7 +132,7 @@ public class CSVFormatterTest {
 
         String s = c.format(me);
 
-        String expected = CSVFormatter.DEFAULT_TIMESTAMP_FORMAT.format(d) + ", C value, B value, A value\n";
+        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(d) + ", C value, B value, A value\n";
         assertEquals(expected, s);
     }
 
@@ -188,7 +188,7 @@ public class CSVFormatterTest {
 
         String s = c.format(me);
 
-        String expected = "B value, , " + CSVFormatter.DEFAULT_TIMESTAMP_FORMAT.format(ts) + ", C value\n";
+        String expected = "B value, , " + Constants.DEFAULT_TIMESTAMP_FORMAT.format(ts) + ", C value\n";
         assertEquals(expected, s);
     }
 
@@ -231,7 +231,7 @@ public class CSVFormatterTest {
         c.setFormat(format);
 
         GenericTimedEvent mte = new GenericTimedEvent(System.currentTimeMillis());
-        mte.setLongProperty("some.name.with.dots", 1000);
+        mte.setLongProperty("some.name.with.dots", 1000L);
 
         String s = c.format(mte);
 
@@ -378,7 +378,7 @@ public class CSVFormatterTest {
 
         String output = c.format(me);
 
-        String expected = CSVFormatter.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", XXX\n";
+        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", XXX\n";
         assertEquals(expected, output);
 
         //
@@ -398,7 +398,7 @@ public class CSVFormatterTest {
 
         expected =
                 "# timestamp, field-1\n" +
-                        CSVFormatter.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", YYY\n";
+                        Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", YYY\n";
 
         assertEquals(expected, output);
 
@@ -412,7 +412,7 @@ public class CSVFormatterTest {
 
         output = c.format(me);
 
-        expected = CSVFormatter.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", ZZZ\n";
+        expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", ZZZ\n";
         assertEquals(expected, output);
     }
 
@@ -422,6 +422,7 @@ public class CSVFormatterTest {
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/yy/dd HH:mm:ss");
 
         CSVFormatter c = new CSVFormatter();
+
         assertFalse(c.isHeaderOn());
 
         assertNull(c.getFormat());
@@ -432,7 +433,7 @@ public class CSVFormatterTest {
 
         String output = c.format(me);
 
-        String expected = CSVFormatter.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", XXX\n";
+        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", XXX\n";
         assertEquals(expected, output);
 
         //
@@ -452,7 +453,7 @@ public class CSVFormatterTest {
 
         expected =
                 "# timestamp, field-1\n" +
-                        CSVFormatter.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", YYY\n";
+                        Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", YYY\n";
 
         assertEquals(expected, output);
 
@@ -466,7 +467,7 @@ public class CSVFormatterTest {
 
         output = c.format(me);
 
-        expected = CSVFormatter.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", ZZZ\n";
+        expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", ZZZ\n";
         assertEquals(expected, output);
     }
 
@@ -711,6 +712,20 @@ public class CSVFormatterTest {
         String result = CSVFormatter.extractValueForPropertyWithGivenName(e, "property-name-1");
 
         assertEquals("something", result);
+    }
+
+    // setIgnoreFaults() -----------------------------------------------------------------------------------------------
+
+    @Test
+    public void setIgnoreFaults() throws Exception {
+
+        CSVFormatter f = new CSVFormatter();
+
+        assertFalse(f.isIgnoreFaults());
+
+        f.setIgnoreFaults(true);
+
+        assertTrue(f.isIgnoreFaults());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

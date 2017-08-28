@@ -17,14 +17,17 @@
 package io.novaordis.events.csv.event.field;
 
 import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.csv.Constants;
 
-import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * A timestamp CSV field.
  *
  * The name is conventionally use TimedEvent.TIMESTAMP_PROPERTY_NAME and the type is Long.
+ *
+ * The format is never null.
  *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 2/6/16
@@ -41,20 +44,20 @@ public class TimestampCSVField extends CSVFieldImpl {
 
     public TimestampCSVField() {
 
-        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class);
+        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
     }
 
     public TimestampCSVField(String name) {
 
-        super(name, Long.class);
+        super(name, Long.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
     }
 
-    public TimestampCSVField(Format format) {
+    public TimestampCSVField(SimpleDateFormat format) {
 
         super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, format);
     }
 
-    public TimestampCSVField(String name, Format format) {
+    public TimestampCSVField(String name, SimpleDateFormat format) {
 
         super(name, Long.class, format);
     }
@@ -68,6 +71,13 @@ public class TimestampCSVField extends CSVFieldImpl {
     }
 
     @Override
+    public SimpleDateFormat getFormat() {
+
+        return (SimpleDateFormat)super.getFormat();
+    }
+
+
+    @Override
     public String getSpecification() {
 
         return getName() + typeToCommandLineLiteral(Date.class, getFormat());
@@ -76,7 +86,7 @@ public class TimestampCSVField extends CSVFieldImpl {
     @Override
     public String toString() {
 
-        return "TIMESTAMP";
+        return getSpecification();
     }
 
     // Public ----------------------------------------------------------------------------------------------------------

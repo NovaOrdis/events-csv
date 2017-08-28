@@ -20,7 +20,7 @@ package io.novaordis.events.csv.event;
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
  */
-public class CSVLineTest extends CSVEventTest {
+public class NonTimedCSVLineTest extends CSVEventTest {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -39,9 +39,9 @@ public class CSVLineTest extends CSVEventTest {
     // Protected -------------------------------------------------------------------------------------------------------
 
     @Override
-    protected CSVLine getCSVEventToTest() throws Exception {
+    protected NonTimedCSVLine getCSVEventToTest() throws Exception {
 
-        return new CSVLine();
+        return new NonTimedCSVLine();
     }
 
     // Private ---------------------------------------------------------------------------------------------------------

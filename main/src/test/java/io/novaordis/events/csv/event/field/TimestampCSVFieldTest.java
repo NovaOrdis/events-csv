@@ -16,13 +16,14 @@
 
 package io.novaordis.events.csv.event.field;
 
+import io.novaordis.events.csv.Constants;
 import org.junit.Test;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -59,10 +60,11 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
 
         assertEquals("something", f.getName());
         assertEquals(Long.class, f.getType());
-        assertNull(f.getFormat());
+        SimpleDateFormat format = f.getFormat();
+        assertNotNull(format);
+        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL, format.toPattern());
         assertTrue(f.isTimestamp());
     }
-
 
     @Test
     @Override
@@ -118,7 +120,7 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
         //
     }
 
-    // getSpecification()------------------------------------------------------------------------------------------------
+    // getSpecification()-----------------------------------------------------------------------------------------------
 
     @Test
     @Override
@@ -143,7 +145,7 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
     public void toSpecification_Long() throws Exception {
 
         CSVField f = getCSVFieldToTest("test", Long.class);
-        assertEquals("test(time)", f.getSpecification());
+        assertEquals("test(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL + ")", f.getSpecification());
     }
 
     @Test
@@ -188,7 +190,7 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
     public void toSpecification_Timestamp_NoFormat() throws Exception {
 
         TimestampCSVField f = new TimestampCSVField();
-        assertEquals("timestamp(time)", f.getSpecification());
+        assertEquals("timestamp(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL + ")", f.getSpecification());
     }
 
     @Test
@@ -211,7 +213,22 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
             throw new RuntimeException("RETURN HERE, I am getting " + type);
         }
 
-        return new TimestampCSVField(name, format);
+        SimpleDateFormat simpleDateFormat;
+
+        if (format == null) {
+
+            simpleDateFormat = Constants.DEFAULT_TIMESTAMP_FORMAT;
+        }
+        else if (!(format instanceof SimpleDateFormat)) {
+
+            throw new RuntimeException("RETURN HERE, I am getting NOT a SimpleDateFormat: " + format);
+        }
+        else {
+
+            simpleDateFormat = (SimpleDateFormat)format;
+        }
+
+        return new TimestampCSVField(name, simpleDateFormat);
     }
 
     // Private ---------------------------------------------------------------------------------------------------------

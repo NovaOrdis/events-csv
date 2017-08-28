@@ -16,28 +16,43 @@
 
 package io.novaordis.events.csv.event;
 
-import io.novaordis.events.api.event.Event;
-
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 8/8/17
+ * @since 8/27/17
  */
-public interface CSVEvent extends Event {
+class MutableBoolean {
 
     // Constants -------------------------------------------------------------------------------------------------------
-
-    public static final char SEPARATOR = ',';
-
-    public static final String GENERIC_FIELD_NAME_PREFIX = "field_";
-
 
     // Static ----------------------------------------------------------------------------------------------------------
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
+    private boolean value;
+
     // Constructors ----------------------------------------------------------------------------------------------------
 
+    MutableBoolean(boolean b) {
+
+        this.value = b;
+    }
+
     // Public ----------------------------------------------------------------------------------------------------------
+
+    public boolean isTrue() {
+
+        return value;
+    }
+
+    public boolean isFalse() {
+
+        return !value;
+    }
+
+    public void setTrue() {
+
+        value = true;
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 

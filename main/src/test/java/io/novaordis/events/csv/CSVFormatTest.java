@@ -195,14 +195,14 @@ public class CSVFormatTest {
 
         try {
 
-            new CSVFormat("duration(ms)");
+            new CSVFormat("duration(mb)");
             fail("should have thrown exception");
         }
         catch(CSVFormatException e) {
 
             String msg = e.getMessage();
             assertTrue(msg.contains("invalid field type specification"));
-            assertTrue(msg.contains("ms"));
+            assertTrue(msg.contains("mb"));
         }
     }
 

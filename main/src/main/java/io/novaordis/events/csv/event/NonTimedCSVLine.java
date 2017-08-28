@@ -16,13 +16,16 @@
 
 package io.novaordis.events.csv.event;
 
-import io.novaordis.events.api.event.GenericTimedEvent;
+import io.novaordis.events.api.event.GenericEvent;
+import io.novaordis.events.api.event.Property;
+
+import java.util.List;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
  */
-public class CSVLine extends GenericTimedEvent implements CSVEvent {
+public class NonTimedCSVLine extends GenericEvent implements CSVEvent {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -31,6 +34,16 @@ public class CSVLine extends GenericTimedEvent implements CSVEvent {
     // Attributes ------------------------------------------------------------------------------------------------------
 
     // Constructors ----------------------------------------------------------------------------------------------------
+
+    public NonTimedCSVLine() {
+
+        this(null);
+    }
+
+    public NonTimedCSVLine(List<Property> properties) {
+
+        super(properties);
+    }
 
     // Public ----------------------------------------------------------------------------------------------------------
 
