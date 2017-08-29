@@ -91,23 +91,57 @@ public class HeadersTest extends ProcedureTest {
     }
 
     @Test
-    public void process_HeaderGeneratesOutputButDoesNotBreakTheLoopByDefault() throws Exception {
-
-        String header = "timestamp, A, B, C";
+    public void process() throws Exception {
 
         Headers headersProcedure = new Headers(new ByteArrayOutputStream());
 
-        List<CSVField> fields = new CSVFormat(header).getFields();
+        List<CSVField> fields = new CSVFormat("timestamp, A, B, C").getFields();
 
-        CSVHeaders headersEvent = new CSVHeaders(7L, fields);
+        CSVHeaders headersEvent = new CSVHeaders(777L, fields);
 
         headersProcedure.process(headersEvent);
 
         String expected =
-                "    0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
-                        "    1: A(string)\n" +
-                        "    2: B(string)\n" +
-                        "    3: C(string)\n";
+                "line 777 header:\n" +
+                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  1: A(string)\n" +
+                        "  2: B(string)\n" +
+                        "  3: C(string)\n";
+
+        String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
+
+        assertEquals(expected, actual);
+
+        assertFalse(headersProcedure.isExitLoop());
+    }
+
+    @Test
+    public void process_TwoHeaders() throws Exception {
+
+        Headers headersProcedure = new Headers(new ByteArrayOutputStream());
+
+        List<CSVField> fields = new CSVFormat("timestamp, A, B, C").getFields();
+
+        CSVHeaders headersEvent = new CSVHeaders(777L, fields);
+
+        headersProcedure.process(headersEvent);
+
+        List<CSVField> fields2 = new CSVFormat("X, Y(int), Z").getFields();
+
+        CSVHeaders headersEvent2 = new CSVHeaders(888L, fields2);
+
+        headersProcedure.process(headersEvent2);
+
+        String expected =
+                "line 777 header:\n" +
+                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  1: A(string)\n" +
+                        "  2: B(string)\n" +
+                        "  3: C(string)\n" +
+                "line 888 header:\n" +
+                        "  0: X(string)\n" +
+                        "  1: Y(int)\n" +
+                        "  2: Z(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
 

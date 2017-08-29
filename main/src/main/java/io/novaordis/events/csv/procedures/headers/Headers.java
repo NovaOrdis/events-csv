@@ -92,12 +92,16 @@ public class Headers extends TextOutputProcedure {
 
         //exitLoop = true;
 
-        List<Property> properties = e.getProperties();
+        CSVHeaders headers = (CSVHeaders)e;
+
+        List<Property> properties = headers.getProperties();
 
         int count = properties.size();
-        int width = 5 - (int)Math.log10(count);
+        int width = 3 + (int)Math.log10(count);
 
         try {
+
+            println("line " + e.getLineNumber() + " header:");
 
             for (Property p : properties) {
 
