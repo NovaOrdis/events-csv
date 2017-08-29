@@ -103,10 +103,10 @@ public class HeadersTest extends ProcedureTest {
 
         String expected =
                 "line 777 header:\n" +
-                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
-                        "  1: A(string)\n" +
-                        "  2: B(string)\n" +
-                        "  3: C(string)\n";
+                        "  1: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  2: A(string)\n" +
+                        "  3: B(string)\n" +
+                        "  4: C(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
 
@@ -134,14 +134,14 @@ public class HeadersTest extends ProcedureTest {
 
         String expected =
                 "line 777 header:\n" +
-                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
-                        "  1: A(string)\n" +
-                        "  2: B(string)\n" +
-                        "  3: C(string)\n" +
+                        "  1: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  2: A(string)\n" +
+                        "  3: B(string)\n" +
+                        "  4: C(string)\n" +
                 "line 888 header:\n" +
-                        "  0: X(string)\n" +
-                        "  1: Y(int)\n" +
-                        "  2: Z(string)\n";
+                        "  1: X(string)\n" +
+                        "  2: Y(int)\n" +
+                        "  3: Z(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
 

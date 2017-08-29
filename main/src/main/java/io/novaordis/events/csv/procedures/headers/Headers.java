@@ -97,7 +97,6 @@ public class Headers extends TextOutputProcedure {
         List<Property> properties = headers.getProperties();
 
         int width = 3 + (int)Math.log10(properties.size());
-        int propertyIndexOffset = 0;
 
         try {
 
@@ -109,21 +108,23 @@ public class Headers extends TextOutputProcedure {
 
                 //
                 // properties such as line number property, and other, may be present, filter them out, only use
-                // "header_" properties; however, keep track of how many we skipped, because we'll need that value
-                // to offset data line property indexes.
+                // "header_" properties
                 //
 
                 String name = p.getName();
 
                 if (!name.startsWith(CSVHeaders.HEADER_NAME_PREFIX)) {
 
-                    propertyIndexOffset ++;
                     continue;
                 }
 
-                String index = name.substring(CSVHeaders.HEADER_NAME_PREFIX.length());
+                //
+                // currently I have not explored a formal way to maintain the relationship between the position (index)
+                // of a header in the header line and the position (index) of the corresponding property in a data line
+                // I just assume the structure is similar and use the same index
+                //
 
-                printf("%" + width + "s: ", index);
+                printf("%" + width + "s: ", i);
                 println(p.getValue());
             }
         }
