@@ -17,7 +17,9 @@
 package io.novaordis.events.csv.procedures.headers;
 
 import io.novaordis.events.api.event.GenericEvent;
+import io.novaordis.events.csv.CSVFormat;
 import io.novaordis.events.csv.event.CSVHeaders;
+import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.procedures.CSVProcedureFactory;
 import io.novaordis.events.csv.procedures.ProcedureTest;
 import org.junit.Test;
@@ -95,17 +97,17 @@ public class HeadersTest extends ProcedureTest {
 
         Headers headersProcedure = new Headers(new ByteArrayOutputStream());
 
-        CSVHeaders headersEvent = new CSVHeaders();
+        List<CSVField> fields = new CSVFormat(header).getFields();
 
-        headersEvent.load(7L, header);
+        CSVHeaders headersEvent = new CSVHeaders(7L, fields);
 
         headersProcedure.process(headersEvent);
 
         String expected =
-                "1: timestamp\n" +
-                        "2: A\n" +
-                        "3: B\n" +
-                        "4: C\n";
+                "0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "1: A(string)\n" +
+                        "2: B(string)\n" +
+                        "3: C(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
 

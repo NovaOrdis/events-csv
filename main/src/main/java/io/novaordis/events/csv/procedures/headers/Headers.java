@@ -87,13 +87,25 @@ public class Headers extends TextOutputProcedure {
 
         exitLoop = true;
 
-        int index = 1;
-
         try {
 
             for (Property p : e.getProperties()) {
 
-                String line = (index++) + ": " + p.getValue();
+                //
+                // properties such as line number property, and other, may be present, filter them out, only use
+                // "header_" properties
+                //
+
+                String name = p.getName();
+
+                if (!name.startsWith(CSVHeaders.HEADER_NAME_PREFIX)) {
+
+                    continue;
+                }
+
+                String index = name.substring(CSVHeaders.HEADER_NAME_PREFIX.length());
+
+                String line = index + ": " + p.getValue();
                 println(line);
             }
         }
