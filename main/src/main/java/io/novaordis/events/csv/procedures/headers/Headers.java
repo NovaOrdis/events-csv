@@ -96,24 +96,28 @@ public class Headers extends TextOutputProcedure {
 
         List<Property> properties = headers.getProperties();
 
-        int count = properties.size();
-        int width = 3 + (int)Math.log10(count);
+        int width = 3 + (int)Math.log10(properties.size());
+        int propertyIndexOffset = 0;
 
         try {
 
             println("line " + e.getLineNumber() + " header:");
 
-            for (Property p : properties) {
+            for (int i = 0; i < properties.size(); i ++) {
+
+                Property p = properties.get(i);
 
                 //
                 // properties such as line number property, and other, may be present, filter them out, only use
-                // "header_" properties
+                // "header_" properties; however, keep track of how many we skipped, because we'll need that value
+                // to offset data line property indexes.
                 //
 
                 String name = p.getName();
 
                 if (!name.startsWith(CSVHeaders.HEADER_NAME_PREFIX)) {
 
+                    propertyIndexOffset ++;
                     continue;
                 }
 
