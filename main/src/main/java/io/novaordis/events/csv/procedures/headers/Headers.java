@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * The default implementation displays the first header (^ *#.+) encountered in the stream.
+ * The default implementation displays all headers (^ *#.+) as they are identified in the CSV stream.
  *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/7/17
@@ -85,11 +85,21 @@ public class Headers extends TextOutputProcedure {
             return;
         }
 
-        exitLoop = true;
+        if (log.isDebugEnabled()) {
+
+            log.debug(this + " identified CSV header event: " + e);
+        }
+
+        //exitLoop = true;
+
+        List<Property> properties = e.getProperties();
+
+        int count = properties.size();
+        int width = 5 - (int)Math.log10(count);
 
         try {
 
-            for (Property p : e.getProperties()) {
+            for (Property p : properties) {
 
                 //
                 // properties such as line number property, and other, may be present, filter them out, only use
@@ -105,8 +115,8 @@ public class Headers extends TextOutputProcedure {
 
                 String index = name.substring(CSVHeaders.HEADER_NAME_PREFIX.length());
 
-                String line = index + ": " + p.getValue();
-                println(line);
+                printf("%" + width + "s:", index);
+                println(p.getValue());
             }
         }
         catch(IOException ioe) {
