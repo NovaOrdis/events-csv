@@ -21,6 +21,7 @@ import io.novaordis.events.api.event.DoubleProperty;
 import io.novaordis.events.api.event.FloatProperty;
 import io.novaordis.events.api.event.IntegerProperty;
 import io.novaordis.events.api.event.LongProperty;
+import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.StringProperty;
 import org.junit.Test;
 
@@ -87,6 +88,21 @@ public abstract class CSVFieldTest {
         assertEquals(7, p.getInteger().intValue());
     }
 
+    /**
+     * Test reaction to missing values (nulls).
+     */
+    @Test
+    public void toProperty_Integer_MissingValue() throws Exception {
+
+        CSVField f = getCSVFieldToTest("something", Integer.class);
+
+        IntegerProperty sp = (IntegerProperty)f.toProperty(null);
+
+        assertNull(sp.getInteger());
+        assertEquals("something", sp.getName());
+        assertEquals(Integer.class, sp.getType());
+    }
+
     @Test
     public void toProperty_String() throws Exception {
 
@@ -97,6 +113,21 @@ public abstract class CSVFieldTest {
         assertNotNull(p);
 
         assertEquals("7", p.getString());
+    }
+
+    /**
+     * Test reaction to missing values (nulls).
+     */
+    @Test
+    public void toProperty_String_MissingValue() throws Exception {
+
+        CSVField f = getCSVFieldToTest("something", String.class);
+
+        Property p = f.toProperty(null);
+
+        assertNull(p.getValue());
+        assertEquals("something", p.getName());
+        assertEquals(String.class, p.getType());
     }
 
     @Test
@@ -111,6 +142,21 @@ public abstract class CSVFieldTest {
         assertEquals(7L, p.getLong().longValue());
     }
 
+    /**
+     * Test reaction to missing values (nulls).
+     */
+    @Test
+    public void toProperty_Long_MissingValue() throws Exception {
+
+        CSVField f = getCSVFieldToTest("something", Long.class);
+
+        Property p = f.toProperty(null);
+
+        assertNull(p.getValue());
+        assertEquals("something", p.getName());
+        assertEquals(Long.class, p.getType());
+    }
+
     @Test
     public void toProperty_Float() throws Exception {
 
@@ -121,6 +167,21 @@ public abstract class CSVFieldTest {
         assertNotNull(p);
 
         assertEquals(7f, p.getFloat().floatValue(), 0.00001);
+    }
+
+    /**
+     * Test reaction to missing values (nulls).
+     */
+    @Test
+    public void toProperty_Float_MissingValue() throws Exception {
+
+        CSVField f = getCSVFieldToTest("something", Float.class);
+
+        Property p = f.toProperty(null);
+
+        assertNull(p.getValue());
+        assertEquals("something", p.getName());
+        assertEquals(Float.class, p.getType());
     }
 
     @Test
@@ -135,6 +196,21 @@ public abstract class CSVFieldTest {
         assertEquals(7d, p.getDouble().doubleValue(), 0.00001);
     }
 
+    /**
+     * Test reaction to missing values (nulls).
+     */
+    @Test
+    public void toProperty_Double_MissingValue() throws Exception {
+
+        CSVField f = getCSVFieldToTest("something", Double.class);
+
+        Property p = f.toProperty(null);
+
+        assertNull(p.getValue());
+        assertEquals("something", p.getName());
+        assertEquals(Double.class, p.getType());
+    }
+
     @Test
     public void toProperty_Date() throws Exception {
 
@@ -147,7 +223,22 @@ public abstract class CSVFieldTest {
         assertEquals(7L, p.getDate().getTime());
     }
 
-    // getSpecification()------------------------------------------------------------------------------------------------
+    /**
+     * Test reaction to missing values (nulls).
+     */
+    @Test
+    public void toProperty_Date_MissingValue() throws Exception {
+
+        CSVField f = getCSVFieldToTest("something", Date.class);
+
+        Property p = f.toProperty(null);
+
+        assertNull(p.getValue());
+        assertEquals("something", p.getName());
+        assertEquals(Date.class, p.getType());
+    }
+
+    // getSpecification()-----------------------------------------------------------------------------------------------
 
     //
     // getSpecification() for TimestampCSVField and subclasses is tested in the corresponding test subclasses.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.event;
+package io.novaordis.events.csv;
 
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.LongProperty;
@@ -24,8 +24,10 @@ import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.event.TimestampProperty;
 import io.novaordis.events.api.parser.ParserBase;
 import io.novaordis.events.api.parser.ParsingException;
-import io.novaordis.events.csv.CSVFormat;
-import io.novaordis.events.csv.CSVFormatException;
+import io.novaordis.events.csv.event.CSVEvent;
+import io.novaordis.events.csv.event.CSVHeaders;
+import io.novaordis.events.csv.event.NonTimedCSVLine;
+import io.novaordis.events.csv.event.TimedCSVLine;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.utilities.time.Timestamp;
 import io.novaordis.utilities.time.TimestampImpl;
@@ -36,7 +38,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.StringTokenizer;
 
 /**
  * A CSV parser.
@@ -56,10 +57,9 @@ public class CSVParser extends ParserBase {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
-    private static final Logger log = LoggerFactory.getLogger(CSVParser.class);
+    public static final char SEPARATOR = ',';
 
-    private static final String COMMA = ",";
-    private static final String DOUBLE_QUOTE = "\"";
+    private static final Logger log = LoggerFactory.getLogger(CSVParser.class);
 
     private static final List<Event> EMPTY_LIST = Collections.emptyList();
 
@@ -216,81 +216,19 @@ public class CSVParser extends ParserBase {
             // we're prepared to handle the situation when there are no headers - no format was installed
             //
 
-            int i = 0;
-            String blank = null;
-            String quotedField = null;
+            List<String> tokens = CSVTokenizer.split(lineNumber, line, SEPARATOR);
+
             final MutableBoolean timestampFound = new MutableBoolean(false);
             List<CSVField> headers = format == null ? null : format.getFields();
             int fieldCount = headers == null ? Integer.MAX_VALUE : headers.size();
 
-            for (StringTokenizer st = new StringTokenizer(line, ",\"", true); st.hasMoreTokens() && i < fieldCount;) {
+            for(int i = 0; i < Math.min(fieldCount, tokens.size()); i ++) {
 
-                String tok = st.nextToken();
+                String token = tokens.get(i);
+
                 CSVField header = headers == null ? null : headers.get(i);
 
-                if (COMMA.equals(tok)) {
-
-                    if (blank != null) {
-
-                        //
-                        // empty field
-                        //
-                        buildAndStoreProperty(blank, i++, header, timestampFound, properties);
-                        blank = null;
-                    }
-                    else if (quotedField != null) {
-
-                        quotedField += tok;
-                    }
-
-                    continue;
-                }
-
-                if (DOUBLE_QUOTE.equals(tok)) {
-
-                    if (blank != null) {
-
-                        //
-                        // blank between comma and double quote, ignore it ...
-                        //
-                        blank = null;
-                    }
-
-                    if (quotedField == null) {
-
-                        //
-                        // start a quoted field
-                        //
-                        quotedField = "";
-                        continue;
-                    }
-                    else {
-
-                        //
-                        // end a quoted field
-                        //
-                        buildAndStoreProperty(quotedField, i++, header, timestampFound, properties);
-                        quotedField = null;
-                        continue;
-                    }
-                }
-
-                if (quotedField != null) {
-
-                    //
-                    // append to the quoted field, do not insert a property yet
-                    //
-                    quotedField += tok;
-                    continue;
-                }
-
-                if (tok.trim().length() == 0) {
-
-                    blank = tok;
-                    continue;
-                }
-
-                buildAndStoreProperty(tok, i++, header, timestampFound, properties);
+                buildAndStoreProperty(token, i, header, timestampFound, properties);
             }
 
             CSVEvent dataLineEvent = propertyListToCSVEvent(timestampFound, properties);
@@ -346,6 +284,7 @@ public class CSVParser extends ParserBase {
     /**
      * Builds the appropriate property instance and update the stack state.
      *
+     * @paran tok - may be null for "missing values".
      * @param header may be null if no format was installed.
      * @param timestampCreated a wrapper for a boolean that says whether the unique timestamp was already identified
      *                         or not. Updated by the method if the timestamp is identified.
@@ -355,7 +294,9 @@ public class CSVParser extends ParserBase {
             String tok, int index, CSVField header, MutableBoolean timestampCreated,  List<Property> properties)
             throws ParsingException {
 
-        tok = tok.trim();
+        //
+        // do not trim, trimming is done by the upper layer
+        //
 
         //
         // only the first timestamp header triggers timestamp creation

@@ -18,7 +18,6 @@ package io.novaordis.events.csv.event;
 
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.Property;
-import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.parser.ParsingException;
 import io.novaordis.events.csv.CSVFormatException;
 import io.novaordis.events.csv.event.field.CSVField;
@@ -152,27 +151,29 @@ public class CSVHeaders extends GenericEvent implements CSVEvent {
     // do we really need this? If yes, remove @Deprecated
     public void load(Long lineNumber, String commaSeparatedHeaderLine) throws ParsingException {
 
-        List<String> tokens = CSVTokenizer.split(lineNumber, commaSeparatedHeaderLine, SEPARATOR);
+        throw new RuntimeException("RETURN HERE");
 
-        int index = 0;
-
-        for(String token: tokens) {
-
-            if (token == null) {
-
-                throw new ParsingException(lineNumber, "missing header");
-            }
-            else if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(token)) {
-
-                setStringProperty(HEADER_NAME_PREFIX + index, TimedEvent.TIMESTAMP_PROPERTY_NAME);
-            }
-            else {
-
-                setStringProperty(HEADER_NAME_PREFIX + index, token);
-            }
-
-            index ++;
-        }
+//        List<String> tokens = CSVTokenizer.split(lineNumber, commaSeparatedHeaderLine, SEPARATOR);
+//
+//        int index = 0;
+//
+//        for(String token: tokens) {
+//
+//            if (token == null) {
+//
+//                throw new ParsingException(lineNumber, "missing header");
+//            }
+//            else if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(token)) {
+//
+//                setStringProperty(HEADER_NAME_PREFIX + index, TimedEvent.TIMESTAMP_PROPERTY_NAME);
+//            }
+//            else {
+//
+//                setStringProperty(HEADER_NAME_PREFIX + index, token);
+//            }
+//
+//            index ++;
+//        }
     }
 
     @Override

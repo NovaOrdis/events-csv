@@ -18,6 +18,7 @@ package io.novaordis.events.csv;
 
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.metric.MetricDefinition;
+import io.novaordis.events.api.parser.ParsingException;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.CSVFieldFactory;
 import io.novaordis.events.csv.event.field.CSVFieldImpl;
@@ -25,6 +26,7 @@ import io.novaordis.events.csv.event.field.MetricDefinitionBasedCSVField;
 import io.novaordis.events.csv.event.field.TimestampCSVField;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -77,23 +79,44 @@ public class CSVFormat {
             return;
         }
 
-        for(int i = 0, j = formatSpecification.indexOf(',');
-            i < formatSpecification.length();
-            j = formatSpecification.indexOf(',', i)) {
+        List<String> tokens;
 
-            j = j == -1 ? formatSpecification.length() : j;
+        try {
 
-            String fieldSpec = formatSpecification.substring(i, j).trim();
+            tokens = CSVTokenizer.split(null, formatSpecification, CSVParser.SEPARATOR);
+        }
+        catch(ParsingException e) {
 
-            if (fieldSpec.isEmpty() && j >= formatSpecification.length()) {
+            throw new CSVFormatException(e);
+        }
 
-                //
-                // does not count
-                //
-                break;
+        int i = 0;
+        for(Iterator<String> ti = tokens.iterator(); ti.hasNext(); i ++) {
+
+            String fieldSpecification = ti.next();
+
+            if (fieldSpecification == null) {
+
+                if (ti.hasNext()) {
+
+                    //
+                    // it does not make sense to specify a null header - or at least for the time being
+                    // TODO: in the future we may want to allow for field placeholders, where we only want to
+                    // express there's a field there, but we don't care about the name or the type
+                    //
+                    throw new CSVFormatException("invalid CSV format specification: field " + i + " null");
+                }
+                else {
+
+                    //
+                    // for convenience, ignore the last missing field, the situation is similar to allowing a comma after
+                    // the last element of an array
+                    //
+                    break;
+                }
             }
 
-            CSVField field = CSVFieldFactory.fromSpecification(fieldSpec);
+            CSVField field = CSVFieldFactory.fromSpecification(fieldSpecification);
 
             if (field.getName().length() == 0) {
 
@@ -101,8 +124,6 @@ public class CSVFormat {
             }
 
             fields.add(field);
-
-            i = j + 1;
         }
     }
 

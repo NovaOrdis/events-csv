@@ -156,74 +156,90 @@ public class CSVFieldImpl implements CSVField {
         }
         else if (Integer.class.equals(getType())) {
 
-            int i;
+            Integer i = null;
 
-            try {
+            if (s != null) {
 
-                i = Integer.parseInt(s);
-            }
-            catch (Exception e) {
-                throw new IllegalArgumentException("invalid int value \"" + s + "\"", e);
+                try {
+
+                    i = Integer.parseInt(s);
+                }
+                catch (Exception e) {
+
+                    throw new IllegalArgumentException("invalid int value \"" + s + "\"", e);
+                }
             }
 
             return new IntegerProperty(getName(), i);
         }
         else if (Long.class.equals(getType())) {
 
-            long l;
+            Long l = null;
 
-            try {
+            if (s != null) {
 
-                l = Long.parseLong(s);
-            }
-            catch (Exception e) {
+                try {
 
-                throw new IllegalArgumentException("invalid long value \"" + s + "\"", e);
+                    l = Long.parseLong(s);
+                }
+                catch (Exception e) {
+
+                    throw new IllegalArgumentException("invalid long value \"" + s + "\"", e);
+                }
             }
 
             return new LongProperty(getName(), l);
         }
         else if (Float.class.equals(getType())) {
 
-            float f;
+            Float f = null;
 
-            try {
+            if (s != null) {
 
-                f = Float.parseFloat(s);
-            }
-            catch (Exception e) {
+                try {
 
-                throw new IllegalArgumentException("invalid float value \"" + s + "\"", e);
+                    f = Float.parseFloat(s);
+                }
+                catch (Exception e) {
+
+                    throw new IllegalArgumentException("invalid float value \"" + s + "\"", e);
+                }
             }
 
             return new FloatProperty(getName(), f);
         }
         else if (Double.class.equals(getType())) {
 
-            double d;
+            Double d = null;
 
-            try {
+            if (s != null) {
 
-                d = Double.parseDouble(s);
-            }
-            catch (Exception e) {
+                try {
 
-                throw new IllegalArgumentException("invalid double value \"" + s + "\"", e);
+                    d = Double.parseDouble(s);
+                }
+                catch (Exception e) {
+
+                    throw new IllegalArgumentException("invalid double value \"" + s + "\"", e);
+                }
             }
 
             return new DoubleProperty(getName(), d);
         }
         else if (Date.class.equals(getType())) {
 
-            Date date;
+            Date date = null;
 
-            try {
+            if (s != null) {
 
-                date = ((DateFormat)getFormat()).parse(s);
-            }
-            catch (Exception e) {
+                try {
 
-                throw new IllegalArgumentException("invalid time value \"" + s + "\"", e);
+                    date = ((DateFormat) getFormat()).parse(s);
+                }
+                catch (Exception e) {
+
+                    throw new IllegalArgumentException("invalid time value \"" + s + "\"", e);
+                }
             }
 
             return new DateProperty(getName(), date);

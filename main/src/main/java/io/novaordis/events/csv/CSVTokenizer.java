@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.event;
+package io.novaordis.events.csv;
 
 import io.novaordis.events.api.parser.ParsingException;
 
@@ -158,7 +158,7 @@ class CSVTokenizer {
 
         for(; from < to; from ++) {
 
-            if (s.charAt(from) != ' ') {
+            if (s.charAt(from) != ' ' && s.charAt(from) != '\t') {
 
                 break;
             }

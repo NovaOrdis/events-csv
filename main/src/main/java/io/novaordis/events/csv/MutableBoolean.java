@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.event;
+package io.novaordis.events.csv;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>

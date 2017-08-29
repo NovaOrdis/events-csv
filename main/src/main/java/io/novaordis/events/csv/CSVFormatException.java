@@ -34,6 +34,10 @@ public class CSVFormatException extends Exception {
         super(message);
     }
 
+    public CSVFormatException(Throwable cause) {
+        super(cause);
+    }
+
     public CSVFormatException(String message, Throwable cause) {
         super(message, cause);
     }

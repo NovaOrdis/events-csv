@@ -77,7 +77,25 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
 
     @Test
     @Override
+    public void toProperty_Integer_MissingValue() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
     public void toProperty_String() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
+    public void toProperty_String_MissingValue() throws Exception {
 
         //
         // noop, this does not make sense of TimestampCSVField
@@ -95,7 +113,25 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
 
     @Test
     @Override
+    public void toProperty_Long_MissingValue() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
     public void toProperty_Float() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
+    public void toProperty_Float_MissingValue() throws Exception {
 
         //
         // noop, this does not make sense of TimestampCSVField
@@ -113,7 +149,25 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
 
     @Test
     @Override
+    public void toProperty_Double_MissingValue() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
     public void toProperty_Date() throws Exception {
+
+        //
+        // noop, this does not make sense of TimestampCSVField
+        //
+    }
+
+    @Test
+    @Override
+    public void toProperty_Date_MissingValue() throws Exception {
 
         //
         // noop, this does not make sense of TimestampCSVField

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.event;
+package io.novaordis.events.csv;
 
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
@@ -25,12 +25,16 @@ import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.event.TimestampProperty;
+import io.novaordis.events.api.event.UndefinedTypeProperty;
 import io.novaordis.events.api.parser.ParsingException;
-import io.novaordis.events.csv.CSVFormat;
-import io.novaordis.events.csv.CSVFormatException;
-import io.novaordis.events.csv.Constants;
+import io.novaordis.events.csv.event.CSVEvent;
+import io.novaordis.events.csv.event.CSVHeaders;
+import io.novaordis.events.csv.event.NonTimedCSVLine;
+import io.novaordis.events.csv.event.TimedCSVLine;
 import io.novaordis.events.csv.event.field.CSVField;
+import io.novaordis.events.csv.event.field.CSVFieldImpl;
 import io.novaordis.events.csv.event.field.TimestampCSVField;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
@@ -99,31 +103,6 @@ public class CSVParserTest {
     }
 
     @Test
-    public void constructor3_EmptyField() throws Exception {
-
-        CSVParser p = new CSVParser(",");
-
-        CSVFormat format = p.getFormat();
-
-        List<CSVField> fields = format.getFields();
-        assertEquals(1, fields.size());
-        assertEquals("CSVField01", fields.get(0).getName());
-    }
-
-    @Test
-    public void constructor3_EmptyFields() throws Exception {
-
-        CSVParser p = new CSVParser(", ,");
-
-        CSVFormat format = p.getFormat();
-
-        List<CSVField> fields = format.getFields();
-        assertEquals(2, fields.size());
-        assertEquals("CSVField01", fields.get(0).getName());
-        assertEquals("CSVField02", fields.get(1).getName());
-    }
-
-    @Test
     public void constructor4() throws Exception {
 
         CSVParser p = new CSVParser("a, b, c");
@@ -145,6 +124,38 @@ public class CSVParserTest {
         List<CSVField> fields = format.getFields();
         assertEquals(1, fields.size());
         assertEquals("a", fields.get(0).getName());
+    }
+
+    @Test
+    public void constructor_InvalidFormat_EmptyFields() throws Exception {
+
+        try {
+
+            new CSVParser(", ,");
+            fail("should throw exception");
+        }
+        catch(CSVFormatException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("invalid CSV format specification"));
+            assertTrue(msg.contains("field 0 null"));
+        }
+    }
+
+    @Test
+    public void constructor_InvalidFormat_EmptyFields2() throws Exception {
+
+        try {
+
+            new CSVParser(",");
+            fail("should throw exception");
+        }
+        catch(CSVFormatException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("invalid CSV format specification"));
+            assertTrue(msg.contains("field 0 null"));
+        }
     }
 
     @Test
@@ -208,7 +219,7 @@ public class CSVParserTest {
     // parse() ---------------------------------------------------------------------------------------------------------
 
     @Test
-    public void parse() throws Exception {
+    public void parse_FormatPresent() throws Exception {
 
         CSVParser parser = new CSVParser("a, b, c");
 
@@ -241,7 +252,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_LineLongerThanFormat() throws Exception {
+    public void parse_FormatPresent_LineLongerThanFormat() throws Exception {
 
         CSVParser parser = new CSVParser("a, b, c");
 
@@ -274,7 +285,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_LineShorterThanFormat() throws Exception {
+    public void parse_FormatPresent_LineShorterThanFormat() throws Exception {
 
         CSVParser parser = new CSVParser("a, b, c");
 
@@ -302,7 +313,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_UntimedEvent() throws Exception {
+    public void parse_FormatPresent_NonTimedEvent() throws Exception {
 
         CSVParser parser = new CSVParser("brand(string), count(int)");
 
@@ -331,7 +342,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_TimedEvent_TimestampFirstInLine() throws Exception {
+    public void parse_FormatPresent_TimedEvent_TimestampFirstInLine() throws Exception {
 
         String format = "timestamp(time:MMM-dd yyyy HH:mm:ss), brand(string), count(int)";
 
@@ -368,7 +379,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_TimedEvent_TimestampNotFirstInLine() throws Exception {
+    public void parse_FormatPresent_TimedEvent_TimestampNotFirstInLine() throws Exception {
 
         CSVParser parser = new CSVParser("brand(string), timestamp(time:MMM-dd yyyy HH:mm:ss), count(int)");
 
@@ -403,7 +414,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_FieldContainsComma() throws Exception {
+    public void parse_FormatPresent_FieldContainsComma() throws Exception {
 
         CSVParser parser = new CSVParser("a, b");
 
@@ -429,7 +440,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_QuotedFields() throws Exception {
+    public void parse_FormatPresent_QuotedFields() throws Exception {
 
         CSVParser parser = new CSVParser("a, b");
 
@@ -455,7 +466,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_NullLine() throws Exception {
+    public void parse_NoFormatPresent_NullLine() throws Exception {
 
         CSVParser parser = new CSVParser();
 
@@ -464,7 +475,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_EmptyLine() throws Exception {
+    public void parse_NoFormatPresent_EmptyLine() throws Exception {
 
         CSVParser parser = new CSVParser();
 
@@ -473,7 +484,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_BlankLine() throws Exception {
+    public void parse_NoFormatPresent_BlankLine() throws Exception {
 
         CSVParser parser = new CSVParser();
 
@@ -482,11 +493,127 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_DataLineNoHeader() throws Exception {
+    public void parse_NoFormatPresent_MissingValues() throws Exception {
+
+        CSVParser parser = new CSVParser();
+
+        List<Event> events = parser.parse(7L, "  ,  ");
+
+        assertEquals(1, events.size());
+
+        NonTimedCSVLine line = (NonTimedCSVLine)events.get(0);
+
+        List<Property> properties = line.getProperties();
+        assertEquals(3, properties.size());
+
+        LongProperty p = (LongProperty)properties.get(0);
+        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(7L, p.getLong().longValue());
+
+        UndefinedTypeProperty p2 = (UndefinedTypeProperty)properties.get(1);
+        assertEquals("field_0", p2.getName());
+        assertNull(p2.getValue()); // this means "missing value"
+
+        UndefinedTypeProperty p3 = (UndefinedTypeProperty)properties.get(2);
+        assertEquals("field_1", p3.getName());
+        assertNull(p3.getValue()); // this means "missing value"
+    }
+
+    @Test
+    public void parse_NoFormatPresent_MissingValues2() throws Exception {
+
+        CSVParser parser = new CSVParser();
+
+        List<Event> events = parser.parse(7L, "a,,b");
+
+        assertEquals(1, events.size());
+
+        NonTimedCSVLine line = (NonTimedCSVLine)events.get(0);
+
+        List<Property> properties = line.getProperties();
+        assertEquals(4, properties.size());
+
+        LongProperty p = (LongProperty)properties.get(0);
+        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(7L, p.getLong().longValue());
+
+        StringProperty p2 = (StringProperty)properties.get(1);
+        assertEquals("field_0", p2.getName());
+        assertEquals("a", p2.getValue());
+
+        UndefinedTypeProperty p3 = (UndefinedTypeProperty)properties.get(2);
+        assertEquals("field_1", p3.getName());
+        assertNull(p3.getValue()); // this means "missing value"
+
+        StringProperty p4 = (StringProperty)properties.get(3);
+        assertEquals("field_2", p4.getName());
+        assertEquals("b", p4.getValue());
+    }
+
+    @Test
+    public void parse_NoFormatPresent_MissingValues3() throws Exception {
+
+        CSVParser parser = new CSVParser();
+
+        List<Event> events = parser.parse(7L, "a,,b,");
+
+        assertEquals(1, events.size());
+
+        NonTimedCSVLine line = (NonTimedCSVLine)events.get(0);
+
+        List<Property> properties = line.getProperties();
+        assertEquals(5, properties.size());
+
+        LongProperty p = (LongProperty)properties.get(0);
+        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(7L, p.getLong().longValue());
+
+        StringProperty p2 = (StringProperty)properties.get(1);
+        assertEquals("field_0", p2.getName());
+        assertEquals("a", p2.getValue());
+
+        UndefinedTypeProperty p3 = (UndefinedTypeProperty)properties.get(2);
+        assertEquals("field_1", p3.getName());
+        assertNull(p3.getValue()); // this means "missing value"
+
+        StringProperty p4 = (StringProperty)properties.get(3);
+        assertEquals("field_2", p4.getName());
+        assertEquals("b", p4.getValue());
+
+        UndefinedTypeProperty p5 = (UndefinedTypeProperty)properties.get(4);
+        assertEquals("field_3", p5.getName());
+        assertNull(p5.getValue()); // this means "missing value"
+    }
+
+    @Test
+    public void parse_NoFormatPresent_BlankField() throws Exception {
+
+        CSVParser parser = new CSVParser();
+
+        List<Event> events = parser.parse(7L, "   \"   \"");
+
+        assertEquals(1, events.size());
+
+        NonTimedCSVLine line = (NonTimedCSVLine)events.get(0);
+
+        List<Property> properties = line.getProperties();
+        assertEquals(2, properties.size());
+
+        LongProperty p = (LongProperty)properties.get(0);
+        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(7L, p.getLong().longValue());
+
+        StringProperty p2 = (StringProperty)properties.get(1);
+        assertEquals("field_0", p2.getName());
+        assertEquals("   ", p2.getValue());
+    }
+
+    @Test
+    public void parse_NoFormatPresent_DataLineNoHeader() throws Exception {
 
         String[] content = new String[] {
 
-                "12/25/16 13:00:00, blue,  10",
+                "12/25/16 13:00:00, blue,  10, , ",
         };
 
         CSVParser parser = new CSVParser();
@@ -508,7 +635,7 @@ public class CSVParserTest {
         assertNotNull(e);
 
         List<Property> properties = e.getProperties();
-        assertEquals(4, properties.size());
+        assertEquals(6, properties.size());
 
         TimestampProperty p = (TimestampProperty)properties.get(0);
         assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, p.getName());
@@ -529,10 +656,18 @@ public class CSVParserTest {
         IntegerProperty p4 = (IntegerProperty)properties.get(3);
         assertEquals("field_2", p4.getName());
         assertEquals(10, p4.getValue());
+
+        UndefinedTypeProperty p5 = (UndefinedTypeProperty)properties.get(4);
+        assertEquals("field_3", p5.getName());
+        assertNull(p5.getValue());
+
+        UndefinedTypeProperty p6 = (UndefinedTypeProperty)properties.get(5);
+        assertEquals("field_4", p6.getName());
+        assertNull(p6.getValue());
     }
 
     @Test
-    public void parse_HeaderLine_HeaderParsingFailure() throws Exception {
+    public void parse_NoFormatPresent_HeaderLine_HeaderParsingFailure() throws Exception {
 
         CSVParser parser = new CSVParser();
 
@@ -558,7 +693,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_HeaderLine() throws Exception {
+    public void parse_NoFormatInitiallyPresent_HeaderLine() throws Exception {
 
         CSVParser parser = new CSVParser();
 
@@ -625,7 +760,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parse_HeaderLineFollowedByDataLine() throws Exception {
+    public void parse_NoFormatInitiallyPresent_HeaderLineFollowedByDataLine() throws Exception {
 
         String[] content = new String[] {
 
@@ -669,7 +804,8 @@ public class CSVParserTest {
      * @throws Exception
      */
     @Test
-    public void parse_HeaderLineFollowedByDataLineFollowedByAnotherHeaderFollowedByAnotherDataLine() throws Exception {
+    public void parse_NoFormatInitiallyPresent_HeaderLineFollowedByDataLineFollowedByAnotherHeaderFollowedByAnotherDataLine()
+            throws Exception {
 
         String[] content = new String[] {
 
@@ -853,7 +989,7 @@ public class CSVParserTest {
         assertEquals("something", p2.getValue());
     }
 
-    // buildAndStoreProperty() -------------------------------------------------------------------------------------------------
+    // buildAndStoreProperty() -----------------------------------------------------------------------------------------
 
     @Test
     public void buildAndStoreProperty_ApparentlyTimestamp_NoCSVHeader() throws Exception {
@@ -897,7 +1033,7 @@ public class CSVParserTest {
         Property p = properties.get(0);
 
         IntegerProperty ip = (IntegerProperty)p;
-        assertEquals(CSVEvent.GENERIC_FIELD_NAME_PREFIX + index, ip.getName());
+        Assert.assertEquals(CSVEvent.GENERIC_FIELD_NAME_PREFIX + index, ip.getName());
         assertEquals(11, ip.getInteger().intValue());
     }
 
@@ -922,6 +1058,39 @@ public class CSVParserTest {
         StringProperty sp = (StringProperty)p;
         assertEquals(CSVEvent.GENERIC_FIELD_NAME_PREFIX + index, sp.getName());
         assertEquals("something", sp.getValue());
+    }
+
+    @Test
+    public void buildAndStoreProperty_NullMissingValue_NoHeader() throws Exception {
+
+        List<Property> properties = new ArrayList<>();
+
+        int index = 7;
+
+        CSVParser.buildAndStoreProperty(null, index, null, new MutableBoolean(false), properties);
+
+        assertEquals(1, properties.size());
+
+        UndefinedTypeProperty p = (UndefinedTypeProperty)properties.get(0);
+        assertEquals(CSVEvent.GENERIC_FIELD_NAME_PREFIX + index, p.getName());
+        assertNull(p.getValue());
+    }
+
+    @Test
+    public void buildAndStoreProperty_NullMissingValue_TypedHeader() throws Exception {
+
+        List<Property> properties = new ArrayList<>();
+
+        CSVField field = new CSVFieldImpl("something", String.class);
+        int index = 7;
+
+        CSVParser.buildAndStoreProperty(null, index, field, new MutableBoolean(false), properties);
+
+        assertEquals(1, properties.size());
+
+        StringProperty p = (StringProperty)properties.get(0);
+        assertEquals("something", p.getName());
+        assertNull(p.getValue());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

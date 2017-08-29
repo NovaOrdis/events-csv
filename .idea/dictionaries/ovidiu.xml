@@ -2,6 +2,7 @@
   <dictionary name="ovidiu">
     <words>
       <w>mdbf</w>
+      <w>tokenization</w>
     </words>
   </dictionary>
 </component>

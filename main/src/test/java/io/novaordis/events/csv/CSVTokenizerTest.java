@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.event;
+package io.novaordis.events.csv;
 
 import io.novaordis.events.api.parser.ParsingException;
 import org.junit.Test;
@@ -75,6 +75,16 @@ public class CSVTokenizerTest {
 
         assertEquals(1, tokens.size());
         assertNull(tokens.get(0));
+    }
+
+    @Test
+    public void tokenize_BlankStringContainsTabs() throws Exception {
+
+        List<String> tokens = CSVTokenizer.split(7L, "  \t \t  ,", ',');
+
+        assertEquals(2, tokens.size());
+        assertNull(tokens.get(0));
+        assertNull(tokens.get(1));
     }
 
     @Test
@@ -356,7 +366,6 @@ public class CSVTokenizerTest {
             assertTrue(msg.contains("inconsistent indices"));
         }
     }
-
 
     @Test
     public void processQuotes_UnquotedEmptyString() throws Exception {
