@@ -115,7 +115,7 @@ public class Headers extends TextOutputProcedure {
 
                 String index = name.substring(CSVHeaders.HEADER_NAME_PREFIX.length());
 
-                printf("%" + width + "s:", index);
+                printf("%" + width + "s: ", index);
                 println(p.getValue());
             }
         }

@@ -91,7 +91,7 @@ public class HeadersTest extends ProcedureTest {
     }
 
     @Test
-    public void process_HeaderGeneratesOutputAndBreaksTheLoop() throws Exception {
+    public void process_HeaderGeneratesOutputButDoesNotBreakTheLoopByDefault() throws Exception {
 
         String header = "timestamp, A, B, C";
 
@@ -104,16 +104,16 @@ public class HeadersTest extends ProcedureTest {
         headersProcedure.process(headersEvent);
 
         String expected =
-                "0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
-                        "1: A(string)\n" +
-                        "2: B(string)\n" +
-                        "3: C(string)\n";
+                "    0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "    1: A(string)\n" +
+                        "    2: B(string)\n" +
+                        "    3: C(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
 
         assertEquals(expected, actual);
 
-        assertTrue(headersProcedure.isExitLoop());
+        assertFalse(headersProcedure.isExitLoop());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
