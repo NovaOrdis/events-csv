@@ -18,6 +18,7 @@ package io.novaordis.events.csv.cli;
 
 import io.novaordis.events.cli.EventParserRuntime;
 import io.novaordis.events.csv.CSVHeaderOutputStrategy;
+import io.novaordis.events.csv.CSVOutputFormatFactory;
 import io.novaordis.events.csv.CSVParser;
 import io.novaordis.events.csv.procedures.CSVProcedureFactory;
 import io.novaordis.utilities.UserErrorException;
@@ -43,6 +44,7 @@ public class Main {
             ApplicationSpecificBehavior apb = new ApplicationSpecificBehavior(
                     new CSVParser(),
                     new CSVProcedureFactory(),
+                    new CSVOutputFormatFactory(),
                     new CSVHeaderOutputStrategy());
 
             EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, apb);
