@@ -17,6 +17,7 @@
 package io.novaordis.events.csv.procedures.headers;
 
 import io.novaordis.events.api.event.GenericEvent;
+import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.csv.CSVFormat;
 import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.csv.event.field.CSVField;
@@ -31,6 +32,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -104,10 +106,10 @@ public class HeadersTest extends ProcedureTest {
 
         String expected =
                 "line 777 header:\n" +
-                        "  1: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
-                        "  2: A(string)\n" +
-                        "  3: B(string)\n" +
-                        "  4: C(string)\n";
+                        "     timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  1: A(string)\n" +
+                        "  2: B(string)\n" +
+                        "  3: C(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
 
@@ -135,14 +137,14 @@ public class HeadersTest extends ProcedureTest {
 
         String expected =
                 "line 777 header:\n" +
-                        "  1: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
-                        "  2: A(string)\n" +
-                        "  3: B(string)\n" +
-                        "  4: C(string)\n" +
+                        "     timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  1: A(string)\n" +
+                        "  2: B(string)\n" +
+                        "  3: C(string)\n" +
                 "line 888 header:\n" +
-                        "  1: X(string)\n" +
-                        "  2: Y(int)\n" +
-                        "  3: Z(string)\n";
+                        "  0: X(string)\n" +
+                        "  1: Y(int)\n" +
+                        "  2: Z(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
 
@@ -156,8 +158,33 @@ public class HeadersTest extends ProcedureTest {
     @Test
     public void indexFromHeaderName() throws Exception {
 
-        int i = Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + 10);
-        assertEquals(10, i);
+        Integer i = Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + 10, "does-not-matter");
+        assertNotNull(i);
+        assertEquals(10, i.intValue());
+    }
+
+    @Test
+    public void indexFromHeaderName_Timestamp() throws Exception {
+
+        Integer i = Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + 10, TimedEvent.TIMESTAMP_PROPERTY_NAME);
+        assertNull(i);
+    }
+
+    @Test
+    public void indexFromHeaderName_TimestampAndFormat() throws Exception {
+
+        Integer i = Headers.indexFromHeaderName(
+                CSVHeaders.HEADER_NAME_PREFIX + 10, TimedEvent.TIMESTAMP_PROPERTY_NAME + "(something)");
+
+        assertNull(i);
+    }
+
+    @Test
+    public void indexFromHeaderName_NotExactlyATimestamp() throws Exception {
+
+        Integer i = Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + 10, "timestamps");
+        assertNotNull(i);
+        assertEquals(10, i.intValue());
     }
 
     @Test
@@ -165,7 +192,7 @@ public class HeadersTest extends ProcedureTest {
 
         try {
 
-            Headers.indexFromHeaderName(null);
+            Headers.indexFromHeaderName(null, "does-not-matter");
             fail("should have thrown exception");
         }
         catch(IllegalArgumentException e) {
@@ -180,7 +207,7 @@ public class HeadersTest extends ProcedureTest {
 
         try {
 
-            Headers.indexFromHeaderName("something");
+            Headers.indexFromHeaderName("something", "does-not-matter");
             fail("should have thrown exception");
         }
         catch(IllegalArgumentException e) {
@@ -196,7 +223,7 @@ public class HeadersTest extends ProcedureTest {
 
         try {
 
-            Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + "blah");
+            Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + "blah", "does-not-matter");
             fail("should have thrown exception");
         }
         catch(IllegalArgumentException e) {

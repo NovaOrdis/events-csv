@@ -18,6 +18,7 @@ package io.novaordis.events.csv.procedures.headers;
 
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.Property;
+import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.TextOutputProcedure;
@@ -97,7 +98,7 @@ public class Headers extends TextOutputProcedure {
         List<Property> properties = headers.getProperties();
 
         int width = 3 + (int)Math.log10(properties.size());
-        int offset = 1;
+        int offset = 0;
 
         try {
 
@@ -123,9 +124,22 @@ public class Headers extends TextOutputProcedure {
                 // or subtract an offset
                 //
 
-                int propertyIndex = indexFromHeaderName(name) + offset;
+                Integer headerIndex = indexFromHeaderName(name, p.getValue());
 
-                printf("%" + width + "s: ", propertyIndex);
+                if (headerIndex == null) {
+
+                    //
+                    // not addressable by index
+                    //
+
+                    printf("%" + width + "s  ", "");
+                }
+                else {
+
+                    int propertyIndex = headerIndex + offset;
+                    printf("%" + width + "s: ", propertyIndex);
+                }
+
                 println(p.getValue());
             }
         }
@@ -147,7 +161,13 @@ public class Headers extends TextOutputProcedure {
 
     // Protected static ------------------------------------------------------------------------------------------------
 
-    static int indexFromHeaderName(String headerName) {
+    /**
+     * @return may return null, if the property associated with the header cannot be retrieved via an index. An example
+     * is the timestamp property, which may not be accessible with getProperty(index).
+     *
+     * @exception IllegalArgumentException if the header name is null or invalid.
+     */
+    static Integer indexFromHeaderName(String headerName, Object headerValue) throws IllegalArgumentException {
 
         if (headerName == null) {
 
@@ -162,14 +182,34 @@ public class Headers extends TextOutputProcedure {
 
         String s = headerName.substring(CSVHeaders.HEADER_NAME_PREFIX.length());
 
+        int i;
+
         try {
 
-            return Integer.parseInt(s);
+            i = Integer.parseInt(s);
         }
         catch(NumberFormatException e) {
 
             throw new IllegalArgumentException("header name does not contain a valid integer index: " + s, e);
         }
+
+        if (headerValue == null) {
+
+            return i;
+        }
+
+        String value = headerValue.toString();
+
+        if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(value) ||
+                value.startsWith(TimedEvent.TIMESTAMP_PROPERTY_NAME + "(")) {
+
+            //
+            // timestamp, not retrievable via an index
+            //
+            return null;
+        }
+
+        return i;
     }
 
     // Protected -------------------------------------------------------------------------------------------------------
