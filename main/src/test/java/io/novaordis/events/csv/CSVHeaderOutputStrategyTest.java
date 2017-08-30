@@ -14,54 +14,17 @@
  * limitations under the License.
  */
 
-package io.novaordis.events.csv.cli;
-
-import io.novaordis.events.cli.ApplicationSpecificBehavior;
-import io.novaordis.events.cli.EventParserRuntime;
-import io.novaordis.events.csv.CSVHeaderOutputStrategy;
-import io.novaordis.events.csv.CSVParser;
-import io.novaordis.events.csv.procedures.CSVProcedureFactory;
-import io.novaordis.utilities.UserErrorException;
-import io.novaordis.utilities.help.InLineHelp;
+package io.novaordis.events.csv;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 7/31/17
+ * @since 8/30/17
  */
-
-public class Main {
+public class CSVHeaderOutputStrategyTest {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
-    public static final String APPLICATION_NAME = "csv";
-
     // Static ----------------------------------------------------------------------------------------------------------
-
-    public static void main(String[] args) throws Exception {
-
-        try {
-
-            ApplicationSpecificBehavior apb = new ApplicationSpecificBehavior(
-                    new CSVParser(),
-                    new CSVProcedureFactory(),
-                    new CSVHeaderOutputStrategy());
-
-            EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, apb);
-
-            if (runtime.getConfiguration().isHelp()) {
-
-                displayHelpAndExit();
-                return;
-            }
-
-            runtime.run();
-
-        }
-        catch(UserErrorException e) {
-
-            System.err.println(e.getMessage());
-        }
-    }
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
@@ -69,18 +32,13 @@ public class Main {
 
     // Public ----------------------------------------------------------------------------------------------------------
 
+    // Tests -----------------------------------------------------------------------------------------------------------
+
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
 
     // Private ---------------------------------------------------------------------------------------------------------
-
-    private static void displayHelpAndExit() throws UserErrorException {
-
-        String content = InLineHelp.get();
-
-        System.err.print(content);
-    }
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 
