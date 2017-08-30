@@ -28,7 +28,6 @@ import io.novaordis.utilities.help.InLineHelp;
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 7/31/17
  */
-
 public class Main {
 
     // Constants -------------------------------------------------------------------------------------------------------

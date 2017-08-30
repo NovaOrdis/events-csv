@@ -31,17 +31,21 @@ public class CSVHeaderOutputStrategy implements HeaderOutputStrategy {
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
+    private boolean soleHeaderDisplayed = false;
+
     // Constructors ----------------------------------------------------------------------------------------------------
 
     // HeaderOutputStrategy implementation -----------------------------------------------------------------------------
 
     @Override
     public boolean shouldDisplayHeader(Event e) {
+
         throw new RuntimeException("shouldDisplayHeader() NOT YET IMPLEMENTED");
     }
 
     @Override
     public void headerDisplayed(Event e) {
+
         throw new RuntimeException("headerDisplayed() NOT YET IMPLEMENTED");
     }
 
