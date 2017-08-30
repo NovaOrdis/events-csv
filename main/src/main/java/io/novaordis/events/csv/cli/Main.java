@@ -16,12 +16,12 @@
 
 package io.novaordis.events.csv.cli;
 
-import io.novaordis.events.cli.ApplicationSpecificBehavior;
 import io.novaordis.events.cli.EventParserRuntime;
 import io.novaordis.events.csv.CSVHeaderOutputStrategy;
 import io.novaordis.events.csv.CSVParser;
 import io.novaordis.events.csv.procedures.CSVProcedureFactory;
 import io.novaordis.utilities.UserErrorException;
+import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
 import io.novaordis.utilities.help.InLineHelp;
 
 /**
