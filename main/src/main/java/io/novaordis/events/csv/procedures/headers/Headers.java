@@ -97,14 +97,13 @@ public class Headers extends TextOutputProcedure {
         List<Property> properties = headers.getProperties();
 
         int width = 3 + (int)Math.log10(properties.size());
+        int offset = 1;
 
         try {
 
             println("line " + e.getLineNumber() + " header:");
 
-            for (int i = 0; i < properties.size(); i ++) {
-
-                Property p = properties.get(i);
+            for (Property p : properties) {
 
                 //
                 // properties such as line number property, and other, may be present, filter them out, only use
@@ -119,12 +118,14 @@ public class Headers extends TextOutputProcedure {
                 }
 
                 //
-                // currently I have not explored a formal way to maintain the relationship between the position (index)
-                // of a header in the header line and the position (index) of the corresponding property in a data line
-                // I just assume the structure is similar and use the same index
+                // we rely on the fact that the headers in the header line and the properties associated with entries
+                // on the data line are recorded in the same sequence, so we use the header name index and we add
+                // or subtract an offset
                 //
 
-                printf("%" + width + "s: ", i);
+                int propertyIndex = indexFromHeaderName(name) + offset;
+
+                printf("%" + width + "s: ", propertyIndex);
                 println(p.getValue());
             }
         }
@@ -143,6 +144,33 @@ public class Headers extends TextOutputProcedure {
     // Public ----------------------------------------------------------------------------------------------------------
 
     // Package protected -----------------------------------------------------------------------------------------------
+
+    // Protected static ------------------------------------------------------------------------------------------------
+
+    static int indexFromHeaderName(String headerName) {
+
+        if (headerName == null) {
+
+            throw new IllegalArgumentException("null header name");
+        }
+
+        if (!headerName.startsWith(CSVHeaders.HEADER_NAME_PREFIX)) {
+
+            throw new IllegalArgumentException(
+                    "header name does not start with a valid prefix ('" + CSVHeaders.HEADER_NAME_PREFIX + "')");
+        }
+
+        String s = headerName.substring(CSVHeaders.HEADER_NAME_PREFIX.length());
+
+        try {
+
+            return Integer.parseInt(s);
+        }
+        catch(NumberFormatException e) {
+
+            throw new IllegalArgumentException("header name does not contain a valid integer index: " + s, e);
+        }
+    }
 
     // Protected -------------------------------------------------------------------------------------------------------
 

@@ -32,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
@@ -148,6 +149,62 @@ public class HeadersTest extends ProcedureTest {
         assertEquals(expected, actual);
 
         assertFalse(headersProcedure.isExitLoop());
+    }
+
+    // indexFromHeaderName() -------------------------------------------------------------------------------------------
+
+    @Test
+    public void indexFromHeaderName() throws Exception {
+
+        int i = Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + 10);
+        assertEquals(10, i);
+    }
+
+    @Test
+    public void indexFromHeaderName_Null() throws Exception {
+
+        try {
+
+            Headers.indexFromHeaderName(null);
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("null header name"));
+        }
+    }
+
+    @Test
+    public void indexFromHeaderName_InvalidPrefix() throws Exception {
+
+        try {
+
+            Headers.indexFromHeaderName("something");
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("header name does not start with a valid prefix"));
+            assertTrue(msg.contains(CSVHeaders.HEADER_NAME_PREFIX));
+        }
+    }
+
+    @Test
+    public void indexFromHeaderName_InvalidPostfix() throws Exception {
+
+        try {
+
+            Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + "blah");
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("header name does not contain a valid integer index"));
+            assertTrue(msg.contains("blah"));
+        }
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
