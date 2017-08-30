@@ -17,6 +17,8 @@
 package io.novaordis.events.csv;
 
 import io.novaordis.events.api.event.Event;
+import io.novaordis.events.csv.event.NonTimedCSVLine;
+import io.novaordis.events.csv.event.TimedCSVLine;
 import io.novaordis.events.processing.output.HeaderOutputStrategy;
 
 /**
@@ -40,13 +42,22 @@ public class CSVHeaderOutputStrategy implements HeaderOutputStrategy {
     @Override
     public boolean shouldDisplayHeader(Event e) {
 
-        throw new RuntimeException("shouldDisplayHeader() NOT YET IMPLEMENTED");
+        if (soleHeaderDisplayed) {
+
+            return false;
+        }
+
+        //
+        // we ignore CSVHeader events and we extract the header info from the data events themselves.
+        //
+
+        return e instanceof TimedCSVLine || e instanceof NonTimedCSVLine;
     }
 
     @Override
     public void headerDisplayed(Event e) {
 
-        throw new RuntimeException("headerDisplayed() NOT YET IMPLEMENTED");
+        soleHeaderDisplayed = true;
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
