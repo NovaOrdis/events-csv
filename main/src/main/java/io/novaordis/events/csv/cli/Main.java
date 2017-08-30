@@ -41,13 +41,13 @@ public class Main {
 
         try {
 
-            ApplicationSpecificBehavior apb = new ApplicationSpecificBehavior(
+            ApplicationSpecificBehavior b = new ApplicationSpecificBehavior(
                     new CSVParser(),
                     new CSVProcedureFactory(),
                     new CSVOutputFormatFactory(),
                     new CSVHeaderOutputStrategy());
 
-            EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, apb);
+            EventParserRuntime runtime = new EventParserRuntime(args, APPLICATION_NAME, b);
 
             if (runtime.getConfiguration().isHelp()) {
 
