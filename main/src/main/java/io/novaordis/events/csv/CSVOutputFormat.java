@@ -17,6 +17,7 @@
 package io.novaordis.events.csv;
 
 import io.novaordis.events.api.event.Event;
+import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.processing.output.OutputFormat;
 
 import java.text.DateFormat;
@@ -61,6 +62,15 @@ public class CSVOutputFormat implements OutputFormat {
 
     @Override
     public String format(Event e) {
+
+        //
+        // we avoid headers
+        //
+
+        if (e instanceof CSVHeaders) {
+
+            return null;
+        }
 
         return delegate.format(e);
     }

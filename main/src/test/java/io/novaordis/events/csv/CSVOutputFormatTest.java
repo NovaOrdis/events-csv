@@ -16,8 +16,19 @@
 
 package io.novaordis.events.csv;
 
+import io.novaordis.events.api.event.StringProperty;
+import io.novaordis.events.api.event.TimestampProperty;
+import io.novaordis.events.csv.event.CSVHeaders;
+import io.novaordis.events.csv.event.TimedCSVLine;
+import io.novaordis.events.csv.event.field.CSVFieldImpl;
+import io.novaordis.events.processing.output.OutputFormatImpl;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -54,6 +65,32 @@ public class CSVOutputFormatTest {
             String msg = e.getMessage();
             assertTrue(msg.contains("null delegate"));
         }
+    }
+
+    @Test
+    public void format_CSVHeaders() throws Exception {
+
+        OutputFormatImpl delegate = new OutputFormatImpl(0);
+
+        CSVOutputFormat f = new CSVOutputFormat(delegate);
+
+        //
+        // insure we avoid CSVHeaders
+        //
+
+        CSVHeaders h = new CSVHeaders(7L, Collections.singletonList(new CSVFieldImpl("A", String.class)));
+
+        String hs = f.format(h);
+
+        assertNull(hs);
+
+        TimedCSVLine e = new TimedCSVLine(Arrays.asList(new TimestampProperty(9L), new StringProperty("A", "a value")));
+
+        String es = f.format(e);
+
+        assertNotNull(es);
+
+        assertTrue(es.contains("a value"));
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
