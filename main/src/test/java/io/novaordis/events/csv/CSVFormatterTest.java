@@ -310,6 +310,35 @@ public class CSVFormatterTest {
         assertEquals("07/01/16 10:00:00", result);
     }
 
+    @Test
+    public void toStringEvent_NoFormat_Introspection_EmptyTimedEvent() throws Exception {
+
+        CSVFormatter c = new CSVFormatter();
+        assertFalse(c.isHeaderOn());
+        assertNull(c.getFormat());
+
+        GenericTimedEvent e = new GenericTimedEvent(1001L);
+
+        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(1001L);
+        String result = c.toString(e);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void toStringEvent_NoFormat_Introspection_NonEmptyTimedEvent() throws Exception {
+
+        CSVFormatter c = new CSVFormatter();
+        assertFalse(c.isHeaderOn());
+        assertNull(c.getFormat());
+
+        GenericTimedEvent e = new GenericTimedEvent(1001L);
+        e.setStringProperty("something", "something else");
+
+        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(1001L) + ", something else";
+        String result = c.toString(e);
+        assertEquals(expected, result);
+    }
+
     // setFormat() -----------------------------------------------------------------------------------------------
 
     @Test

@@ -545,7 +545,7 @@ public class CSVFormatter {
                 s += Constants.DEFAULT_TIMESTAMP_FORMAT.format(timestamp);
             }
 
-            if (!properties.isEmpty()) {
+            if (!orderedProperties.isEmpty()) {
 
                 s += ", ";
             }
