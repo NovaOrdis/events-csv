@@ -16,6 +16,7 @@
 
 package io.novaordis.events.csv;
 
+import io.novaordis.events.api.event.PropertyFactory;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.metric.MockAddress;
 import io.novaordis.events.csv.event.field.CSVField;
@@ -374,12 +375,14 @@ public class CSVFormatTest {
     @Test
     public void addField_MetricDefinition() throws Exception {
 
+        PropertyFactory pf = new PropertyFactory();
+
         CSVFormat f = new CSVFormat();
 
         assertTrue(f.getFields().isEmpty());
 
         MockAddress ma = new MockAddress("mock://mock-host:1000");
-        MockMetricDefinition mmd = new MockMetricDefinition(ma, "mock-metric", Long.class);
+        MockMetricDefinition mmd = new MockMetricDefinition(pf, ma, "mock-metric", Long.class);
 
         f.addField(mmd);
 

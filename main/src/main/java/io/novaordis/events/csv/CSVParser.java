@@ -73,6 +73,8 @@ public class CSVParser extends ParserBase {
 
     private CSVFormat format;
 
+    private PropertyFactory propertyFactory;
+
     // Constructors ----------------------------------------------------------------------------------------------------
 
     /**
@@ -104,6 +106,8 @@ public class CSVParser extends ParserBase {
             CSVFormat f = new CSVFormat(formatSpecification);
             setFormat(f);
         }
+
+        this.propertyFactory = new PropertyFactory();
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
@@ -228,7 +232,7 @@ public class CSVParser extends ParserBase {
 
                 CSVField header = headers == null ? null : headers.get(i);
 
-                buildAndStoreProperty(token, i, header, timestampFound, properties);
+                buildAndStoreProperty(propertyFactory, token, i, header, timestampFound, properties);
             }
 
             CSVEvent dataLineEvent = propertyListToCSVEvent(timestampFound, properties);
@@ -284,14 +288,15 @@ public class CSVParser extends ParserBase {
     /**
      * Builds the appropriate property instance and update the stack state.
      *
-     * @paran tok - may be null for "missing values".
+     * @param tok - may be null for "missing values".
      * @param header may be null if no format was installed.
      * @param timestampCreated a wrapper for a boolean that says whether the unique timestamp was already identified
      *                         or not. Updated by the method if the timestamp is identified.
      *
      */
     static void buildAndStoreProperty(
-            String tok, int index, CSVField header, MutableBoolean timestampCreated,  List<Property> properties)
+            PropertyFactory propertyFactory, String tok, int index, CSVField header,
+            MutableBoolean timestampCreated, List<Property> properties)
             throws ParsingException {
 
         //
@@ -344,7 +349,7 @@ public class CSVParser extends ParserBase {
             //
 
             //noinspection UnnecessaryLocalVariable
-            p = PropertyFactory.createInstance(CSVEvent.GENERIC_FIELD_NAME_PREFIX + index, null, tok, null);
+            p = propertyFactory.createInstance(CSVEvent.GENERIC_FIELD_NAME_PREFIX + index, null, tok, null);
 
             if (p instanceof TimestampProperty) {
 

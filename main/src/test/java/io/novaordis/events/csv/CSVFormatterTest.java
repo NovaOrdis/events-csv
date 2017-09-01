@@ -22,6 +22,7 @@ import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.GenericTimedEvent;
 import io.novaordis.events.api.event.MapProperty;
 import io.novaordis.events.api.event.MockProperty;
+import io.novaordis.events.api.event.PropertyFactory;
 import io.novaordis.events.api.metric.MockAddress;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.CSVFieldFactory;
@@ -490,7 +491,8 @@ public class CSVFormatterTest {
     public void outputFormatToHeader_KnownMetric() throws Exception {
 
         MockAddress ma = new MockAddress("mock://mock-host:1000");
-        MockMetricDefinition mmd = new MockMetricDefinition(ma, "mock-metric-id", Long.class);
+        PropertyFactory f = new PropertyFactory();
+        MockMetricDefinition mmd = new MockMetricDefinition(f, ma, "mock-metric-id", Long.class);
         mmd.setSimpleLabel("TEST-SIMPLE-LABEL");
 
         CSVFormat format = new CSVFormat();
@@ -559,8 +561,10 @@ public class CSVFormatterTest {
     @Test
     public void extractValueForMetricDefinitionBasedCSVField_NullEvent() throws Exception {
 
+        PropertyFactory pf = new PropertyFactory();
+
         MetricDefinitionBasedCSVField f =
-                new MetricDefinitionBasedCSVField(new MockMetricDefinition(new AddressImpl("test")));
+                new MetricDefinitionBasedCSVField(new MockMetricDefinition(pf, new AddressImpl("test")));
 
         try {
 
@@ -594,8 +598,10 @@ public class CSVFormatterTest {
     @Test
     public void extractValueForMetricDefinitionBasedCSVField_NoEventPropertyForAddress() throws Exception {
 
+        PropertyFactory pf = new PropertyFactory();
+
         Address a = new AddressImpl("address-1");
-        MockMetricDefinition mmd = new MockMetricDefinition(a, "does-not-matter");
+        MockMetricDefinition mmd = new MockMetricDefinition(pf, a, "does-not-matter");
         MetricDefinitionBasedCSVField f = new MetricDefinitionBasedCSVField(mmd);
 
         GenericTimedEvent e = new GenericTimedEvent();
@@ -614,8 +620,10 @@ public class CSVFormatterTest {
     @Test
     public void extractValueForMetricDefinitionBasedCSVField_NoSecondLevelPropertyForMetricID() throws Exception {
 
+        PropertyFactory pf = new PropertyFactory();
+
         Address a = new AddressImpl("address-1");
-        MockMetricDefinition mmd = new MockMetricDefinition(a, "no-such-metric-id");
+        MockMetricDefinition mmd = new MockMetricDefinition(pf, a, "no-such-metric-id");
         MetricDefinitionBasedCSVField f = new MetricDefinitionBasedCSVField(mmd);
 
         GenericTimedEvent topLevelEvent = new GenericTimedEvent(1L);
@@ -640,8 +648,10 @@ public class CSVFormatterTest {
     @Test
     public void extractValueForMetricDefinitionBasedCSVField() throws Exception {
 
+        PropertyFactory pf = new PropertyFactory();
+
         Address a = new AddressImpl("address-1");
-        MockMetricDefinition mmd = new MockMetricDefinition(a, "metric-1");
+        MockMetricDefinition mmd = new MockMetricDefinition(pf, a, "metric-1");
         MetricDefinitionBasedCSVField f = new MetricDefinitionBasedCSVField(mmd);
 
         GenericTimedEvent topLevelEvent = new GenericTimedEvent(1L);

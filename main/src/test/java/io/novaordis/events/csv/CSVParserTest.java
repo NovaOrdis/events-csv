@@ -22,6 +22,7 @@ import io.novaordis.events.api.event.GenericTimedEvent;
 import io.novaordis.events.api.event.IntegerProperty;
 import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
+import io.novaordis.events.api.event.PropertyFactory;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.event.TimestampProperty;
@@ -998,7 +999,9 @@ public class CSVParserTest {
 
         int index = 7;
 
-        CSVParser.buildAndStoreProperty("12/25/16 13:00:00", index, null, new MutableBoolean(false), properties);
+        PropertyFactory f = new PropertyFactory();
+
+        CSVParser.buildAndStoreProperty(f, "12/25/16 13:00:00", index, null, new MutableBoolean(false), properties);
 
         //
         // since there is no format guidance, we rely on internal PropertyFactory heuristics, which will convert it
@@ -1021,7 +1024,9 @@ public class CSVParserTest {
 
         int index = 7;
 
-        CSVParser.buildAndStoreProperty("11", index, null, new MutableBoolean(false), properties);
+        PropertyFactory f = new PropertyFactory();
+
+        CSVParser.buildAndStoreProperty(f, "11", index, null, new MutableBoolean(false), properties);
 
         //
         // since there is no format guidance, we rely on internal PropertyFactory heuristics, which will convert it
@@ -1044,7 +1049,9 @@ public class CSVParserTest {
 
         int index = 7;
 
-        CSVParser.buildAndStoreProperty("something", index, null, new MutableBoolean(false), properties);
+        PropertyFactory f = new PropertyFactory();
+
+        CSVParser.buildAndStoreProperty(f, "something", index, null, new MutableBoolean(false), properties);
 
         //
         // since there is no format guidance, we rely on internal PropertyFactory heuristics, which will convert it
@@ -1067,7 +1074,9 @@ public class CSVParserTest {
 
         int index = 7;
 
-        CSVParser.buildAndStoreProperty(null, index, null, new MutableBoolean(false), properties);
+        PropertyFactory f = new PropertyFactory();
+
+        CSVParser.buildAndStoreProperty(f, null, index, null, new MutableBoolean(false), properties);
 
         assertEquals(1, properties.size());
 
@@ -1084,7 +1093,9 @@ public class CSVParserTest {
         CSVField field = new CSVFieldImpl("something", String.class);
         int index = 7;
 
-        CSVParser.buildAndStoreProperty(null, index, field, new MutableBoolean(false), properties);
+        PropertyFactory f = new PropertyFactory();
+
+        CSVParser.buildAndStoreProperty(f, null, index, field, new MutableBoolean(false), properties);
 
         assertEquals(1, properties.size());
 

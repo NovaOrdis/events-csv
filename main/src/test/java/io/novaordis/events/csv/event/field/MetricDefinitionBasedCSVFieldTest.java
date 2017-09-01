@@ -18,6 +18,7 @@ package io.novaordis.events.csv.event.field;
 
 import io.novaordis.events.api.event.FloatProperty;
 import io.novaordis.events.api.event.GenericTimedEvent;
+import io.novaordis.events.api.event.PropertyFactory;
 import io.novaordis.events.api.metric.MetricDefinition;
 import io.novaordis.events.api.metric.MockAddress;
 import io.novaordis.events.csv.CSVFormat;
@@ -130,8 +131,10 @@ public class MetricDefinitionBasedCSVFieldTest extends CSVFieldTest {
     @Test
     public void constructor() throws Exception {
 
+        PropertyFactory pf = new PropertyFactory();
+
         MockAddress ma = new MockAddress("mock://mock-server:1000");
-        MockMetricDefinition md = new MockMetricDefinition(ma, "test-metric", Float.class);
+        MockMetricDefinition md = new MockMetricDefinition(pf, ma, "test-metric", Float.class);
 
         MetricDefinitionBasedCSVField f = new MetricDefinitionBasedCSVField(md);
 
@@ -149,12 +152,14 @@ public class MetricDefinitionBasedCSVFieldTest extends CSVFieldTest {
     @Test
     public void csvFormatter_format() throws Exception {
 
+        PropertyFactory pf = new PropertyFactory();
+
         //
         // logically, we model "address-1.metric-1"
         //
 
         Address a = new AddressImpl("address-1");
-        MetricDefinition md = new MockMetricDefinition(a, "metric-1");
+        MetricDefinition md = new MockMetricDefinition(pf, a, "metric-1");
         MetricDefinitionBasedCSVField mdbf = new MetricDefinitionBasedCSVField(md);
 
         CSVFormat format = new CSVFormat();
@@ -186,7 +191,8 @@ public class MetricDefinitionBasedCSVFieldTest extends CSVFieldTest {
     protected MetricDefinitionBasedCSVField getCSVFieldToTest(String name, Class type, Format format) throws Exception {
 
         MockAddress ma = new MockAddress("mock://mock-host:1000");
-        MockMetricDefinition mmd = new MockMetricDefinition(ma, name, type);
+        PropertyFactory pf = new PropertyFactory();
+        MockMetricDefinition mmd = new MockMetricDefinition(pf, ma, name, type);
         return new MetricDefinitionBasedCSVField(mmd, format);
     }
 
