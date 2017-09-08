@@ -24,6 +24,7 @@ import io.novaordis.events.csv.procedures.CSVProcedureFactory;
 import io.novaordis.utilities.UserErrorException;
 import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
 import io.novaordis.utilities.help.InLineHelp;
+import io.novaordis.utilities.logging.StderrVerboseLogging;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
@@ -40,6 +41,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         try {
+
+            StderrVerboseLogging.init();
 
             ApplicationSpecificBehavior b = new ApplicationSpecificBehavior(
                     new CSVParser(),

@@ -62,6 +62,12 @@ public class CSVHeaderOutputStrategy implements HeaderOutputStrategy {
 
     // Public ----------------------------------------------------------------------------------------------------------
 
+    @Override
+    public String toString() {
+
+        return "CSVHeaderOutputStrategy[" + Integer.toHexString(System.identityHashCode(this)) + "]";
+    }
+
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------

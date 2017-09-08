@@ -102,9 +102,11 @@ function main() {
 
     debug "java_bin: ${java_bin}"
     debug "classpath: ${classpath}"
-    debug "arguments:>${args}<"
+    debug "arguments:${args}"
 
-    ${java_bin} ${java_debug_args} -cp ${classpath} ${verbose_system_property} ${MAIN_CLASS} ${args}
+    command="${java_bin} ${java_debug_args} -cp ${classpath} ${verbose_system_property} ${MAIN_CLASS} ${args}"
+    debug ${command}
+    ${command}
 }
 
 main "$@"

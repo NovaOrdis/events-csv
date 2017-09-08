@@ -68,6 +68,12 @@ public class CSVOutputFormatFactory implements OutputFormatFactory {
         return delegate;
     }
 
+    @Override
+    public String toString() {
+
+        return "CSVOutputFormatFactory -> " + delegate;
+    }
+
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------

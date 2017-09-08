@@ -70,7 +70,7 @@ public class CSVOutputFormatTest {
     @Test
     public void format_CSVHeaders() throws Exception {
 
-        OutputFormatImpl delegate = new OutputFormatImpl(0);
+        OutputFormatImpl delegate = new OutputFormatImpl(1);
 
         CSVOutputFormat f = new CSVOutputFormat(delegate);
 
