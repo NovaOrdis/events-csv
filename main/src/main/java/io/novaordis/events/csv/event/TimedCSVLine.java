@@ -16,9 +16,14 @@
 
 package io.novaordis.events.csv.event;
 
+import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericTimedEvent;
 import io.novaordis.events.api.event.Property;
+import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.csv.Constants;
+import io.novaordis.events.csv.event.field.CSVFieldImpl;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,6 +56,89 @@ public class TimedCSVLine extends GenericTimedEvent implements CSVEvent {
     public TimedCSVLine(List<Property> properties) {
 
         super(properties);
+    }
+
+    // Overrides -------------------------------------------------------------------------------------------------------
+
+    @Override
+    public String getPreferredRepresentation(String fieldSeparator) {
+
+        //
+        // we display the description of all properties, except line number, in order
+        //
+
+        String s = Constants.DEFAULT_TIMESTAMP_FORMAT.format(getTime());
+
+        boolean first = true;
+
+        List<Property> properties = getProperties();
+
+        for(int i = 1;  i < properties.size(); i ++) {
+
+            Property p = properties.get(i);
+
+            if (Event.LINE_NUMBER_PROPERTY_NAME.equals(p.getName())) {
+
+                continue;
+            }
+
+            if (first) {
+
+                s += fieldSeparator + " ";
+
+                first = false;
+            }
+
+            s += p.getValue();
+
+            if (i < properties.size() - 1) {
+
+                s += fieldSeparator + " ";
+            }
+        }
+
+        return s;
+    }
+
+    @Override
+    public String getPreferredRepresentationHeader(String fieldSeparator) {
+
+        //
+        // we display the description of all properties, except line number, in order
+        //
+
+        String s = TimedEvent.TIMESTAMP_PROPERTY_NAME +
+                CSVFieldImpl.typeToCommandLineLiteral(Date.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
+
+        boolean first = true;
+
+        List<Property> properties = getProperties();
+
+        for(int i = 1;  i < properties.size(); i ++) {
+
+            Property p = properties.get(i);
+
+            if (Event.LINE_NUMBER_PROPERTY_NAME.equals(p.getName())) {
+
+                continue;
+            }
+
+            if (first) {
+
+                s += fieldSeparator + " ";
+
+                first = false;
+            }
+
+            s += p.getName() + CSVFieldImpl.typeToCommandLineLiteral(p.getType(), p.getFormat());
+
+            if (i < properties.size() - 1) {
+
+                s += fieldSeparator + " ";
+            }
+        }
+
+        return s;
     }
 
     // Public ----------------------------------------------------------------------------------------------------------

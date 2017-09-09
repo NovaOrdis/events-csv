@@ -71,6 +71,10 @@ public class CSVFieldImpl implements CSVField {
 
             s += "double";
         }
+        else if (Boolean.class.equals(type)) {
+
+            s += "boolean";
+        }
         else if (Date.class.equals(type)) {
 
             s += "time";
@@ -94,6 +98,10 @@ public class CSVFieldImpl implements CSVField {
 
                 s += ":" + pattern;
             }
+        }
+        else {
+
+            s += type;
         }
 
         s += ")";

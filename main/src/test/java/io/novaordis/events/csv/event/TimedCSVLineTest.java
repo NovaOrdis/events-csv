@@ -16,10 +16,12 @@
 
 package io.novaordis.events.csv.event;
 
+import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.event.TimestampProperty;
+import io.novaordis.events.csv.Constants;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -110,6 +112,47 @@ public class TimedCSVLineTest extends CSVEventTest {
         StringProperty p3 = (StringProperty)properties2.get(2);
         assertEquals("something", p3.getName());
         assertEquals("something else", p3.getValue());
+    }
+
+    // preferred representation ----------------------------------------------------------------------------------------
+
+    @Test
+    public void getPreferredRepresentation() throws Exception {
+
+        TimedCSVLine e = new TimedCSVLine(1001L);
+
+        e.setLongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 2002L);
+        e.setStringProperty("A", "something");
+        e.setIntegerProperty("B", 1);
+        e.setLongProperty("C", 2L);
+        e.setFloatProperty("D", 3.3f);
+        e.setBooleanProperty("E", true);
+
+        String line = e.getPreferredRepresentation(",");
+
+        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(1001L) + ", something, 1, 2, 3.3, true";
+
+        assertEquals(expected, line);
+    }
+
+    @Test
+    public void getPreferredRepresentationHeader() throws Exception {
+
+        TimedCSVLine e = new TimedCSVLine(1001L);
+
+        e.setLongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 2002L);
+        e.setStringProperty("A", "something");
+        e.setIntegerProperty("B", 1);
+        e.setLongProperty("C", 2L);
+        e.setFloatProperty("D", 3.3f);
+        e.setBooleanProperty("E", true);
+
+        String line = e.getPreferredRepresentationHeader(",");
+
+        String expected = "timestamp(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL +
+                "), A(string), B(int), C(long), D(float), E(boolean)";
+
+        assertEquals(expected, line);
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

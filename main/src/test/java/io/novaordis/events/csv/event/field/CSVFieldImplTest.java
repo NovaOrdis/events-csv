@@ -236,6 +236,13 @@ public class CSVFieldImplTest extends CSVFieldTest {
         assertEquals("(time:long)", s);
     }
 
+    @Test
+    public void typeToCommandLineLiteral_Boolean() throws Exception {
+
+        String s = CSVFieldImpl.typeToCommandLineLiteral(Boolean.class, null);
+        assertEquals("(boolean)", s);
+    }
+
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------

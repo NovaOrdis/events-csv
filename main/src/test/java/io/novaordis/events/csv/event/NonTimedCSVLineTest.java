@@ -16,6 +16,11 @@
 
 package io.novaordis.events.csv.event;
 
+import io.novaordis.events.api.event.Event;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
@@ -33,6 +38,46 @@ public class NonTimedCSVLineTest extends CSVEventTest {
     // Public ----------------------------------------------------------------------------------------------------------
 
     // Tests -----------------------------------------------------------------------------------------------------------
+
+    // preferred representation ----------------------------------------------------------------------------------------
+
+    @Test
+    public void getPreferredRepresentation() throws Exception {
+
+        NonTimedCSVLine e = new NonTimedCSVLine();
+
+        e.setLongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 1001L);
+        e.setStringProperty("A", "something");
+        e.setIntegerProperty("B", 1);
+        e.setLongProperty("C", 2L);
+        e.setFloatProperty("D", 3.3f);
+        e.setBooleanProperty("E", true);
+
+        String line = e.getPreferredRepresentation(",");
+
+        String expected = "something, 1, 2, 3.3, true";
+
+        assertEquals(expected, line);
+    }
+
+    @Test
+    public void getPreferredRepresentationHeader() throws Exception {
+
+        NonTimedCSVLine e = new NonTimedCSVLine();
+
+        e.setLongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 1001L);
+        e.setStringProperty("A", "something");
+        e.setIntegerProperty("B", 1);
+        e.setLongProperty("C", 2L);
+        e.setFloatProperty("D", 3.3f);
+        e.setBooleanProperty("E", true);
+
+        String line = e.getPreferredRepresentationHeader(",");
+
+        String expected = "A(string), B(int), C(long), D(float), E(boolean)";
+
+        assertEquals(expected, line);
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 

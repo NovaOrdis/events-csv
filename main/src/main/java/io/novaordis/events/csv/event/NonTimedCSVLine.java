@@ -16,9 +16,12 @@
 
 package io.novaordis.events.csv.event;
 
+import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.Property;
+import io.novaordis.events.csv.event.field.CSVFieldImpl;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -43,6 +46,66 @@ public class NonTimedCSVLine extends GenericEvent implements CSVEvent {
     public NonTimedCSVLine(List<Property> properties) {
 
         super(properties);
+    }
+
+    // Overrides -------------------------------------------------------------------------------------------------------
+
+    @Override
+    public String getPreferredRepresentation(String fieldSeparator) {
+
+        //
+        // we display the description of all properties, except line number, in order
+        //
+
+        String s = "";
+
+        for(Iterator<Property> pi = getProperties().iterator(); pi.hasNext(); ) {
+
+            Property p = pi.next();
+
+            if (Event.LINE_NUMBER_PROPERTY_NAME.equals(p.getName())) {
+
+                continue;
+            }
+
+            s += p.getValue();
+
+            if (pi.hasNext()) {
+
+                s += fieldSeparator + " ";
+            }
+        }
+
+        return s;
+    }
+
+    @Override
+    public String getPreferredRepresentationHeader(String fieldSeparator) {
+
+        //
+        // we display the description of all properties, except line number, in order
+        //
+
+        String s = "";
+
+        for(Iterator<Property> pi = getProperties().iterator(); pi.hasNext(); ) {
+
+            Property p = pi.next();
+
+            if (Event.LINE_NUMBER_PROPERTY_NAME.equals(p.getName())) {
+
+                continue;
+            }
+
+            s += p.getName() + CSVFieldImpl.typeToCommandLineLiteral(p.getType(), p.getFormat());
+
+            if (pi.hasNext()) {
+
+                s += fieldSeparator + " ";
+            }
+        }
+
+        return s;
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
