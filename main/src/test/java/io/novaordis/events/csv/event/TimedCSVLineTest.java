@@ -130,7 +130,7 @@ public class TimedCSVLineTest extends CSVEventTest {
 
         String line = e.getPreferredRepresentation(",");
 
-        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(1001L) + ", something, 1, 2, 3.3, true";
+        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(1001L) + ", 2002, something, 1, 2, 3.3, true";
 
         assertEquals(expected, line);
     }
@@ -150,7 +150,7 @@ public class TimedCSVLineTest extends CSVEventTest {
         String line = e.getPreferredRepresentationHeader(",");
 
         String expected = "timestamp(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL +
-                "), A(string), B(int), C(long), D(float), E(boolean)";
+                "), line-number(long), A(string), B(int), C(long), D(float), E(boolean)";
 
         assertEquals(expected, line);
     }

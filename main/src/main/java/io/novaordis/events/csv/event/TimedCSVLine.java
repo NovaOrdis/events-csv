@@ -16,7 +16,6 @@
 
 package io.novaordis.events.csv.event;
 
-import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericTimedEvent;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.TimedEvent;
@@ -60,12 +59,12 @@ public class TimedCSVLine extends GenericTimedEvent implements CSVEvent {
 
     // Overrides -------------------------------------------------------------------------------------------------------
 
+    /**
+     * Display the value corresponding to all properties (including the line number, if available), in order they are
+     * stored in the event representation. The line always starts with the timestamp.
+     */
     @Override
     public String getPreferredRepresentation(String fieldSeparator) {
-
-        //
-        // we display the description of all properties, except line number, in order
-        //
 
         String s = Constants.DEFAULT_TIMESTAMP_FORMAT.format(getTime());
 
@@ -76,11 +75,6 @@ public class TimedCSVLine extends GenericTimedEvent implements CSVEvent {
         for(int i = 1;  i < properties.size(); i ++) {
 
             Property p = properties.get(i);
-
-            if (Event.LINE_NUMBER_PROPERTY_NAME.equals(p.getName())) {
-
-                continue;
-            }
 
             if (first) {
 
@@ -100,12 +94,12 @@ public class TimedCSVLine extends GenericTimedEvent implements CSVEvent {
         return s;
     }
 
+    /**
+     * Display the description of all properties (including the line number property, if available), in order they are
+     * stored in the event representation. The line always starts with the timestamp representation.
+     */
     @Override
     public String getPreferredRepresentationHeader(String fieldSeparator) {
-
-        //
-        // we display the description of all properties, except line number, in order
-        //
 
         String s = TimedEvent.TIMESTAMP_PROPERTY_NAME +
                 CSVFieldImpl.typeToCommandLineLiteral(Date.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
@@ -117,11 +111,6 @@ public class TimedCSVLine extends GenericTimedEvent implements CSVEvent {
         for(int i = 1;  i < properties.size(); i ++) {
 
             Property p = properties.get(i);
-
-            if (Event.LINE_NUMBER_PROPERTY_NAME.equals(p.getName())) {
-
-                continue;
-            }
 
             if (first) {
 

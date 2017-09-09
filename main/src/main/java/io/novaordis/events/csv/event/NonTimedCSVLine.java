@@ -16,7 +16,6 @@
 
 package io.novaordis.events.csv.event;
 
-import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.csv.event.field.CSVFieldImpl;
@@ -50,23 +49,18 @@ public class NonTimedCSVLine extends GenericEvent implements CSVEvent {
 
     // Overrides -------------------------------------------------------------------------------------------------------
 
+    /**
+     * Display the value corresponding to all properties (including the line number, if available), in order they are
+     * stored in the event representation.
+     */
     @Override
     public String getPreferredRepresentation(String fieldSeparator) {
-
-        //
-        // we display the description of all properties, except line number, in order
-        //
 
         String s = "";
 
         for(Iterator<Property> pi = getProperties().iterator(); pi.hasNext(); ) {
 
             Property p = pi.next();
-
-            if (Event.LINE_NUMBER_PROPERTY_NAME.equals(p.getName())) {
-
-                continue;
-            }
 
             s += p.getValue();
 
@@ -79,23 +73,18 @@ public class NonTimedCSVLine extends GenericEvent implements CSVEvent {
         return s;
     }
 
+    /**
+     * Display the description of all properties (including the line number property, if available), in order they are
+     * stored in the event representation.
+     */
     @Override
     public String getPreferredRepresentationHeader(String fieldSeparator) {
-
-        //
-        // we display the description of all properties, except line number, in order
-        //
 
         String s = "";
 
         for(Iterator<Property> pi = getProperties().iterator(); pi.hasNext(); ) {
 
             Property p = pi.next();
-
-            if (Event.LINE_NUMBER_PROPERTY_NAME.equals(p.getName())) {
-
-                continue;
-            }
 
             s += p.getName() + CSVFieldImpl.typeToCommandLineLiteral(p.getType(), p.getFormat());
 
