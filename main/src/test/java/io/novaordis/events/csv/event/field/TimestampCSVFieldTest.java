@@ -60,7 +60,7 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
 
         assertEquals("something", f.getName());
         assertEquals(Long.class, f.getType());
-        SimpleDateFormat format = f.getFormat();
+        SimpleDateFormat format = (SimpleDateFormat)f.getFormat();
         assertNotNull(format);
         assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL, format.toPattern());
         assertTrue(f.isTimestamp());

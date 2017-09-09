@@ -292,7 +292,6 @@ public class CSVParser extends ParserBase {
      * @param header may be null if no format was installed.
      * @param timestampCreated a wrapper for a boolean that says whether the unique timestamp was already identified
      *                         or not. Updated by the method if the timestamp is identified.
-     *
      */
     static void buildAndStoreProperty(
             PropertyFactory propertyFactory, String tok, int index, CSVField header,

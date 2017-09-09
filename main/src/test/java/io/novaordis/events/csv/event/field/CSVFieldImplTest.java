@@ -78,7 +78,6 @@ public class CSVFieldImplTest extends CSVFieldTest {
         }
     }
 
-
     @Test
     public void csvFieldImplCannotBeUsedToRepresentTimestamps_ComponentConstructor() throws Exception {
 
@@ -226,6 +225,15 @@ public class CSVFieldImplTest extends CSVFieldTest {
         catch(IllegalArgumentException e) {
             log.info(e.getMessage());
         }
+    }
+
+    // typeToCommandLineLiteral() --------------------------------------------------------------------------------------
+
+    @Test
+    public void typeToCommandLineLiteral_UTCMillisecondsLongTimestampFormat() throws Exception {
+
+        String s = CSVFieldImpl.typeToCommandLineLiteral(Date.class, new UTCMillisecondsLongTimestampFormat());
+        assertEquals("(time:long)", s);
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

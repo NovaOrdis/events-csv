@@ -32,7 +32,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -79,6 +78,8 @@ public class HeadersTest extends ProcedureTest {
 
     // Tests -----------------------------------------------------------------------------------------------------------
 
+    // process() -------------------------------------------------------------------------------------------------------
+
     @Test
     public void process_NonHeaderGoesThrough() throws Exception {
 
@@ -106,9 +107,37 @@ public class HeadersTest extends ProcedureTest {
 
         String expected =
                 "line 777 header:\n" +
-                        "     timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
                         "  1: A(string)\n" +
                         "  2: B(string)\n" +
+                        "  3: C(string)\n";
+
+        String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
+
+        assertEquals(expected, actual);
+
+        assertFalse(headersProcedure.isExitLoop());
+    }
+
+    @Test
+    public void process_TimestampNotOnTheFirstPosition() throws Exception {
+
+        Headers headersProcedure = new Headers(new ByteArrayOutputStream());
+
+        List<CSVField> fields = new CSVFormat("A, B, timestamp, C").getFields();
+
+        CSVHeaders headersEvent = new CSVHeaders(777L, fields);
+
+        headersProcedure.process(headersEvent);
+
+        //
+        // the timestamp is available implicitly on position 0, and explicitly on position 3
+        //
+        String expected =
+                "line 777 header:\n" +
+                        "  0: A(string)\n" +
+                        "  1: B(string)\n" +
+                        "  2: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
                         "  3: C(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
@@ -137,7 +166,7 @@ public class HeadersTest extends ProcedureTest {
 
         String expected =
                 "line 777 header:\n" +
-                        "     timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
                         "  1: A(string)\n" +
                         "  2: B(string)\n" +
                         "  3: C(string)\n" +
@@ -167,7 +196,8 @@ public class HeadersTest extends ProcedureTest {
     public void indexFromHeaderName_Timestamp() throws Exception {
 
         Integer i = Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + 10, TimedEvent.TIMESTAMP_PROPERTY_NAME);
-        assertNull(i);
+
+        assertEquals(10, i.intValue());
     }
 
     @Test
@@ -176,7 +206,7 @@ public class HeadersTest extends ProcedureTest {
         Integer i = Headers.indexFromHeaderName(
                 CSVHeaders.HEADER_NAME_PREFIX + 10, TimedEvent.TIMESTAMP_PROPERTY_NAME + "(something)");
 
-        assertNull(i);
+        assertEquals(10, i.intValue());
     }
 
     @Test

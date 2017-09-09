@@ -16,24 +16,18 @@
 
 package io.novaordis.events.csv.event.field;
 
-import io.novaordis.events.api.event.TimedEvent;
-import io.novaordis.events.csv.Constants;
-
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.text.FieldPosition;
+import java.text.ParsePosition;
 import java.util.Date;
 
 /**
- * A timestamp CSV field.
- *
- * The name is conventionally use TimedEvent.TIMESTAMP_PROPERTY_NAME and the type is Long.
- *
- * The format is never null.
+ * A format used to convert back and forth timestamps and their representation as UTC milliseconds longs.
  *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 2/6/16
+ * @since 9/8/17
  */
-public class TimestampCSVField extends CSVFieldImpl {
+public class UTCMillisecondsLongTimestampFormat extends DateFormat {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -43,50 +37,34 @@ public class TimestampCSVField extends CSVFieldImpl {
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
-    public TimestampCSVField() {
-
-        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
-    }
-
-    public TimestampCSVField(String name) {
-
-        super(name, Long.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
-    }
-
-    public TimestampCSVField(SimpleDateFormat format) {
-
-        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, format);
-    }
-
-    public TimestampCSVField(String name, DateFormat format) {
-
-        super(name, Long.class, format);
-    }
-
-    // CSVFieldImpl overrides ------------------------------------------------------------------------------------------
+    // Format overrides ------------------------------------------------------------------------------------------------
 
     @Override
-    public boolean isTimestamp() {
-
-        return true;
+    public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
+        throw new RuntimeException("format() NOT YET IMPLEMENTED");
     }
 
     @Override
-    public DateFormat getFormat() {
+    public Date parse(String source, ParsePosition pos) {
 
-        return (DateFormat)super.getFormat();
-    }
+        Date result = null;
 
-    @Override
-    public String getSpecification() {
+        try {
 
-        return getName() + typeToCommandLineLiteral(Date.class, getFormat());
-    }
+            long l = Long.parseLong(source);
 
-    @Override
-    public String toString() {
+            result = new Date(l);
 
-        return getSpecification();
+            pos.setIndex(source.length());
+        }
+        catch (Exception e) {
+
+            //
+            // noop - leaving pos unchange will trigger ParseException to be thrown by the upper layer
+            //
+        }
+
+        return result;
     }
 
     // Public ----------------------------------------------------------------------------------------------------------

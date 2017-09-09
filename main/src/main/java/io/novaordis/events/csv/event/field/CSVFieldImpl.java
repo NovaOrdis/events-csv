@@ -83,6 +83,10 @@ public class CSVFieldImpl implements CSVField {
 
                     pattern = ((SimpleDateFormat)format).toPattern();
                 }
+                else if (format instanceof UTCMillisecondsLongTimestampFormat) {
+
+                    pattern = "long";
+                }
                 else {
 
                     pattern = format.toString();

@@ -35,6 +35,7 @@ import io.novaordis.events.csv.event.TimedCSVLine;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.CSVFieldImpl;
 import io.novaordis.events.csv.event.field.TimestampCSVField;
+import io.novaordis.events.csv.event.field.UTCMillisecondsLongTimestampFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -1102,6 +1103,34 @@ public class CSVParserTest {
         StringProperty p = (StringProperty)properties.get(0);
         assertEquals("something", p.getName());
         assertNull(p.getValue());
+    }
+
+    @Test
+    public void buildAndStoreProperty_TimestampLong() throws Exception {
+
+        List<Property> properties = new ArrayList<>();
+
+        PropertyFactory f = new PropertyFactory();
+
+        int index = 7;
+
+        CSVField header = new TimestampCSVField("timestamp", new UTCMillisecondsLongTimestampFormat());
+
+        long value = 1503522092L;
+        String token = Long.toString(value);
+
+        MutableBoolean mb = new MutableBoolean(false);
+
+        CSVParser.buildAndStoreProperty(f, token, index, header, mb, properties);
+
+        assertEquals(1, properties.size());
+
+        Property p = properties.get(0);
+
+        TimestampProperty tp = (TimestampProperty)p;
+        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, tp.getName());
+
+        assertEquals(value, tp.getValue());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

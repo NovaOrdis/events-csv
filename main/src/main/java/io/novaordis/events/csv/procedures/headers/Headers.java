@@ -18,7 +18,6 @@ package io.novaordis.events.csv.procedures.headers;
 
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.Property;
-import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.TextOutputProcedure;
@@ -126,20 +125,8 @@ public class Headers extends TextOutputProcedure {
 
                 Integer headerIndex = indexFromHeaderName(name, p.getValue());
 
-                if (headerIndex == null) {
-
-                    //
-                    // not addressable by index
-                    //
-
-                    printf("%" + width + "s  ", "");
-                }
-                else {
-
-                    int propertyIndex = headerIndex + offset;
-                    printf("%" + width + "s: ", propertyIndex);
-                }
-
+                int propertyIndex = headerIndex + offset;
+                printf("%" + width + "s: ", propertyIndex);
                 println(p.getValue());
             }
         }
@@ -196,17 +183,6 @@ public class Headers extends TextOutputProcedure {
         if (headerValue == null) {
 
             return i;
-        }
-
-        String value = headerValue.toString();
-
-        if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(value) ||
-                value.startsWith(TimedEvent.TIMESTAMP_PROPERTY_NAME + "(")) {
-
-            //
-            // timestamp, not retrievable via an index
-            //
-            return null;
         }
 
         return i;

@@ -130,11 +130,11 @@ public class CSVFieldFactoryTest {
     }
 
     @Test
-    public void fromSpecification_NoTypeInformation_Timestamp() throws Exception {
+    public void fromSpecification_Timestamp_NoFormat() throws Exception {
 
         String specification = "timestamp";
 
-        CSVField f = CSVFieldFactory.fromSpecification(specification);
+        TimestampCSVField f = (TimestampCSVField)CSVFieldFactory.fromSpecification(specification);
 
         assertEquals("timestamp", f.getName());
         assertEquals(Long.class, f.getType());
@@ -146,6 +146,139 @@ public class CSVFieldFactoryTest {
         // adds canonical type info
         //
         assertEquals(specification + "(time:MM/dd/yy HH:mm:ss)", specification2);
+    }
+
+    @Test
+    public void fromSpecification_Timestamp_Long() throws Exception {
+
+        String specification = "timestamp(long)";
+
+        TimestampCSVField f = (TimestampCSVField)CSVFieldFactory.fromSpecification(specification);
+
+        assertEquals("timestamp", f.getName());
+        assertEquals(Long.class, f.getType());
+        assertTrue(f.isTimestamp());
+        UTCMillisecondsLongTimestampFormat format = (UTCMillisecondsLongTimestampFormat)f.getFormat();
+        assertNotNull(format);
+
+        String specification2 = f.getSpecification();
+        assertEquals("timestamp(time:long)", specification2);
+    }
+
+    @Test
+    public void fromSpecification_Timestamp_Time_SimpleDateFormat() throws Exception {
+
+        String specification = "timestamp(time:yy/MM/dd HH:mm:ss)";
+
+        TimestampCSVField f = (TimestampCSVField)CSVFieldFactory.fromSpecification(specification);
+
+        assertTrue(f.isTimestamp());
+
+        assertEquals("timestamp", f.getName());
+        assertEquals(Long.class, f.getType());
+        assertTrue(f.isTimestamp());
+
+        Format format = f.getFormat();
+        assertTrue(format instanceof SimpleDateFormat);
+        SimpleDateFormat sdf = (SimpleDateFormat)format;
+
+        assertEquals(sdf.parse("16/01/01 01:01:01"),
+                new SimpleDateFormat("MM/dd/yy hh:mm:ss a").parse("01/01/16 01:01:01 AM"));
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
+    }
+
+    @Test
+    public void fromSpecification_Timestamp_SimpleDateFormat() throws Exception {
+
+        String specification = "timestamp(yy/MM/dd HH:mm:ss)";
+
+        TimestampCSVField f = (TimestampCSVField)CSVFieldFactory.fromSpecification(specification);
+
+        assertTrue(f.isTimestamp());
+
+        assertEquals("timestamp", f.getName());
+        assertEquals(Long.class, f.getType());
+
+        Format format = f.getFormat();
+        assertTrue(format instanceof SimpleDateFormat);
+        SimpleDateFormat sdf = (SimpleDateFormat)format;
+
+        assertEquals(sdf.parse("16/01/01 01:01:01"),
+                new SimpleDateFormat("MM/dd/yy hh:mm:ss a").parse("01/01/16 01:01:01 AM"));
+
+        assertEquals("yy/MM/dd HH:mm:ss", sdf.toPattern());
+
+        String specification2 = f.getSpecification();
+        assertEquals("timestamp(time:yy/MM/dd HH:mm:ss)", specification2);
+    }
+
+    @Test
+    public void fromSpecification_Timestamp_SimpleDateFormat2() throws Exception {
+
+        String specification = "timestamp(HH:mm:ss)";
+
+        TimestampCSVField f = (TimestampCSVField)CSVFieldFactory.fromSpecification(specification);
+
+        assertTrue(f.isTimestamp());
+
+        assertEquals("timestamp", f.getName());
+        assertEquals(Long.class, f.getType());
+
+        Format format = f.getFormat();
+        assertTrue(format instanceof SimpleDateFormat);
+        SimpleDateFormat sdf = (SimpleDateFormat)format;
+
+        assertEquals(sdf.parse("01:01:01"), new SimpleDateFormat("hh:mm:ss a").parse("01:01:01 AM"));
+
+        assertEquals("HH:mm:ss", sdf.toPattern());
+
+        String specification2 = f.getSpecification();
+        assertEquals("timestamp(time:HH:mm:ss)", specification2);
+    }
+
+    @Test
+    public void fromSpecification_Time_InvalidTimeFormatSpecification() throws Exception {
+
+        try {
+
+            CSVFieldFactory.fromSpecification("timestamp(time:blah)");
+        }
+        catch(CSVFormatException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("invalid time specification"));
+            assertTrue(msg.contains("blah"));
+        }
+    }
+
+    @Test
+    public void fromSpecification_Time_NotTimestamp() throws Exception {
+
+        String specification = "T(time:MMM-dd yyyy HH:mm:ss)";
+
+        CSVField f = CSVFieldFactory.fromSpecification(specification);
+
+        //
+        // because the field name is not 'timestamp', the field won't be a TimestampCSVField, but just a regular
+        // CSVFieldImpl
+        //
+
+        assertFalse(f.isTimestamp());
+
+        assertEquals("T", f.getName());
+        assertEquals(Date.class, f.getType());
+
+        Format format = f.getFormat();
+        assertTrue(format instanceof SimpleDateFormat);
+        SimpleDateFormat sdf = (SimpleDateFormat)format;
+
+        assertEquals(sdf.parse("Jun-01 2016 01:01:01"),
+                new SimpleDateFormat("MM/dd/yy hh:mm:ss a").parse("06/01/16 01:01:01 AM"));
+
+        String specification2 = f.getSpecification();
+        assertEquals(specification, specification2);
     }
 
     @Test
@@ -272,7 +405,6 @@ public class CSVFieldFactoryTest {
         assertEquals("something(time:HH:mm:ss)", specification2);
     }
 
-
     @Test
     public void fromSpecification_StringField() throws Exception {
 
@@ -300,98 +432,6 @@ public class CSVFieldFactoryTest {
 
         String specification2 = f.getSpecification();
         assertEquals(specification + "(string)", specification2);
-    }
-
-    @Test
-    public void fromSpecification_Time_Timestamp() throws Exception {
-
-        String specification = "timestamp(time:yy/MM/dd HH:mm:ss)";
-
-        CSVField f = CSVFieldFactory.fromSpecification(specification);
-
-        assertTrue(f.isTimestamp());
-
-        assertEquals("timestamp", f.getName());
-        assertEquals(Long.class, f.getType());
-
-        Format format = f.getFormat();
-        assertTrue(format instanceof SimpleDateFormat);
-        SimpleDateFormat sdf = (SimpleDateFormat)format;
-
-        assertEquals(sdf.parse("16/01/01 01:01:01"),
-                new SimpleDateFormat("MM/dd/yy hh:mm:ss a").parse("01/01/16 01:01:01 AM"));
-
-        String specification2 = f.getSpecification();
-        assertEquals(specification, specification2);
-    }
-
-    @Test
-    public void fromSpecification_Time_Timestamp2() throws Exception {
-
-        String specification = "timestamp(yy/MM/dd HH:mm:ss)";
-
-        CSVField f = CSVFieldFactory.fromSpecification(specification);
-
-        assertTrue(f.isTimestamp());
-
-        assertEquals("timestamp", f.getName());
-        assertEquals(Long.class, f.getType());
-
-        Format format = f.getFormat();
-        assertTrue(format instanceof SimpleDateFormat);
-        SimpleDateFormat sdf = (SimpleDateFormat)format;
-
-        assertEquals(sdf.parse("16/01/01 01:01:01"),
-                new SimpleDateFormat("MM/dd/yy hh:mm:ss a").parse("01/01/16 01:01:01 AM"));
-
-        assertEquals("yy/MM/dd HH:mm:ss", sdf.toPattern());
-
-        String specification2 = f.getSpecification();
-        assertEquals("timestamp(time:yy/MM/dd HH:mm:ss)", specification2);
-    }
-
-
-    @Test
-    public void fromSpecification_Time_NotTimestamp() throws Exception {
-
-        String specification = "T(time:MMM-dd yyyy HH:mm:ss)";
-
-        CSVField f = CSVFieldFactory.fromSpecification(specification);
-
-        //
-        // because the field name is not 'timestamp', the field won't be a TimestampCSVField, but just a regular
-        // CSVFieldImpl
-        //
-
-        assertFalse(f.isTimestamp());
-
-        assertEquals("T", f.getName());
-        assertEquals(Date.class, f.getType());
-
-        Format format = f.getFormat();
-        assertTrue(format instanceof SimpleDateFormat);
-        SimpleDateFormat sdf = (SimpleDateFormat)format;
-
-        assertEquals(sdf.parse("Jun-01 2016 01:01:01"),
-                new SimpleDateFormat("MM/dd/yy hh:mm:ss a").parse("06/01/16 01:01:01 AM"));
-
-        String specification2 = f.getSpecification();
-        assertEquals(specification, specification2);
-    }
-
-    @Test
-    public void fromSpecification_Time_InvalidTimeFormatSpecification() throws Exception {
-
-        try {
-
-            CSVFieldFactory.fromSpecification("timestamp(time:blah)");
-        }
-        catch(CSVFormatException e) {
-
-            String msg = e.getMessage();
-            assertTrue(msg.contains("invalid time specification"));
-            assertTrue(msg.contains("blah"));
-        }
     }
 
     @Test

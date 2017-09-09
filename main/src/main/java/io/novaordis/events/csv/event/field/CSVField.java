@@ -69,5 +69,4 @@ public interface CSVField {
      * @see CSVFieldFactory#fromSpecification(String)
      */
     String getSpecification();
-
 }

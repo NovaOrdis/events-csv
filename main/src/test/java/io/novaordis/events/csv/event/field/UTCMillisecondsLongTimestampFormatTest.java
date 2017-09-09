@@ -16,24 +16,20 @@
 
 package io.novaordis.events.csv.event.field;
 
-import io.novaordis.events.api.event.TimedEvent;
-import io.novaordis.events.csv.Constants;
+import org.junit.Test;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Date;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 /**
- * A timestamp CSV field.
- *
- * The name is conventionally use TimedEvent.TIMESTAMP_PROPERTY_NAME and the type is Long.
- *
- * The format is never null.
- *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 2/6/16
+ * @since 9/8/17
  */
-public class TimestampCSVField extends CSVFieldImpl {
+public class UTCMillisecondsLongTimestampFormatTest {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -43,53 +39,47 @@ public class TimestampCSVField extends CSVFieldImpl {
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
-    public TimestampCSVField() {
-
-        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
-    }
-
-    public TimestampCSVField(String name) {
-
-        super(name, Long.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
-    }
-
-    public TimestampCSVField(SimpleDateFormat format) {
-
-        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, format);
-    }
-
-    public TimestampCSVField(String name, DateFormat format) {
-
-        super(name, Long.class, format);
-    }
-
-    // CSVFieldImpl overrides ------------------------------------------------------------------------------------------
-
-    @Override
-    public boolean isTimestamp() {
-
-        return true;
-    }
-
-    @Override
-    public DateFormat getFormat() {
-
-        return (DateFormat)super.getFormat();
-    }
-
-    @Override
-    public String getSpecification() {
-
-        return getName() + typeToCommandLineLiteral(Date.class, getFormat());
-    }
-
-    @Override
-    public String toString() {
-
-        return getSpecification();
-    }
-
     // Public ----------------------------------------------------------------------------------------------------------
+
+    // Tests -----------------------------------------------------------------------------------------------------------
+
+    // parse() ---------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void parse() throws Exception {
+
+        UTCMillisecondsLongTimestampFormat f = new UTCMillisecondsLongTimestampFormat();
+
+        long time = 1503522092L;
+
+        String s = Long.toString(time);
+
+        Date d = f.parse(s);
+
+        long time2 = d.getTime();
+
+        assertEquals(time, time2);
+    }
+
+    // parse() ---------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void parse_NonParseable() throws Exception {
+
+        UTCMillisecondsLongTimestampFormat f = new UTCMillisecondsLongTimestampFormat();
+
+        try {
+
+            f.parse("blah");
+            fail("should have thrown exception");
+        }
+        catch(ParseException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("blah"));
+            assertTrue(msg.contains("Unparseable"));
+        }
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 

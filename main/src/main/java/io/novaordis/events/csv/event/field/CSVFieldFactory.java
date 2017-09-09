@@ -132,6 +132,16 @@ public class CSVFieldFactory {
 
             TimestampCSVField f = new TimestampCSVField(name);
 
+            if (Long.class.equals(type)) {
+
+                //
+                // this has special meaning for timestamp fields, it means we expect the content to expressed as
+                // a millisecond long timestamp
+                //
+
+                format = new UTCMillisecondsLongTimestampFormat();
+            }
+
             if (format != null) {
 
                 f.setFormat(format);
