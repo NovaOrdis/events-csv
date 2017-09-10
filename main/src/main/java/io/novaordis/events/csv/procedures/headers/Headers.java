@@ -18,6 +18,7 @@ package io.novaordis.events.csv.procedures.headers;
 
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.Property;
+import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.TextOutputProcedure;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -94,40 +96,20 @@ public class Headers extends TextOutputProcedure {
 
         CSVHeaders headers = (CSVHeaders)e;
 
-        List<Property> properties = headers.getProperties();
+        List<Property> headersProperties = headers.getProperties();
 
-        int width = 3 + (int)Math.log10(properties.size());
-        int offset = 0;
+        int width = 3 + (int)Math.log10(headersProperties.size());
 
         try {
 
             println("line " + e.getLineNumber() + " header:");
 
-            for (Property p : properties) {
+            List<PropertyInfo> propertyInfo =  toCorrespondingPropertyInfo(headersProperties);
 
-                //
-                // properties such as line number property, and other, may be present, filter them out, only use
-                // "header_" properties
-                //
+            for (PropertyInfo pi : propertyInfo) {
 
-                String name = p.getName();
-
-                if (!name.startsWith(CSVHeaders.HEADER_NAME_PREFIX)) {
-
-                    continue;
-                }
-
-                //
-                // we rely on the fact that the headers in the header line and the properties associated with entries
-                // on the data line are recorded in the same sequence, so we use the header name index and we add
-                // or subtract an offset
-                //
-
-                Integer headerIndex = indexFromHeaderName(name, p.getValue());
-
-                int propertyIndex = headerIndex + offset;
-                printf("%" + width + "s: ", propertyIndex);
-                println(p.getValue());
+                printf("%" + width + "s: ", pi.getIndex());
+                println(pi.getFieldSpecification());
             }
         }
         catch(IOException ioe) {
@@ -149,43 +131,102 @@ public class Headers extends TextOutputProcedure {
     // Protected static ------------------------------------------------------------------------------------------------
 
     /**
-     * @return may return null, if the property associated with the header cannot be retrieved via an index. An example
-     * is the timestamp property, which may not be accessible with getProperty(index).
+     * Given the complete list of header property, the method calculates the indexes that can be used to pull the
+     * corresponding data properties from subsequent events associated with this header. We rely on the value of the
+     * index encoded in the header name, and also on the fact that the headers and the data properties are stored in
+     * the same order in their corresponding events.
      *
-     * @exception IllegalArgumentException if the header name is null or invalid.
+     * @exception IllegalArgumentException on various inconsistencies.
      */
-    static Integer indexFromHeaderName(String headerName, Object headerValue) throws IllegalArgumentException {
+    static List<PropertyInfo> toCorrespondingPropertyInfo(List<Property> headersProperties) {
 
-        if (headerName == null) {
+        if (headersProperties == null) {
 
-            throw new IllegalArgumentException("null header name");
+            throw new IllegalArgumentException("null header properties");
         }
 
-        if (!headerName.startsWith(CSVHeaders.HEADER_NAME_PREFIX)) {
+        List<PropertyInfo> pis = new ArrayList<>();
 
-            throw new IllegalArgumentException(
-                    "header name does not start with a valid prefix ('" + CSVHeaders.HEADER_NAME_PREFIX + "')");
+        int i = -1;
+        int offset = 0;
+        int timestampIndex = -1;
+        int effectiveIndex = 0;
+
+        for(Property headerProperty: headersProperties) {
+
+            i ++;
+
+            String headerName = headerProperty.getName();
+
+            if (!headerName.startsWith(CSVHeaders.HEADER_NAME_PREFIX)) {
+
+                offset ++;
+
+                continue;
+            }
+
+            String s = headerName.substring(CSVHeaders.HEADER_NAME_PREFIX.length());
+
+            int index;
+
+            try {
+
+                index = Integer.parseInt(s);
+            }
+            catch (NumberFormatException e) {
+
+                throw new IllegalArgumentException("header name does not contain a valid integer index: " + s, e);
+            }
+
+            String fieldSpecification = (String)headerProperty.getValue();
+            String propertyName;
+
+            int j = fieldSpecification.indexOf("(");
+
+            if (j == -1) {
+
+                propertyName = fieldSpecification;
+            }
+            else {
+
+                propertyName = fieldSpecification.substring(0, j);
+            }
+
+            if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(propertyName)) {
+
+                //
+                // timestamp property - it will aways be on the first position in storage in the data events
+                //
+
+                effectiveIndex = 0;
+                timestampIndex = i;
+                offset --;
+            }
+            else {
+
+                effectiveIndex = offset + index;
+            }
+
+            PropertyInfo pi = new PropertyInfo(effectiveIndex, propertyName, fieldSpecification);
+            pis.add(pi);
         }
 
-        String s = headerName.substring(CSVHeaders.HEADER_NAME_PREFIX.length());
+        //
+        // post-processing, if a timestamp header was encountered on another position but 0
+        //
 
-        int i;
+        if (timestampIndex > 0) {
 
-        try {
+            for(PropertyInfo pi: pis) {
 
-            i = Integer.parseInt(s);
-        }
-        catch(NumberFormatException e) {
+                if (!pi.getPropertyName().equals(TimedEvent.TIMESTAMP_PROPERTY_NAME)) {
 
-            throw new IllegalArgumentException("header name does not contain a valid integer index: " + s, e);
-        }
-
-        if (headerValue == null) {
-
-            return i;
+                    pi.incrementIndex();
+                }
+            }
         }
 
-        return i;
+        return pis;
     }
 
     // Protected -------------------------------------------------------------------------------------------------------

@@ -16,8 +16,11 @@
 
 package io.novaordis.events.csv.procedures.headers;
 
+import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
-import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.api.event.LongProperty;
+import io.novaordis.events.api.event.Property;
+import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.csv.CSVFormat;
 import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.csv.event.field.CSVField;
@@ -27,6 +30,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -108,9 +112,9 @@ public class HeadersTest extends ProcedureTest {
         String expected =
                 "line 777 header:\n" +
                         "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
-                        "  1: A(string)\n" +
-                        "  2: B(string)\n" +
-                        "  3: C(string)\n";
+                        "  2: A(string)\n" +
+                        "  3: B(string)\n" +
+                        "  4: C(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
 
@@ -135,10 +139,10 @@ public class HeadersTest extends ProcedureTest {
         //
         String expected =
                 "line 777 header:\n" +
-                        "  0: A(string)\n" +
-                        "  1: B(string)\n" +
-                        "  2: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
-                        "  3: C(string)\n";
+                        "  2: A(string)\n" +
+                        "  3: B(string)\n" +
+                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  4: C(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
 
@@ -167,13 +171,13 @@ public class HeadersTest extends ProcedureTest {
         String expected =
                 "line 777 header:\n" +
                         "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
-                        "  1: A(string)\n" +
-                        "  2: B(string)\n" +
-                        "  3: C(string)\n" +
+                        "  2: A(string)\n" +
+                        "  3: B(string)\n" +
+                        "  4: C(string)\n" +
                 "line 888 header:\n" +
-                        "  0: X(string)\n" +
-                        "  1: Y(int)\n" +
-                        "  2: Z(string)\n";
+                        "  1: X(string)\n" +
+                        "  2: Y(int)\n" +
+                        "  3: Z(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
 
@@ -182,78 +186,32 @@ public class HeadersTest extends ProcedureTest {
         assertFalse(headersProcedure.isExitLoop());
     }
 
-    // indexFromHeaderName() -------------------------------------------------------------------------------------------
+    // toCorrespondingPropertyInfo() ------------------------------------------------------------------------------------------------
 
     @Test
-    public void indexFromHeaderName() throws Exception {
-
-        Integer i = Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + 10, "does-not-matter");
-        assertNotNull(i);
-        assertEquals(10, i.intValue());
-    }
-
-    @Test
-    public void indexFromHeaderName_Timestamp() throws Exception {
-
-        Integer i = Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + 10, TimedEvent.TIMESTAMP_PROPERTY_NAME);
-
-        assertEquals(10, i.intValue());
-    }
-
-    @Test
-    public void indexFromHeaderName_TimestampAndFormat() throws Exception {
-
-        Integer i = Headers.indexFromHeaderName(
-                CSVHeaders.HEADER_NAME_PREFIX + 10, TimedEvent.TIMESTAMP_PROPERTY_NAME + "(something)");
-
-        assertEquals(10, i.intValue());
-    }
-
-    @Test
-    public void indexFromHeaderName_NotExactlyATimestamp() throws Exception {
-
-        Integer i = Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + 10, "timestamps");
-        assertNotNull(i);
-        assertEquals(10, i.intValue());
-    }
-
-    @Test
-    public void indexFromHeaderName_Null() throws Exception {
+    public void toPropertyInfo_Null() throws Exception {
 
         try {
 
-            Headers.indexFromHeaderName(null, "does-not-matter");
+            Headers.toCorrespondingPropertyInfo(null);
             fail("should have thrown exception");
         }
         catch(IllegalArgumentException e) {
 
             String msg = e.getMessage();
-            assertTrue(msg.contains("null header name"));
+            assertTrue(msg.contains("null header properties"));
         }
     }
 
     @Test
-    public void indexFromHeaderName_InvalidPrefix() throws Exception {
+    public void toPropertyInfo_InvalidIndexInHeaderPropertyName() throws Exception {
+
+        List<Property> headerProperties =
+                Collections.singletonList(new StringProperty(CSVHeaders.HEADER_NAME_PREFIX + "blah"));
 
         try {
 
-            Headers.indexFromHeaderName("something", "does-not-matter");
-            fail("should have thrown exception");
-        }
-        catch(IllegalArgumentException e) {
-
-            String msg = e.getMessage();
-            assertTrue(msg.contains("header name does not start with a valid prefix"));
-            assertTrue(msg.contains(CSVHeaders.HEADER_NAME_PREFIX));
-        }
-    }
-
-    @Test
-    public void indexFromHeaderName_InvalidPostfix() throws Exception {
-
-        try {
-
-            Headers.indexFromHeaderName(CSVHeaders.HEADER_NAME_PREFIX + "blah", "does-not-matter");
+            Headers.toCorrespondingPropertyInfo(headerProperties);
             fail("should have thrown exception");
         }
         catch(IllegalArgumentException e) {
@@ -262,6 +220,114 @@ public class HeadersTest extends ProcedureTest {
             assertTrue(msg.contains("header name does not contain a valid integer index"));
             assertTrue(msg.contains("blah"));
         }
+    }
+
+    @Test
+    public void toCorrespondingPropertyIndex_Production() throws Exception {
+
+        List<Property> headerProperties = Arrays.asList(
+                new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 1001L),
+                new StringProperty("header_0", "timestamp(time:long)"),
+                new StringProperty("header_1", "name(string)"),
+                new StringProperty("header_2", "counter(int)")
+        );
+
+        List<PropertyInfo> pis = Headers.toCorrespondingPropertyInfo(headerProperties);
+
+        assertEquals(3, pis.size());
+
+        PropertyInfo p = pis.get(0);
+        assertEquals(0, p.getIndex());
+        assertEquals("timestamp", p.getPropertyName());
+        assertEquals("timestamp(time:long)", p.getFieldSpecification());
+
+        PropertyInfo p2 = pis.get(1);
+        assertEquals(2, p2.getIndex());
+        assertEquals("name", p2.getPropertyName());
+        assertEquals("name(string)", p2.getFieldSpecification());
+
+        PropertyInfo p3 = pis.get(2);
+        assertEquals(3, p3.getIndex());
+        assertEquals("counter", p3.getPropertyName());
+        assertEquals("counter(int)", p3.getFieldSpecification());
+    }
+
+    @Test
+    public void toCorrespondingPropertyIndex_Production2() throws Exception {
+
+        //
+        // the timestamp property is present in the first column
+        //
+
+        List<Property> headerProperties = Arrays.asList(
+                new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 1001L),
+                new StringProperty("header_0", "itemid(string)"),
+                new StringProperty("header_1", "ns(string)"),
+                new StringProperty("header_2", "value(string)"),
+                new StringProperty("header_3", "timestamp(time:long)")
+        );
+
+        List<PropertyInfo> pis = Headers.toCorrespondingPropertyInfo(headerProperties);
+
+        assertEquals(4, pis.size());
+
+        PropertyInfo p = pis.get(0);
+        assertEquals(2, p.getIndex());
+        assertEquals("itemid", p.getPropertyName());
+
+        PropertyInfo p2 = pis.get(1);
+        assertEquals(3, p2.getIndex());
+        assertEquals("ns", p2.getPropertyName());
+
+        PropertyInfo p3 = pis.get(2);
+        assertEquals(4, p3.getIndex());
+        assertEquals("value", p3.getPropertyName());
+
+        PropertyInfo p4 = pis.get(3);
+        assertEquals(0, p4.getIndex());
+        assertEquals("timestamp", p4.getPropertyName());
+    }
+
+    @Test
+    public void toCorrespondingPropertyIndex_Production3() throws Exception {
+
+        //
+        // the timestamp property is present in the first column, and other properties follow
+        //
+
+
+        List<Property> headerProperties = Arrays.asList(
+                new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 1001L),
+                new StringProperty("header_0", "itemid(string)"),
+                new StringProperty("header_1", "ns(string)"),
+                new StringProperty("header_2", "value(string)"),
+                new StringProperty("header_3", "timestamp(time:long)"),
+                new StringProperty("header_4", "count(int)")
+        );
+
+        List<PropertyInfo> pis = Headers.toCorrespondingPropertyInfo(headerProperties);
+
+        assertEquals(5, pis.size());
+
+        PropertyInfo p = pis.get(0);
+        assertEquals(2, p.getIndex());
+        assertEquals("itemid", p.getPropertyName());
+
+        PropertyInfo p2 = pis.get(1);
+        assertEquals(3, p2.getIndex());
+        assertEquals("ns", p2.getPropertyName());
+
+        PropertyInfo p3 = pis.get(2);
+        assertEquals(4, p3.getIndex());
+        assertEquals("value", p3.getPropertyName());
+
+        PropertyInfo p4 = pis.get(3);
+        assertEquals(0, p4.getIndex());
+        assertEquals("timestamp", p4.getPropertyName());
+
+        PropertyInfo p5 = pis.get(4);
+        assertEquals(5, p5.getIndex());
+        assertEquals("count", p5.getPropertyName());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
