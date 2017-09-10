@@ -24,7 +24,10 @@ import io.novaordis.events.csv.event.field.CSVFieldFactory;
 import io.novaordis.events.csv.event.field.CSVFieldImpl;
 import io.novaordis.events.csv.event.field.MetricDefinitionBasedCSVField;
 import io.novaordis.events.csv.event.field.TimestampCSVField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +44,8 @@ import java.util.List;
 public class CSVFormat {
 
     // Constants -------------------------------------------------------------------------------------------------------
+
+    private static final Logger log = LoggerFactory.getLogger(CSVFormat.class);
 
     // Static ----------------------------------------------------------------------------------------------------------
 
@@ -125,6 +130,11 @@ public class CSVFormat {
 
             fields.add(field);
         }
+
+        if (log.isDebugEnabled()) {
+
+            log.debug(this + " constructed");
+        }
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
@@ -174,14 +184,21 @@ public class CSVFormat {
         return fields;
     }
 
-    @Override
-    public String toString() {
+    /**
+     * Similar to SimpleDateFormat#toPattern(), returns the specification of this format, which consists in the
+     * concatenation of its fields' specifications, in order.
+     *
+     * @see SimpleDateFormat#toPattern()
+     */
+    public String toPattern() {
 
         String s = "";
 
         for(int i = 0; i < fields.size(); i ++) {
 
-            s += fields.get(i);
+            CSVField f = fields.get(i);
+
+            s += f.getSpecification();
 
             if (i < fields.size() - 1) {
 
@@ -189,6 +206,12 @@ public class CSVFormat {
             }
         }
         return s;
+    }
+
+    @Override
+    public String toString() {
+
+        return "CSVFormat[" + Integer.toHexString(System.identityHashCode(this)) + "]";
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

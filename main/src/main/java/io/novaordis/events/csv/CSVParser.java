@@ -126,18 +126,19 @@ public class CSVParser extends ParserBase {
      */
     public void setFormat(CSVFormat format) {
 
+        this.format = format;
+
         if (log.isDebugEnabled()) {
 
-            log.debug(this + " is installing CSV format \"" + format + "\"");
+            log.debug(this + " installed format " +
+                    (format == null ? "null" : format + ": \"" + format.toPattern() + "\""));
         }
-
-        this.format = format;
     }
 
     @Override
     public String toString() {
 
-        return "CSVParser[" + (format == null ? "NO FORMAT" : format) + "]";
+        return "CSVParser[" + (format == null ? "HEURISTIC" : format) + "]";
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
@@ -179,6 +180,11 @@ public class CSVParser extends ParserBase {
             //
 
             try {
+
+                if (log.isDebugEnabled()) {
+
+                    log.debug("detected header line");
+                }
 
                 CSVFormat f = new CSVFormat(line.substring(1));
 

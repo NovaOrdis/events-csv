@@ -21,6 +21,8 @@ import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.metric.MockAddress;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.CSVFieldFactory;
+import io.novaordis.events.csv.event.field.CSVFieldImpl;
+import io.novaordis.events.csv.event.field.TimestampCSVField;
 import org.junit.Test;
 
 import java.util.List;
@@ -421,6 +423,39 @@ public class CSVFormatTest {
         Class c = fd.getType();
 
         assertEquals(Long.class, c);
+    }
+
+    // toPattern() -----------------------------------------------------------------------------------------------------
+
+    @Test
+    public void toPattern_Empty() throws Exception {
+
+        CSVFormat f = new CSVFormat();
+
+        String s = f.toPattern();
+        assertTrue(s.isEmpty());
+    }
+
+    @Test
+    public void toPattern_One() throws Exception {
+
+        CSVFormat f = new CSVFormat();
+
+        f.addField(new CSVFieldImpl("something", String.class));
+
+        assertEquals("something(string)", f.toPattern());
+    }
+
+    @Test
+    public void toPattern_Many() throws Exception {
+
+        CSVFormat f = new CSVFormat();
+
+        f.addField(new TimestampCSVField());
+        f.addField(new CSVFieldImpl("something", String.class));
+        f.addField(new CSVFieldImpl("counter", Integer.class));
+
+        assertEquals("timestamp(time:MM/dd/yy HH:mm:ss), something(string), counter(int)", f.toPattern());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

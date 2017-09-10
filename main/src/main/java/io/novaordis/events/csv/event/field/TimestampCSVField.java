@@ -20,7 +20,6 @@ import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.csv.Constants;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -53,7 +52,7 @@ public class TimestampCSVField extends CSVFieldImpl {
         super(name, Long.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
     }
 
-    public TimestampCSVField(SimpleDateFormat format) {
+    public TimestampCSVField(DateFormat format) {
 
         super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, format);
     }
