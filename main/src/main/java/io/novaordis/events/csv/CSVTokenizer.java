@@ -16,7 +16,7 @@
 
 package io.novaordis.events.csv;
 
-import io.novaordis.events.api.parser.ParsingException;
+import io.novaordis.utilities.ParsingException;
 
 import java.util.ArrayList;
 import java.util.List;

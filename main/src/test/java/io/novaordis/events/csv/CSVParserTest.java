@@ -27,7 +27,7 @@ import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.event.TimestampProperty;
 import io.novaordis.events.api.event.UndefinedTypeProperty;
-import io.novaordis.events.api.parser.ParsingException;
+import io.novaordis.utilities.ParsingException;
 import io.novaordis.events.csv.event.CSVEvent;
 import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.csv.event.NonTimedCSVLine;
