@@ -16,7 +16,7 @@
 
 package io.novaordis.events.csv;
 
-import io.novaordis.utilities.ParsingException;
+import io.novaordis.utilities.parsing.ParsingException;
 import org.junit.Test;
 
 import java.util.List;

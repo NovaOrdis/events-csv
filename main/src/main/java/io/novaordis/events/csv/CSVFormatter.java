@@ -24,7 +24,7 @@ import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.event.TimestampProperty;
 import io.novaordis.events.api.metric.MetricDefinition;
-import io.novaordis.utilities.ParsingException;
+import io.novaordis.utilities.parsing.ParsingException;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.MetricDefinitionBasedCSVField;
 import io.novaordis.utilities.address.Address;
