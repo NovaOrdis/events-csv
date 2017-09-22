@@ -8,7 +8,7 @@
 
     <groupId>io.novaordis.events.csv</groupId>
     <artifactId>events-csv-root</artifactId>
-    <version>1.0.1-SNAPSHOT-2</version>
+    <version>1.0.1-SNAPSHOT-3</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -19,7 +19,7 @@
 
         <novaordis.utilities.version>4.7.11</novaordis.utilities.version>
         <events.api.version>1.2.2</events.api.version>
-        <events.processing.version>1.1.1</events.processing.version>
+        <events.processing.version>1.1.2-SNAPSHOT-1</events.processing.version>
         <events.cli.version>1.0.2</events.cli.version>
 
         <slf4j.version>1.7.6</slf4j.version>

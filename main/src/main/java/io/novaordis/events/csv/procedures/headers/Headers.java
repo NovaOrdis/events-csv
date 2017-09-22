@@ -16,6 +16,7 @@
 
 package io.novaordis.events.csv.procedures.headers;
 
+import io.novaordis.events.api.event.EndOfStreamEvent;
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.TimedEvent;
@@ -23,6 +24,7 @@ import io.novaordis.events.csv.Constants;
 import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.TextOutputProcedure;
+import io.novaordis.utilities.UserErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,19 +49,56 @@ public class Headers extends TextOutputProcedure {
 
     public static final String[] COMMAND_LINE_LABELS = { "header", "headers" };
 
+    public static final String FIRST_COMMAND_LINE_MODIFIER = "--first";
+    public static final String LAST_COMMAND_LINE_MODIFIER = "--last";
+
     // Static ----------------------------------------------------------------------------------------------------------
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
     private boolean exitLoop;
 
+    //
+    // whether the procedure was configured to render only the first encountered header
+    //
+
+    private boolean first;
+
+    //
+    // whether the procedure was configured to render only the last encountered header
+    //
+
+    private boolean last;
+
+    // maintains the last seen header, if we need it
+    private CSVHeaders lastHeader;
+
     // Constructors ----------------------------------------------------------------------------------------------------
 
-    public Headers(OutputStream os) {
+    /**
+     * Instantiates and configures the procedure based on the command line content.
+     *
+     * @param from the index of the first argument to be examined in the argument list. All arguments with an index
+     *             equal to 'from' and higher can be interpreted as procedure arguments. The arguments that are
+     *             recognized as procedure arguments must be removed from the argument list, otherwise they may confuse
+     *             other subsystems that get to process the argument list after this.
+     *
+     * @param commandLineArguments the command line argument list. The list may contain possible arguments for the
+     *                             procedure. The list must be mutable. The arguments that are recognized as procedure
+     *                             arguments are removed from the list, otherwise they may confuse other subsystems that
+     *                             get to process the argument list after this.
+     *
+     * @exception UserErrorException on command line configuration errors.
+     */
+    public Headers(int from, List<String> commandLineArguments, OutputStream os) throws UserErrorException {
 
         super(os);
 
         this.exitLoop = false;
+        this.first = false;
+        this.last = false;
+
+        configure(from, commandLineArguments);
     }
 
     // Procedure implementation ----------------------------------------------------------------------------------------
@@ -80,6 +119,22 @@ public class Headers extends TextOutputProcedure {
             log.debug(this + " processing line " + invocationCount.get() + ": " + e);
         }
 
+        if (e instanceof EndOfStreamEvent) {
+
+            //
+            // this has a special significance when "last" is in effect, we need to render the last identified header
+            //
+
+            render(lastHeader);
+
+            //
+            // this is somewhat superfluous but we want follow conventions
+            //
+            exitLoop = true;
+
+            return;
+        }
+
         if (!(e instanceof CSVHeaders)) {
 
             //
@@ -93,45 +148,28 @@ public class Headers extends TextOutputProcedure {
             log.debug(this + " identified CSV header event: " + e);
         }
 
-        //exitLoop = true;
+        CSVHeaders h = (CSVHeaders) e;
 
-        CSVHeaders headers = (CSVHeaders)e;
+        if (first) {
 
-        List<Property> headersProperties = headers.getProperties();
+            render(h);
 
-        int width = 3 + (int)Math.log10(headersProperties.size());
-
-        try {
-
-            String prefixLine = "line " + e.getLineNumber() + " header";
-
-            Long nextTimedEventTimestamp = headers.getNextTimedEventTimestamp();
-
-            if (nextTimedEventTimestamp != null) {
-
-                prefixLine +=
-                        ", applies to events recorded on " +
-                                Constants.DEFAULT_TIMESTAMP_FORMAT.format(nextTimedEventTimestamp) +
-                                " and after:";
-            }
-            else {
-
-                prefixLine += ":";
-            }
-
-            println(prefixLine);
-
-            List<PropertyInfo> propertyInfo =  toCorrespondingPropertyInfo(headersProperties);
-
-            for (PropertyInfo pi : propertyInfo) {
-
-                printf("%" + width + "s: ", pi.getIndex());
-                println(pi.getFieldSpecification());
-            }
+            //
+            // exit the loop
+            //
+            exitLoop = true;
         }
-        catch(IOException ioe) {
+        else if (last) {
 
-            throw new EventProcessingException(ioe);
+            //
+            // keep the last header and only render it when we're at the end of the stream, but don't render
+            //
+
+            lastHeader = h;
+        }
+        else {
+
+            render(h);
         }
     }
 
@@ -142,6 +180,22 @@ public class Headers extends TextOutputProcedure {
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
+
+    /**
+     * @return true if the procedure was configured to render only the first encountered header.
+     */
+    public boolean isFirst() {
+
+        return first;
+    }
+
+    /**
+     * @return true if the procedure was configured to render only the last encountered header.
+     */
+    public boolean isLast() {
+
+        return last;
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 
@@ -167,7 +221,7 @@ public class Headers extends TextOutputProcedure {
         int i = -1;
         int offset = 0;
         int timestampIndex = -1;
-        int effectiveIndex = 0;
+        int effectiveIndex;
 
         for(Property headerProperty: headersProperties) {
 
@@ -234,6 +288,7 @@ public class Headers extends TextOutputProcedure {
 
         if (timestampIndex > 0) {
 
+            //noinspection Convert2streamapi
             for(PropertyInfo pi: pis) {
 
                 if (!pi.getPropertyName().equals(TimedEvent.TIMESTAMP_PROPERTY_NAME)) {
@@ -249,6 +304,101 @@ public class Headers extends TextOutputProcedure {
     // Protected -------------------------------------------------------------------------------------------------------
 
     // Private ---------------------------------------------------------------------------------------------------------
+
+    /**
+     * @param from the index of the first argument to be examined in the argument list. All arguments with an index
+     *             equal to 'from' and higher can be interpreted as procedure arguments. The arguments that are
+     *             recognized as procedure arguments must be removed from the argument list, otherwise they may confuse
+     *             other subsystems that get to process the argument list after this.
+     *
+     * @param commandLineArguments the command line argument list. The list may contain possible arguments for the
+     *                             procedure. The list must be mutable. The arguments that are recognized as procedure
+     *                             arguments are removed from the list, otherwise they may confuse other subsystems that
+     *                             get to process the argument list after this.
+     *
+     * @exception UserErrorException on command line configuration errors.
+     */
+    private void configure(int from, List<String> commandLineArguments) throws UserErrorException {
+
+        if (commandLineArguments == null) {
+
+            throw new IllegalArgumentException("null command line argument list");
+        }
+
+        for(int i = from; i < commandLineArguments.size(); i ++) {
+
+            String arg = commandLineArguments.get(i);
+
+            if (FIRST_COMMAND_LINE_MODIFIER.equals(arg)) {
+
+                this.first = true;
+                commandLineArguments.remove(i --);
+            }
+            else if (LAST_COMMAND_LINE_MODIFIER.equals(arg)) {
+
+                this.last = true;
+                commandLineArguments.remove(i --);
+            }
+        }
+
+        if (first && last) {
+
+            throw new UserErrorException(
+                    FIRST_COMMAND_LINE_MODIFIER + " and " + LAST_COMMAND_LINE_MODIFIER +
+                            " cannot be used at the same time");
+        }
+    }
+
+    /**
+     * Sends the header rendering to the output stream. If the last header is null, should be a noop
+     */
+    private void render(CSVHeaders h) throws EventProcessingException{
+
+        if (h == null) {
+
+            //
+            // noop
+            //
+            return;
+        }
+
+        List<Property> headersProperties = h.getProperties();
+
+        int width = 3 + (int)Math.log10(headersProperties.size());
+
+        try {
+
+            String prefixLine = "line " + h.getLineNumber() + " header";
+
+            Long nextTimedEventTimestamp = h.getNextTimedEventTimestamp();
+
+            if (nextTimedEventTimestamp != null) {
+
+                prefixLine +=
+                        ", applies to events recorded on " +
+                                Constants.DEFAULT_TIMESTAMP_FORMAT.format(nextTimedEventTimestamp) +
+                                " and after:";
+            }
+            else {
+
+                prefixLine += ":";
+            }
+
+            println(prefixLine);
+
+            List<PropertyInfo> propertyInfo =  toCorrespondingPropertyInfo(headersProperties);
+
+            for (PropertyInfo pi : propertyInfo) {
+
+                printf("%" + width + "s: ", pi.getIndex());
+                println(pi.getFieldSpecification());
+            }
+        }
+        catch(IOException ioe) {
+
+            throw new EventProcessingException(ioe);
+        }
+    }
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 

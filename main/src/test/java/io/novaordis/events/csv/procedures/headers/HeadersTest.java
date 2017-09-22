@@ -16,19 +16,24 @@
 
 package io.novaordis.events.csv.procedures.headers;
 
+import io.novaordis.events.api.event.EndOfStreamEvent;
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.StringProperty;
+import io.novaordis.events.api.event.TimestampProperty;
 import io.novaordis.events.csv.CSVFormat;
 import io.novaordis.events.csv.event.CSVHeaders;
+import io.novaordis.events.csv.event.TimedCSVLine;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.procedures.CSVProcedureFactory;
 import io.novaordis.events.csv.procedures.ProcedureTest;
+import io.novaordis.utilities.UserErrorException;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -126,6 +131,130 @@ public class HeadersTest extends ProcedureTest {
 
     // Tests -----------------------------------------------------------------------------------------------------------
 
+    // constructors ----------------------------------------------------------------------------------------------------
+
+    @Test
+    public void constructor_Null() throws Exception {
+
+        try {
+
+            new Headers(0, null, System.out);
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("null"));
+            assertTrue(msg.contains("command line"));
+        }
+
+    }
+
+    @Test
+    public void constructor_NoCommandLineArguments() throws Exception {
+
+        Headers h = new Headers(0, Collections.emptyList(), System.out);
+
+        assertFalse(h.isExitLoop());
+        assertFalse(h.isFirst());
+        assertFalse(h.isLast());
+    }
+
+    @Test
+    public void constructor_IrrelevantCommandLineArguments() throws Exception {
+
+        List<String> args = Arrays.asList("blue", "red", "yellow", "green", "black", "white");
+
+        Headers h = new Headers(3, args, System.out);
+
+        assertFalse(h.isExitLoop());
+        assertFalse(h.isFirst());
+        assertFalse(h.isLast());
+
+        assertEquals(6, args.size());
+    }
+
+    @Test
+    public void constructor_First() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList("headers", "--first", "something else"));
+
+        Headers h = new Headers(1, args, System.out);
+
+        assertFalse(h.isExitLoop());
+        assertTrue(h.isFirst());
+        assertFalse(h.isLast());
+
+        assertEquals(2, args.size());
+        assertEquals("headers", args.get(0));
+        assertEquals("something else", args.get(1));
+    }
+
+    @Test
+    public void constructor_First2() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList("headers", "--first"));
+
+        Headers h = new Headers(1, args, System.out);
+
+        assertFalse(h.isExitLoop());
+        assertTrue(h.isFirst());
+        assertFalse(h.isLast());
+
+        assertEquals(1, args.size());
+        assertEquals("headers", args.get(0));
+    }
+
+    @Test
+    public void constructor_Last() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList("headers", "--last", "something else"));
+
+        Headers h = new Headers(1, args, System.out);
+
+        assertFalse(h.isExitLoop());
+        assertFalse(h.isFirst());
+        assertTrue(h.isLast());
+
+        assertEquals(2, args.size());
+        assertEquals("headers", args.get(0));
+        assertEquals("something else", args.get(1));
+    }
+
+    @Test
+    public void constructor_Last2() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList("headers", "--last"));
+
+        Headers h = new Headers(1, args, System.out);
+
+        assertFalse(h.isExitLoop());
+        assertFalse(h.isFirst());
+        assertTrue(h.isLast());
+
+        assertEquals(1, args.size());
+        assertEquals("headers", args.get(0));
+    }
+
+    @Test
+    public void constructor_First_And_Last_AtTheSameTime() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList("headers", "--last", "--first"));
+
+        try {
+
+            new Headers(1, args, System.out);
+            fail("should have thrown exception");
+        }
+        catch(UserErrorException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("--first"));
+            assertTrue(msg.contains("--last"));
+            assertTrue(msg.contains("cannot be used at the same time"));
+        }
+    }
+
     // process() -------------------------------------------------------------------------------------------------------
 
     @Test
@@ -133,7 +262,7 @@ public class HeadersTest extends ProcedureTest {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        Headers h = new Headers(baos);
+        Headers h = new Headers(0, Collections.emptyList(), baos);
 
         h.process(new GenericEvent());
 
@@ -145,7 +274,7 @@ public class HeadersTest extends ProcedureTest {
     @Test
     public void process() throws Exception {
 
-        Headers headersProcedure = new Headers(new ByteArrayOutputStream());
+        Headers headersProcedure = new Headers(0, Collections.emptyList(), new ByteArrayOutputStream());
 
         List<CSVField> fields = new CSVFormat("timestamp, A, B, C").getFields();
 
@@ -170,7 +299,7 @@ public class HeadersTest extends ProcedureTest {
     @Test
     public void process_TimestampNotOnTheFirstPosition() throws Exception {
 
-        Headers headersProcedure = new Headers(new ByteArrayOutputStream());
+        Headers headersProcedure = new Headers(0, Collections.emptyList(), new ByteArrayOutputStream());
 
         List<CSVField> fields = new CSVFormat("A, B, timestamp, C").getFields();
 
@@ -198,7 +327,7 @@ public class HeadersTest extends ProcedureTest {
     @Test
     public void process_TwoHeaders() throws Exception {
 
-        Headers headersProcedure = new Headers(new ByteArrayOutputStream());
+        Headers headersProcedure = new Headers(0, Collections.emptyList(), new ByteArrayOutputStream());
 
         List<CSVField> fields = new CSVFormat("timestamp, A, B, C").getFields();
 
@@ -218,7 +347,7 @@ public class HeadersTest extends ProcedureTest {
                         "  2: A(string)\n" +
                         "  3: B(string)\n" +
                         "  4: C(string)\n" +
-                "line 888 header:\n" +
+                        "line 888 header:\n" +
                         "  1: X(string)\n" +
                         "  2: Y(int)\n" +
                         "  3: Z(string)\n";
@@ -230,7 +359,75 @@ public class HeadersTest extends ProcedureTest {
         assertFalse(headersProcedure.isExitLoop());
     }
 
-    // toCorrespondingPropertyInfo() ------------------------------------------------------------------------------------------------
+    @Test
+    public void process_First() throws Exception {
+
+        Headers procedure = new Headers(
+                0, new ArrayList<>(Collections.singletonList("--first")), new ByteArrayOutputStream());
+
+        assertTrue(procedure.isFirst());
+
+        CSVHeaders e = new CSVHeaders(777L, new CSVFormat("timestamp, A, B, C").getFields());
+
+        assertFalse(procedure.isExitLoop());
+
+        procedure.process(e);
+
+        assertTrue(procedure.isExitLoop());
+
+        String expected =
+                "line 777 header:\n" +
+                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  2: A(string)\n" +
+                        "  3: B(string)\n" +
+                        "  4: C(string)\n";
+
+        String actual = new String(((ByteArrayOutputStream) procedure.getOutputStream()).toByteArray());
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void process_Last() throws Exception {
+
+        Headers procedure = new Headers(
+                0, new ArrayList<>(Collections.singletonList("--last")), new ByteArrayOutputStream());
+
+        assertTrue(procedure.isLast());
+
+        List<Event> events = Arrays.asList(
+
+                new CSVHeaders(1L, new CSVFormat("A").getFields()),
+                new TimedCSVLine(Arrays.asList(
+                        new TimestampProperty(70L), new StringProperty("something", "something"))),
+                new CSVHeaders(2L, new CSVFormat("B").getFields()),
+                new TimedCSVLine(Arrays.asList(
+                        new TimestampProperty(80L), new StringProperty("something", "something"))),
+                new CSVHeaders(3L, new CSVFormat("C").getFields()),
+                new TimedCSVLine(Arrays.asList(
+                        new TimestampProperty(90L), new StringProperty("something", "something")))
+        );
+
+        for(Event e: events) {
+
+            assertFalse(procedure.isExitLoop());
+            procedure.process(e);
+            assertFalse(procedure.isExitLoop());
+            assertEquals(0, ((ByteArrayOutputStream) procedure.getOutputStream()).toByteArray().length);
+        }
+
+        procedure.process(new EndOfStreamEvent());
+
+        assertTrue(procedure.isExitLoop());
+
+        String expected = "line 3 header:\n  1: C(string)\n";
+
+        String actual = new String(((ByteArrayOutputStream) procedure.getOutputStream()).toByteArray());
+
+        assertEquals(expected, actual);
+    }
+
+    // toCorrespondingPropertyInfo() -----------------------------------------------------------------------------------
 
     @Test
     public void toPropertyInfo_Null() throws Exception {
@@ -394,7 +591,7 @@ public class HeadersTest extends ProcedureTest {
     @Override
     protected Headers getProcedureToTest() throws Exception {
 
-        return new Headers(System.out);
+        return new Headers(0, Collections.emptyList(), System.out);
     }
 
     // Private ---------------------------------------------------------------------------------------------------------

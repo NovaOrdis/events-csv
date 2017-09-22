@@ -19,6 +19,7 @@ package io.novaordis.events.csv.procedures;
 import io.novaordis.events.csv.procedures.headers.Headers;
 import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.processing.ProcedureFactory;
+import io.novaordis.utilities.UserErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +45,11 @@ public class CSVProcedureFactory implements ProcedureFactory {
     // ProcedureFactory implementation ---------------------------------------------------------------------------------
 
     @Override
-    public Procedure find(String commandLineLabel, int from, List<String> arguments) {
+    public Procedure find(String commandLineLabel, int from, List<String> arguments) throws UserErrorException {
 
         if (Arrays.asList(Headers.COMMAND_LINE_LABELS).contains(commandLineLabel)) {
 
-            return new Headers(System.out);
+            return new Headers(from, arguments, System.out);
         }
         else {
 
