@@ -23,12 +23,12 @@ import io.novaordis.events.api.event.PropertyFactory;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.event.TimestampProperty;
 import io.novaordis.events.api.parser.ParserBase;
-import io.novaordis.utilities.parsing.ParsingException;
 import io.novaordis.events.csv.event.CSVEvent;
 import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.csv.event.NonTimedCSVLine;
 import io.novaordis.events.csv.event.TimedCSVLine;
 import io.novaordis.events.csv.event.field.CSVField;
+import io.novaordis.utilities.parsing.ParsingException;
 import io.novaordis.utilities.time.Timestamp;
 import io.novaordis.utilities.time.TimestampImpl;
 import org.slf4j.Logger;
@@ -74,6 +74,11 @@ public class CSVParser extends ParserBase {
     private CSVFormat format;
 
     private PropertyFactory propertyFactory;
+
+    //
+    // null most of the time, maintains the reference of the last header, but only until a new CSV line is encountered
+    //
+    private CSVHeaders header;
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
@@ -167,8 +172,6 @@ public class CSVParser extends ParserBase {
             return EMPTY_LIST;
         }
 
-        List<Event> result;
-
         //
         // look for header lines, they always start with the header leader
         //
@@ -210,40 +213,67 @@ public class CSVParser extends ParserBase {
                 log.debug(this + " is issuing a header event: " + event);
             }
 
-            result = Collections.singletonList(event);
+            //
+            // we dont return the header event just yet, we wait for the next event to try to figure out whether we can
+            // extract a timestamp - if we can, we'll inject it into the header as "next-timed-event-timestamp"
+            //
+
+            this.header = event;
+
+            return EMPTY_LIST;
         }
-        else {
+
+        //
+        // regular CSV line (or empty line) - we proceed differently if a format instance is installed or not
+        //
+
+        final List<Property> properties = new ArrayList<>();
+
+        properties.add(new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, lineNumber));
+
+        //
+        // we're prepared to handle the situation when no format was installed (no header line detected so far)
+        //
+
+        List<String> tokens = CSVTokenizer.split(lineNumber, line, SEPARATOR);
+
+        final MutableBoolean timestampFound = new MutableBoolean(false);
+
+        List<CSVField> headers = format == null ? null : format.getFields();
+
+        int fieldCount = headers == null ? Integer.MAX_VALUE : headers.size();
+
+        for(int i = 0; i < Math.min(fieldCount, tokens.size()); i ++) {
+
+            String token = tokens.get(i);
+
+            CSVField header = headers == null ? null : headers.get(i);
+
+            buildAndStoreProperty(propertyFactory, token, i, header, timestampFound, properties);
+        }
+
+        CSVEvent dataLineEvent = propertyListToCSVEvent(timestampFound, properties);
+
+        List<Event> result = new ArrayList<>(2);
+
+        if (header != null) {
 
             //
-            // data line - we proceed differently if a format instance is installed or not
+            // inject the timestamp of this event into the header, so the header has this information
             //
 
-            final List<Property> properties = new ArrayList<>();
+            if (dataLineEvent.isTimed()) {
 
-            properties.add(new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, lineNumber));
-
-            //
-            // we're prepared to handle the situation when there are no headers - no format was installed
-            //
-
-            List<String> tokens = CSVTokenizer.split(lineNumber, line, SEPARATOR);
-
-            final MutableBoolean timestampFound = new MutableBoolean(false);
-            List<CSVField> headers = format == null ? null : format.getFields();
-            int fieldCount = headers == null ? Integer.MAX_VALUE : headers.size();
-
-            for(int i = 0; i < Math.min(fieldCount, tokens.size()); i ++) {
-
-                String token = tokens.get(i);
-
-                CSVField header = headers == null ? null : headers.get(i);
-
-                buildAndStoreProperty(propertyFactory, token, i, header, timestampFound, properties);
+                long time = ((TimedEvent)dataLineEvent).getTime();
+                header.setNextTimedEventTimestamp(time);
             }
 
-            CSVEvent dataLineEvent = propertyListToCSVEvent(timestampFound, properties);
-            result = Collections.singletonList(dataLineEvent);
+            result.add(header);
+
+            header = null;
         }
+
+        result.add(dataLineEvent);
 
         return result;
     }
@@ -251,11 +281,17 @@ public class CSVParser extends ParserBase {
     @Override
     protected List<Event> close(long lineNumber) throws ParsingException {
 
-        //
-        // since we are strictly line-based, there's nothing to close
-        //
 
-        return Collections.emptyList();
+        if (header == null) {
+
+            return EMPTY_LIST;
+        }
+
+        List<Event> result = Collections.singletonList(header);
+
+        header = null;
+
+        return result;
     }
 
     // Static package protected ----------------------------------------------------------------------------------------

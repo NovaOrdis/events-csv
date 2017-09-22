@@ -17,6 +17,7 @@
 package io.novaordis.events.csv.event;
 
 import io.novaordis.events.api.event.GenericEvent;
+import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.csv.CSVFormatException;
 import io.novaordis.events.csv.event.field.CSVField;
@@ -32,7 +33,7 @@ import java.util.List;
  * The headers are maintained as StringProperty instances, whose names are indexed "header_" strings, and values are
  * the string specification of the corresponding CSVField.
  *
- * For more details see https://kb.novaordis.com/index.php/Events-csv_Concepts#CSV_Field_Specification
+ * For more details see https://kb.novaordis.com/index.php/Events-csv_Concepts#Headers
  *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/8/17
@@ -42,6 +43,7 @@ public class CSVHeaders extends GenericEvent implements CSVEvent {
     // Constants -------------------------------------------------------------------------------------------------------
 
     public static final String HEADER_NAME_PREFIX = "header_";
+    public static final String NEXT_TIMED_EVENT_TIMESTAMP_PROPERTY_NAME = "next-timed-event-timestamp";
 
     // Static ----------------------------------------------------------------------------------------------------------
 
@@ -140,6 +142,26 @@ public class CSVHeaders extends GenericEvent implements CSVEvent {
         }
 
         return result;
+    }
+
+    /**
+     * @return the next timed event timestamp, in millisecond POSIX time, or null, if the information is not available.
+     */
+    public Long getNextTimedEventTimestamp() {
+
+        LongProperty p = getLongProperty(NEXT_TIMED_EVENT_TIMESTAMP_PROPERTY_NAME);
+
+        if (p == null) {
+
+            return null;
+        }
+
+        return p.getLong();
+    }
+
+    public void setNextTimedEventTimestamp(Long l) {
+
+        setLongProperty(NEXT_TIMED_EVENT_TIMESTAMP_PROPERTY_NAME, l);
     }
 
     @Override

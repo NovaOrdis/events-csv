@@ -383,7 +383,35 @@ public class CSVHeadersTest extends CSVEventTest {
         }
     }
 
-    // preferred representation ----------------------------------------------------------------------------------------
+    // getNextTimedEventTimestamp() ------------------------------------------------------------------------------------
+
+    @Test
+    public void getNextTimedEventTimestamp() throws Exception {
+
+        CSVHeaders h = getCSVEventToTest();
+
+        assertNull(h.getNextTimedEventTimestamp());
+    }
+
+    @Test
+    public void setNextTimedEventTimestamp() throws Exception {
+
+        CSVHeaders h = getCSVEventToTest();
+
+        h.setNextTimedEventTimestamp(7L);
+
+        Long l = h.getNextTimedEventTimestamp();
+
+        assertNotNull(l);
+
+        assertEquals(7L, l.longValue());
+
+        h.setNextTimedEventTimestamp(null);
+
+        Long l2 = h.getNextTimedEventTimestamp();
+
+        assertNull(l2);
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 

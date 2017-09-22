@@ -19,6 +19,7 @@ package io.novaordis.events.csv.procedures.headers;
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.csv.Constants;
 import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.TextOutputProcedure;
@@ -102,7 +103,23 @@ public class Headers extends TextOutputProcedure {
 
         try {
 
-            println("line " + e.getLineNumber() + " header:");
+            String prefixLine = "line " + e.getLineNumber() + " header";
+
+            Long nextTimedEventTimestamp = headers.getNextTimedEventTimestamp();
+
+            if (nextTimedEventTimestamp != null) {
+
+                prefixLine +=
+                        ", applies to events recorded on " +
+                                Constants.DEFAULT_TIMESTAMP_FORMAT.format(nextTimedEventTimestamp) +
+                                " and after:";
+            }
+            else {
+
+                prefixLine += ":";
+            }
+
+            println(prefixLine);
 
             List<PropertyInfo> propertyInfo =  toCorrespondingPropertyInfo(headersProperties);
 
