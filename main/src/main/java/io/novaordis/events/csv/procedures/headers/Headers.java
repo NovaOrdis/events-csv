@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -44,7 +44,7 @@ public class Headers extends TextOutputProcedure {
 
     private static final Logger log = LoggerFactory.getLogger(Headers.class);
 
-    public static final String COMMAND_LINE_LABEL = "headers";
+    public static final String[] COMMAND_LINE_LABELS = { "header", "headers" };
 
     // Static ----------------------------------------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ public class Headers extends TextOutputProcedure {
     @Override
     public List<String> getCommandLineLabels() {
 
-        return Collections.singletonList(COMMAND_LINE_LABEL);
+        return Arrays.asList(COMMAND_LINE_LABELS);
     }
 
     // ProcedureBase overrides -----------------------------------------------------------------------------------------

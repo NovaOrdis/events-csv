@@ -65,7 +65,51 @@ public class HeadersTest extends ProcedureTest {
 
         List<String> extraArguments = Arrays.asList("arg1", "arg2", "arg3");
 
-        Headers h = (Headers)f.find(Headers.COMMAND_LINE_LABEL, 0, extraArguments);
+        Headers h = (Headers)f.find(Headers.COMMAND_LINE_LABELS[0], 0, extraArguments);
+
+        assertNotNull(h);
+
+        assertEquals(3, extraArguments.size());
+        assertEquals("arg1", extraArguments.get(0));
+        assertEquals("arg2", extraArguments.get(1));
+        assertEquals("arg3", extraArguments.get(2));
+
+        //
+        // make sure the procedure is initialized
+        //
+        assertTrue(System.out.equals(h.getOutputStream()));
+    }
+
+    @Test
+    public void procedureFactoryFind_AlternativeName() throws Exception {
+
+        CSVProcedureFactory f = new CSVProcedureFactory();
+
+        List<String> extraArguments = Arrays.asList("arg1", "arg2", "arg3");
+
+        Headers h = (Headers)f.find("headers", 0, extraArguments);
+
+        assertNotNull(h);
+
+        assertEquals(3, extraArguments.size());
+        assertEquals("arg1", extraArguments.get(0));
+        assertEquals("arg2", extraArguments.get(1));
+        assertEquals("arg3", extraArguments.get(2));
+
+        //
+        // make sure the procedure is initialized
+        //
+        assertTrue(System.out.equals(h.getOutputStream()));
+    }
+
+    @Test
+    public void procedureFactoryFind_AlternativeName2() throws Exception {
+
+        CSVProcedureFactory f = new CSVProcedureFactory();
+
+        List<String> extraArguments = Arrays.asList("arg1", "arg2", "arg3");
+
+        Headers h = (Headers)f.find("header", 0, extraArguments);
 
         assertNotNull(h);
 
@@ -328,6 +372,19 @@ public class HeadersTest extends ProcedureTest {
         PropertyInfo p5 = pis.get(4);
         assertEquals(5, p5.getIndex());
         assertEquals("count", p5.getPropertyName());
+    }
+
+    // getCommandLineLabels() ------------------------------------------------------------------------------------------
+
+    @Test
+    public void getCommandLineLabels() throws Exception {
+
+        Headers h = getProcedureToTest();
+
+        List<String> labels = h.getCommandLineLabels();
+        assertEquals(2, labels.size());
+        assertEquals("header", labels.get(0));
+        assertEquals("headers", labels.get(1));
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

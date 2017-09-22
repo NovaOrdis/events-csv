@@ -22,6 +22,7 @@ import io.novaordis.events.processing.ProcedureFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,7 +46,7 @@ public class CSVProcedureFactory implements ProcedureFactory {
     @Override
     public Procedure find(String commandLineLabel, int from, List<String> arguments) {
 
-        if (Headers.COMMAND_LINE_LABEL.equals(commandLineLabel)) {
+        if (Arrays.asList(Headers.COMMAND_LINE_LABELS).contains(commandLineLabel)) {
 
             return new Headers(System.out);
         }
