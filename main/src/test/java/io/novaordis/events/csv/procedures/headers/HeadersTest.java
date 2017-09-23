@@ -640,6 +640,25 @@ public class HeadersTest extends ProcedureTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void process_RegularExpression_FieldSpecificationDoesNotMatchButNameDoes() throws Exception {
+
+        String regex = "red$";
+
+        Headers procedure = new Headers(
+                0, new ArrayList<>(Collections.singletonList(regex)), new ByteArrayOutputStream());
+
+        CSVHeaders h = new CSVHeaders(1L, new CSVFormat("red").getFields());
+
+        procedure.process(h);
+
+        String expected = "line 1 header:\n  1: red(string)\n";
+
+        String actual = new String(((ByteArrayOutputStream) procedure.getOutputStream()).toByteArray());
+
+        assertEquals(expected, actual);
+    }
+
     // toCorrespondingPropertyInfo() -----------------------------------------------------------------------------------
 
     @Test

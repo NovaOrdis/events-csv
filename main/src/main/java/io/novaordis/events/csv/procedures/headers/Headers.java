@@ -451,15 +451,16 @@ public class Headers extends TextOutputProcedure {
 
             for (PropertyInfo pi : propertyInfo) {
 
-                String fieldSpecification = pi.getFieldSpecification();
+                String fieldName = pi.getPropertyName();
 
                 //
-                // if there's a regular expression installed, check whether it matches and skip headers that don't
+                // if there's a regular expression installed, check whether it matches and skip headers that don't;
+                // note that the field name, and not the field specification is matched
                 //
 
                 if (regularExpressionPattern != null) {
 
-                    if (!regularExpressionPattern.matcher(fieldSpecification).find()) {
+                    if (!regularExpressionPattern.matcher(fieldName).find()) {
 
                         continue;
                     }
@@ -474,7 +475,7 @@ public class Headers extends TextOutputProcedure {
 
                 matched = true;
                 printf("%" + width + "s: ", pi.getIndex());
-                println(fieldSpecification);
+                println(pi.getFieldSpecification());
             }
 
             if (!matched) {

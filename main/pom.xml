@@ -9,7 +9,7 @@
     <parent>
         <groupId>io.novaordis.events.csv</groupId>
         <artifactId>events-csv-root</artifactId>
-        <version>1.0.1-SNAPSHOT-5</version>
+        <version>1.0.1-SNAPSHOT-6</version>
     </parent>
 
     <artifactId>events-csv</artifactId>
