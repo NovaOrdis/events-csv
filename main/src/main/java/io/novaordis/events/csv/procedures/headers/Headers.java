@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * The default implementation displays all headers (^ *#.+) as they are identified in the CSV stream.
@@ -72,6 +74,9 @@ public class Headers extends TextOutputProcedure {
 
     // maintains the last seen header, if we need it
     private CSVHeaders lastHeader;
+
+    private String regularExpressionLiteral;
+    private Pattern regularExpressionPattern;
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
@@ -197,7 +202,39 @@ public class Headers extends TextOutputProcedure {
         return last;
     }
 
+    /**
+     * @return the regular expression literal, if configured, or null. Once configured, it is guaranteed to be
+     * a valid regular expression
+     */
+    public String getRegularExpressionLiteral() {
+
+        return regularExpressionLiteral;
+    }
+
     // Package protected -----------------------------------------------------------------------------------------------
+
+    /**
+     * @exception IllegalArgumentException on null literal
+     * @exception PatternSyntaxException on invalid regular expression.
+     */
+    void setRegularExpressionLiteral(String regexLiteral) {
+
+        if (regexLiteral == null) {
+
+            throw new IllegalArgumentException("null regular expression literal");
+        }
+
+        this.regularExpressionPattern = Pattern.compile(regexLiteral);
+        this.regularExpressionLiteral = regexLiteral;
+    }
+
+    /**
+     * May return null if no regular expression was installed.
+     */
+    Pattern getRegularExpressionPattern() {
+
+        return regularExpressionPattern;
+    }
 
     // Protected static ------------------------------------------------------------------------------------------------
 
@@ -339,6 +376,27 @@ public class Headers extends TextOutputProcedure {
                 this.last = true;
                 commandLineArguments.remove(i --);
             }
+            else if (regularExpressionLiteral == null) {
+
+                try {
+
+                    setRegularExpressionLiteral(arg);
+                    commandLineArguments.remove(i--);
+                }
+                catch(PatternSyntaxException e) {
+
+                    String msg = "invalid regular expression: '" + arg + "'";
+
+                    String msg2 = e.getMessage();
+
+                    if (msg2 != null) {
+
+                        msg += ": " + msg2;
+                    }
+
+                    throw new UserErrorException(msg);
+                }
+            }
         }
 
         if (first && last) {
@@ -384,14 +442,48 @@ public class Headers extends TextOutputProcedure {
                 prefixLine += ":";
             }
 
-            println(prefixLine);
+            print(prefixLine);
 
             List<PropertyInfo> propertyInfo =  toCorrespondingPropertyInfo(headersProperties);
 
+            boolean first = true;
+            boolean matched = false;
+
             for (PropertyInfo pi : propertyInfo) {
 
+                String fieldSpecification = pi.getFieldSpecification();
+
+                //
+                // if there's a regular expression installed, check whether it matches and skip headers that don't
+                //
+
+                if (regularExpressionPattern != null) {
+
+                    if (!regularExpressionPattern.matcher(fieldSpecification).find()) {
+
+                        continue;
+                    }
+                }
+
+                if (first) {
+
+                    first = false;
+                    println();
+
+                }
+
+                matched = true;
                 printf("%" + width + "s: ", pi.getIndex());
-                println(pi.getFieldSpecification());
+                println(fieldSpecification);
+            }
+
+            if (!matched) {
+
+                //
+                // the user may be wondering why they don't see anything, so make it clear why
+                //
+
+                println(" no header name matched regular expression '" + regularExpressionLiteral + "'");
             }
         }
         catch(IOException ioe) {

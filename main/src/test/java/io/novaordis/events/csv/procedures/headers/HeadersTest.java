@@ -37,10 +37,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -68,16 +71,17 @@ public class HeadersTest extends ProcedureTest {
 
         CSVProcedureFactory f = new CSVProcedureFactory();
 
-        List<String> extraArguments = Arrays.asList("arg1", "arg2", "arg3");
+        List<String> extraArguments = new ArrayList<>(Arrays.asList("arg1", "arg2", "arg3"));
 
         Headers h = (Headers)f.find(Headers.COMMAND_LINE_LABELS[0], 0, extraArguments);
 
         assertNotNull(h);
 
-        assertEquals(3, extraArguments.size());
-        assertEquals("arg1", extraArguments.get(0));
-        assertEquals("arg2", extraArguments.get(1));
-        assertEquals("arg3", extraArguments.get(2));
+        assertEquals("arg1", h.getRegularExpressionLiteral());
+
+        assertEquals(2, extraArguments.size());
+        assertEquals("arg2", extraArguments.get(0));
+        assertEquals("arg3", extraArguments.get(1));
 
         //
         // make sure the procedure is initialized
@@ -90,16 +94,17 @@ public class HeadersTest extends ProcedureTest {
 
         CSVProcedureFactory f = new CSVProcedureFactory();
 
-        List<String> extraArguments = Arrays.asList("arg1", "arg2", "arg3");
+        List<String> extraArguments = new ArrayList<>(Arrays.asList("arg1", "arg2", "arg3"));
 
         Headers h = (Headers)f.find("headers", 0, extraArguments);
 
         assertNotNull(h);
 
-        assertEquals(3, extraArguments.size());
-        assertEquals("arg1", extraArguments.get(0));
-        assertEquals("arg2", extraArguments.get(1));
-        assertEquals("arg3", extraArguments.get(2));
+        assertEquals("arg1", h.getRegularExpressionLiteral());
+
+        assertEquals(2, extraArguments.size());
+        assertEquals("arg2", extraArguments.get(0));
+        assertEquals("arg3", extraArguments.get(1));
 
         //
         // make sure the procedure is initialized
@@ -112,16 +117,17 @@ public class HeadersTest extends ProcedureTest {
 
         CSVProcedureFactory f = new CSVProcedureFactory();
 
-        List<String> extraArguments = Arrays.asList("arg1", "arg2", "arg3");
+        List<String> extraArguments = new ArrayList<>(Arrays.asList("arg1", "arg2", "arg3"));
 
         Headers h = (Headers)f.find("header", 0, extraArguments);
 
         assertNotNull(h);
 
-        assertEquals(3, extraArguments.size());
-        assertEquals("arg1", extraArguments.get(0));
-        assertEquals("arg2", extraArguments.get(1));
-        assertEquals("arg3", extraArguments.get(2));
+        assertEquals("arg1", h.getRegularExpressionLiteral());
+
+        assertEquals(2, extraArguments.size());
+        assertEquals("arg2", extraArguments.get(0));
+        assertEquals("arg3", extraArguments.get(1));
 
         //
         // make sure the procedure is initialized
@@ -158,32 +164,42 @@ public class HeadersTest extends ProcedureTest {
         assertFalse(h.isExitLoop());
         assertFalse(h.isFirst());
         assertFalse(h.isLast());
+        assertNull(h.getRegularExpressionLiteral());
+        assertNull(h.getRegularExpressionPattern());
     }
 
     @Test
     public void constructor_IrrelevantCommandLineArguments() throws Exception {
 
-        List<String> args = Arrays.asList("blue", "red", "yellow", "green", "black", "white");
+        List<String> args = new ArrayList<>(Arrays.asList(
+                "blue", "red", "yellow", "this-will-be-interpreted-as-regex", "black", "white"));
 
         Headers h = new Headers(3, args, System.out);
 
         assertFalse(h.isExitLoop());
         assertFalse(h.isFirst());
         assertFalse(h.isLast());
+        assertEquals("this-will-be-interpreted-as-regex", h.getRegularExpressionLiteral());
 
-        assertEquals(6, args.size());
+        assertEquals(5, args.size());
+        assertEquals("blue", args.get(0));
+        assertEquals("red", args.get(1));
+        assertEquals("yellow", args.get(2));
+        assertEquals("black", args.get(3));
+        assertEquals("white", args.get(4));
     }
 
     @Test
     public void constructor_First() throws Exception {
 
-        List<String> args = new ArrayList<>(Arrays.asList("headers", "--first", "something else"));
+        List<String> args = new ArrayList<>(Arrays.asList("headers", "--first", "regex", "something else"));
 
         Headers h = new Headers(1, args, System.out);
 
         assertFalse(h.isExitLoop());
         assertTrue(h.isFirst());
         assertFalse(h.isLast());
+        assertEquals("regex", h.getRegularExpressionLiteral());
 
         assertEquals(2, args.size());
         assertEquals("headers", args.get(0));
@@ -192,6 +208,22 @@ public class HeadersTest extends ProcedureTest {
 
     @Test
     public void constructor_First2() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList("headers", "--first", "regex"));
+
+        Headers h = new Headers(1, args, System.out);
+
+        assertFalse(h.isExitLoop());
+        assertTrue(h.isFirst());
+        assertFalse(h.isLast());
+        assertEquals("regex", h.getRegularExpressionLiteral());
+
+        assertEquals(1, args.size());
+        assertEquals("headers", args.get(0));
+    }
+
+    @Test
+    public void constructor_First3() throws Exception {
 
         List<String> args = new ArrayList<>(Arrays.asList("headers", "--first"));
 
@@ -208,13 +240,14 @@ public class HeadersTest extends ProcedureTest {
     @Test
     public void constructor_Last() throws Exception {
 
-        List<String> args = new ArrayList<>(Arrays.asList("headers", "--last", "something else"));
+        List<String> args = new ArrayList<>(Arrays.asList("headers", "--last", "regex", "something else"));
 
         Headers h = new Headers(1, args, System.out);
 
         assertFalse(h.isExitLoop());
         assertFalse(h.isFirst());
         assertTrue(h.isLast());
+        assertEquals("regex", h.getRegularExpressionLiteral());
 
         assertEquals(2, args.size());
         assertEquals("headers", args.get(0));
@@ -223,6 +256,22 @@ public class HeadersTest extends ProcedureTest {
 
     @Test
     public void constructor_Last2() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList("headers", "--last", "regex"));
+
+        Headers h = new Headers(1, args, System.out);
+
+        assertFalse(h.isExitLoop());
+        assertFalse(h.isFirst());
+        assertTrue(h.isLast());
+        assertEquals("regex", h.getRegularExpressionLiteral());
+
+        assertEquals(1, args.size());
+        assertEquals("headers", args.get(0));
+    }
+
+    @Test
+    public void constructor_Last3() throws Exception {
 
         List<String> args = new ArrayList<>(Arrays.asList("headers", "--last"));
 
@@ -252,6 +301,103 @@ public class HeadersTest extends ProcedureTest {
             assertTrue(msg.contains("--first"));
             assertTrue(msg.contains("--last"));
             assertTrue(msg.contains("cannot be used at the same time"));
+        }
+    }
+
+    @Test
+    public void constructor_RegularExpression() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList(
+
+                "usually-the-procedure-name",
+                "^something.*else$"
+        ));
+
+        Headers p = new Headers(1, args, new ByteArrayOutputStream());
+
+        assertEquals("^something.*else$", p.getRegularExpressionLiteral());
+
+        Pattern rp = p.getRegularExpressionPattern();
+        Matcher m = rp.matcher("something really else");
+        assertTrue(m.matches());
+
+        assertFalse(p.isLast());
+        assertFalse(p.isFirst());
+
+        assertEquals(1, args.size());
+        assertEquals("usually-the-procedure-name", args.get(0));
+    }
+
+    @Test
+    public void constructor_RegularExpressionPrecededByLast() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList(
+
+                "usually-the-procedure-name",
+                "--last",
+                "^something.*else$"
+        ));
+
+        Headers p = new Headers(1, args, new ByteArrayOutputStream());
+
+        assertEquals("^something.*else$", p.getRegularExpressionLiteral());
+
+        Pattern rp = p.getRegularExpressionPattern();
+        Matcher m = rp.matcher("something really else");
+        assertTrue(m.matches());
+
+        assertTrue(p.isLast());
+        assertFalse(p.isFirst());
+
+        assertEquals(1, args.size());
+        assertEquals("usually-the-procedure-name", args.get(0));
+    }
+
+    @Test
+    public void constructor_RegularExpressionFollowedByLast() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList(
+
+                "usually-the-procedure-name",
+                "^something.*else$",
+                "--last"
+        ));
+
+        Headers p = new Headers(1, args, new ByteArrayOutputStream());
+
+        assertEquals("^something.*else$", p.getRegularExpressionLiteral());
+
+        Pattern rp = p.getRegularExpressionPattern();
+        Matcher m = rp.matcher("something really else");
+        assertTrue(m.matches());
+
+        assertTrue(p.isLast());
+        assertFalse(p.isFirst());
+
+        assertEquals(1, args.size());
+        assertEquals("usually-the-procedure-name", args.get(0));
+    }
+
+    @Test
+    public void constructor_InvalidRegularExpression() throws Exception {
+
+        List<String> args = new ArrayList<>(Arrays.asList(
+
+                "usually-the-procedure-name",
+                "something(()"
+        ));
+
+        try {
+
+            new Headers(1, args, new ByteArrayOutputStream());
+
+            fail("should have thrown exeption");
+        }
+        catch(UserErrorException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("invalid regular expression"));
+            assertTrue(msg.contains("'something(()'"));
         }
     }
 
@@ -427,6 +573,73 @@ public class HeadersTest extends ProcedureTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void process_RegularExpression_Match() throws Exception {
+
+        Headers procedure = new Headers(
+                0, new ArrayList<>(Collections.singletonList("black")), new ByteArrayOutputStream());
+
+        CSVHeaders h = new CSVHeaders(1L, new CSVFormat("red, blue, black").getFields());
+
+        procedure.process(h);
+
+        String expected = "line 1 header:\n  3: black(string)\n";
+
+        String actual = new String(((ByteArrayOutputStream) procedure.getOutputStream()).toByteArray());
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void process_RegularExpression_NoMatch() throws Exception {
+
+        Headers procedure = new Headers(
+                0, new ArrayList<>(Collections.singletonList("black")), new ByteArrayOutputStream());
+
+        CSVHeaders h = new CSVHeaders(1L, new CSVFormat("red, blue, green").getFields());
+
+        procedure.process(h);
+
+        String rendering = new String(((ByteArrayOutputStream) procedure.getOutputStream()).toByteArray());
+
+        assertTrue(rendering.contains("line 1 header: no header name matched regular expression"));
+        assertTrue(rendering.contains("'black'"));
+    }
+
+    @Test
+    public void process_RegularExpression_ManyEvents() throws Exception {
+
+        Headers procedure = new Headers(
+                0, new ArrayList<>(Collections.singletonList("blue")), new ByteArrayOutputStream());
+
+        List<Event> events = Arrays.asList(
+
+                new CSVHeaders(1L, new CSVFormat("blue field, something red, this is also blue").getFields()),
+                new TimedCSVLine(Arrays.asList(
+                        new TimestampProperty(70L), new StringProperty("something", "something"))),
+                new CSVHeaders(2L, new CSVFormat("green, yellow, black").getFields()),
+                new TimedCSVLine(Arrays.asList(
+                        new TimestampProperty(80L), new StringProperty("something", "something"))),
+                new CSVHeaders(3L, new CSVFormat("red, blue, green").getFields()),
+                new TimedCSVLine(Arrays.asList(
+                        new TimestampProperty(90L), new StringProperty("something", "something")))
+        );
+
+        for(Event e: events) {
+
+            procedure.process(e);
+        }
+
+        String expected =
+                "line 1 header:\n  1: blue field(string)\n  3: this is also blue(string)\n" +
+                "line 2 header: no header name matched regular expression 'blue'\n" +
+                "line 3 header:\n  2: blue(string)\n";
+
+        String actual = new String(((ByteArrayOutputStream) procedure.getOutputStream()).toByteArray());
+
+        assertEquals(expected, actual);
+    }
+
     // toCorrespondingPropertyInfo() -----------------------------------------------------------------------------------
 
     @Test
@@ -582,6 +795,56 @@ public class HeadersTest extends ProcedureTest {
         assertEquals(2, labels.size());
         assertEquals("header", labels.get(0));
         assertEquals("headers", labels.get(1));
+    }
+
+    // setRegularExpressionLiteral() -----------------------------------------------------------------------------------
+
+    @Test
+    public void setRegularExpressionLiteral_Null() throws Exception {
+
+        Headers h = getProcedureToTest();
+
+        try {
+
+            h.setRegularExpressionLiteral(null);
+
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("null regular expression literal"));
+        }
+    }
+
+    @Test
+    public void setRegularExpressionLiteral_Invalid() throws Exception {
+
+        Headers h = getProcedureToTest();
+
+        try {
+
+            h.setRegularExpressionLiteral(null);
+
+            fail("should have thrown exception");
+        }
+        catch(IllegalArgumentException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("null regular expression literal"));
+        }
+    }
+
+    @Test
+    public void setRegularExpressionLiteral_Valid() throws Exception {
+
+        Headers h = getProcedureToTest();
+
+        h.setRegularExpressionLiteral("^A.*Z$");
+
+        assertEquals("^A.*Z$", h.getRegularExpressionLiteral());
+
+
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
