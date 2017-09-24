@@ -97,7 +97,7 @@ function main() {
     # re-assemble the command line, by re-initializing the positional parameters, and pass it to the underlying process
     #
     IFS=${separator}
-    set ${args}
+    set - ${args}
     IFS="$(printf ' \t\n')" # restore the standard separators
 
     debug "arguments: \"$@\""
