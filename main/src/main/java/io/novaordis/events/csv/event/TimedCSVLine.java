@@ -16,14 +16,14 @@
 
 package io.novaordis.events.csv.event;
 
+import java.util.Date;
+import java.util.List;
+
 import io.novaordis.events.api.event.GenericTimedEvent;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.csv.Constants;
 import io.novaordis.events.csv.event.field.CSVFieldImpl;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
@@ -66,7 +66,7 @@ public class TimedCSVLine extends GenericTimedEvent implements CSVEvent {
     @Override
     public String getPreferredRepresentation(String fieldSeparator) {
 
-        String s = Constants.DEFAULT_TIMESTAMP_FORMAT.format(getTime());
+        String s = Constants.getDefaultTimestampFormat().format(getTime());
 
         boolean first = true;
 
@@ -102,7 +102,7 @@ public class TimedCSVLine extends GenericTimedEvent implements CSVEvent {
     public String getPreferredRepresentationHeader(String fieldSeparator) {
 
         String s = TimedEvent.TIMESTAMP_PROPERTY_NAME +
-                CSVFieldImpl.typeToCommandLineLiteral(Date.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
+                CSVFieldImpl.typeToCommandLineLiteral(Date.class, Constants.getDefaultTimestampFormat());
 
         boolean first = true;
 

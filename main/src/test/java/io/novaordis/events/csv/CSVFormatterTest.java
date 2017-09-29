@@ -16,6 +16,15 @@
 
 package io.novaordis.events.csv;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+
+import org.junit.Test;
+
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.FaultEvent;
 import io.novaordis.events.api.event.GenericEvent;
@@ -31,14 +40,6 @@ import io.novaordis.utilities.address.Address;
 import io.novaordis.utilities.address.AddressImpl;
 import io.novaordis.utilities.time.Timestamp;
 import io.novaordis.utilities.time.TimestampImpl;
-import org.junit.Test;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -133,7 +134,7 @@ public class CSVFormatterTest {
 
         String s = c.format(me);
 
-        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(d) + ", C value, B value, A value\n";
+        String expected = Constants.getDefaultTimestampFormat().format(d) + ", C value, B value, A value\n";
         assertEquals(expected, s);
     }
 
@@ -189,7 +190,7 @@ public class CSVFormatterTest {
 
         String s = c.format(me);
 
-        String expected = "B value, , " + Constants.DEFAULT_TIMESTAMP_FORMAT.format(ts) + ", C value\n";
+        String expected = "B value, , " + Constants.getDefaultTimestampFormat().format(ts) + ", C value\n";
         assertEquals(expected, s);
     }
 
@@ -319,7 +320,7 @@ public class CSVFormatterTest {
 
         GenericTimedEvent e = new GenericTimedEvent(1001L);
 
-        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(1001L);
+        String expected = Constants.getDefaultTimestampFormat().format(1001L);
         String result = c.toString(e);
         assertEquals(expected, result);
     }
@@ -334,7 +335,7 @@ public class CSVFormatterTest {
         GenericTimedEvent e = new GenericTimedEvent(1001L);
         e.setStringProperty("something", "something else");
 
-        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(1001L) + ", something else";
+        String expected = Constants.getDefaultTimestampFormat().format(1001L) + ", something else";
         String result = c.toString(e);
         assertEquals(expected, result);
     }
@@ -408,7 +409,7 @@ public class CSVFormatterTest {
 
         String output = c.format(me);
 
-        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", XXX\n";
+        String expected = Constants.getDefaultTimestampFormat().format(eventTime) + ", XXX\n";
         assertEquals(expected, output);
 
         //
@@ -428,7 +429,7 @@ public class CSVFormatterTest {
 
         expected =
                 "# timestamp, field-1\n" +
-                        Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", YYY\n";
+                        Constants.getDefaultTimestampFormat().format(eventTime) + ", YYY\n";
 
         assertEquals(expected, output);
 
@@ -442,7 +443,7 @@ public class CSVFormatterTest {
 
         output = c.format(me);
 
-        expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", ZZZ\n";
+        expected = Constants.getDefaultTimestampFormat().format(eventTime) + ", ZZZ\n";
         assertEquals(expected, output);
     }
 
@@ -463,7 +464,7 @@ public class CSVFormatterTest {
 
         String output = c.format(me);
 
-        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", XXX\n";
+        String expected = Constants.getDefaultTimestampFormat().format(eventTime) + ", XXX\n";
         assertEquals(expected, output);
 
         //
@@ -483,7 +484,7 @@ public class CSVFormatterTest {
 
         expected =
                 "# timestamp, field-1\n" +
-                        Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", YYY\n";
+                        Constants.getDefaultTimestampFormat().format(eventTime) + ", YYY\n";
 
         assertEquals(expected, output);
 
@@ -497,7 +498,7 @@ public class CSVFormatterTest {
 
         output = c.format(me);
 
-        expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(eventTime) + ", ZZZ\n";
+        expected = Constants.getDefaultTimestampFormat().format(eventTime) + ", ZZZ\n";
         assertEquals(expected, output);
     }
 

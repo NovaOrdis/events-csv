@@ -16,11 +16,11 @@
 
 package io.novaordis.events.csv.event.field;
 
-import io.novaordis.events.api.event.TimedEvent;
-import io.novaordis.events.csv.Constants;
-
 import java.text.DateFormat;
 import java.util.Date;
+
+import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.csv.Constants;
 
 /**
  * A timestamp CSV field.
@@ -44,12 +44,12 @@ public class TimestampCSVField extends CSVFieldImpl {
 
     public TimestampCSVField() {
 
-        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
+        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, Constants.getDefaultTimestampFormat());
     }
 
     public TimestampCSVField(String name) {
 
-        super(name, Long.class, Constants.DEFAULT_TIMESTAMP_FORMAT);
+        super(name, Long.class, Constants.getDefaultTimestampFormat());
     }
 
     public TimestampCSVField(DateFormat format) {

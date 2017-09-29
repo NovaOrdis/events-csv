@@ -16,11 +16,12 @@
 
 package io.novaordis.events.csv.event.field;
 
-import io.novaordis.events.csv.Constants;
-import org.junit.Test;
-
 import java.text.Format;
 import java.text.SimpleDateFormat;
+
+import org.junit.Test;
+
+import io.novaordis.events.csv.Constants;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -271,7 +272,7 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
 
         if (format == null) {
 
-            simpleDateFormat = Constants.DEFAULT_TIMESTAMP_FORMAT;
+            simpleDateFormat = Constants.getDefaultTimestampFormat();
         }
         else if (!(format instanceof SimpleDateFormat)) {
 

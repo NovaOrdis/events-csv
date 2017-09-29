@@ -16,6 +16,18 @@
 
 package io.novaordis.events.csv.procedures.headers;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.novaordis.events.api.event.EndOfStreamEvent;
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.Property;
@@ -25,17 +37,6 @@ import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.TextOutputProcedure;
 import io.novaordis.utilities.UserErrorException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * The default implementation displays all headers (^ *#.+) as they are identified in the CSV stream.
@@ -434,7 +435,7 @@ public class Headers extends TextOutputProcedure {
 
                 prefixLine +=
                         ", applies to events recorded on " +
-                                Constants.DEFAULT_TIMESTAMP_FORMAT.format(nextTimedEventTimestamp) +
+                                Constants.getDefaultTimestampFormat().format(nextTimedEventTimestamp) +
                                 " and after:";
             }
             else {

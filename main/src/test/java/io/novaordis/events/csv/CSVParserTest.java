@@ -16,6 +16,16 @@
 
 package io.novaordis.events.csv;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import io.novaordis.events.api.event.EndOfStreamEvent;
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
@@ -37,15 +47,6 @@ import io.novaordis.events.csv.event.field.CSVFieldImpl;
 import io.novaordis.events.csv.event.field.TimestampCSVField;
 import io.novaordis.events.csv.event.field.UTCMillisecondsLongTimestampFormat;
 import io.novaordis.utilities.parsing.ParsingException;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -366,7 +367,7 @@ public class CSVParserTest {
         assertEquals(4, properties.size());
 
         TimestampProperty p = (TimestampProperty)properties.get(0);
-        assertEquals("01/01/16 12:01:01", Constants.DEFAULT_TIMESTAMP_FORMAT.format(p.getValue()));
+        assertEquals("01/01/16 12:01:01", Constants.getDefaultTimestampFormat().format(p.getValue()));
 
         LongProperty p2 = (LongProperty)properties.get(1);
         assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p2.getName());
@@ -401,7 +402,7 @@ public class CSVParserTest {
         assertEquals(4, properties.size());
 
         TimestampProperty p = (TimestampProperty)properties.get(0);
-        assertEquals("01/01/16 12:01:01", Constants.DEFAULT_TIMESTAMP_FORMAT.format(p.getValue()));
+        assertEquals("01/01/16 12:01:01", Constants.getDefaultTimestampFormat().format(p.getValue()));
 
         LongProperty p2 = (LongProperty)properties.get(1);
         assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p2.getName());
@@ -646,7 +647,7 @@ public class CSVParserTest {
         // original format does not survive storage of the property in the event
         //
         assertNull(p.getFormat());
-        assertEquals("12/25/16 13:00:00", Constants.DEFAULT_TIMESTAMP_FORMAT.format(p.getValue()));
+        assertEquals("12/25/16 13:00:00", Constants.getDefaultTimestampFormat().format(p.getValue()));
 
         LongProperty p2 = (LongProperty)properties.get(1);
         assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p2.getName());
@@ -802,7 +803,7 @@ public class CSVParserTest {
         assertNotNull(e2);
 
         Long time = e2.getTime();
-        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/25/16 13:00:00").getTime(), time.longValue());
+        assertEquals(Constants.getDefaultTimestampFormat().parse("12/25/16 13:00:00").getTime(), time.longValue());
 
         assertEquals("blue", e2.getStringProperty("color").getString());
         assertEquals(10, e2.getIntegerProperty("size").getInteger().intValue());
@@ -846,7 +847,7 @@ public class CSVParserTest {
         TimedCSVLine e2 = (TimedCSVLine)events.get(1);
         assertEquals(4, e2.getProperties().size()); // includes line number
         Long time = e2.getTime();
-        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/25/16 13:00:01").getTime(), time.longValue());
+        assertEquals(Constants.getDefaultTimestampFormat().parse("12/25/16 13:00:01").getTime(), time.longValue());
         assertEquals("blue", e2.getStringProperty("color").getString());
         assertEquals(10, e2.getIntegerProperty("size").getInteger().intValue());
         assertEquals(2, e2.getLineNumber().longValue());
@@ -865,7 +866,7 @@ public class CSVParserTest {
         assertEquals(10, e4.getIntegerProperty("index").getInteger().intValue());
         assertEquals("nine", e4.getStringProperty("something").getString());
         Long time2 = e4.getTime();
-        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/30/15 14:15:16").getTime(), time2.longValue());
+        assertEquals(Constants.getDefaultTimestampFormat().parse("12/30/15 14:15:16").getTime(), time2.longValue());
         assertEquals(5, e4.getLineNumber().longValue());
     }
 
@@ -1022,10 +1023,10 @@ public class CSVParserTest {
 
         assertNotNull(t);
 
-        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/01/16 00:11:22").getTime(), t.longValue());
+        assertEquals(Constants.getDefaultTimestampFormat().parse("12/01/16 00:11:22").getTime(), t.longValue());
 
         TimedCSVLine e2 = (TimedCSVLine)events2.get(1);
-        assertEquals(e2.getTime().longValue(), Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/01/16 00:11:22").getTime());
+        assertEquals(e2.getTime().longValue(), Constants.getDefaultTimestampFormat().parse("12/01/16 00:11:22").getTime());
         Property p = e2.getProperty("something");
         assertEquals("something else", p.getValue());
         assertEquals(2L, e2.getLineNumber().longValue());
@@ -1037,7 +1038,7 @@ public class CSVParserTest {
         assertEquals(1, events3.size());
 
         TimedCSVLine e3 = (TimedCSVLine)events3.get(0);
-        assertEquals(e3.getTime().longValue(), Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/01/16 00:11:23").getTime());
+        assertEquals(e3.getTime().longValue(), Constants.getDefaultTimestampFormat().parse("12/01/16 00:11:23").getTime());
         Property p2 = e3.getProperty("something");
         assertEquals("extra line to make sure there is no leftover state", p2.getValue());
         assertEquals(3L, e3.getLineNumber().longValue());
@@ -1046,7 +1047,7 @@ public class CSVParserTest {
         // header timestamp must not change
         //
 
-        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/01/16 00:11:22").getTime(),
+        assertEquals(Constants.getDefaultTimestampFormat().parse("12/01/16 00:11:22").getTime(),
                 e.getNextTimedEventTimestamp().longValue());
     }
 
@@ -1106,10 +1107,10 @@ public class CSVParserTest {
 
         assertNotNull(t);
 
-        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/01/16 00:11:22").getTime(), t.longValue());
+        assertEquals(Constants.getDefaultTimestampFormat().parse("12/01/16 00:11:22").getTime(), t.longValue());
 
         TimedCSVLine e2 = (TimedCSVLine)events5.get(1);
-        assertEquals(e2.getTime().longValue(), Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/01/16 00:11:22").getTime());
+        assertEquals(e2.getTime().longValue(), Constants.getDefaultTimestampFormat().parse("12/01/16 00:11:22").getTime());
         Property p = e2.getProperty("something");
         assertEquals("something else", p.getValue());
         assertEquals(5L, e2.getLineNumber().longValue());
@@ -1121,7 +1122,7 @@ public class CSVParserTest {
         assertEquals(1, events6.size());
 
         TimedCSVLine e3 = (TimedCSVLine) events6.get(0);
-        assertEquals(e3.getTime().longValue(), Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/01/16 00:11:23").getTime());
+        assertEquals(e3.getTime().longValue(), Constants.getDefaultTimestampFormat().parse("12/01/16 00:11:23").getTime());
         Property p2 = e3.getProperty("something");
         assertEquals("extra line to make sure there is no leftover state", p2.getValue());
         assertEquals(6L, e3.getLineNumber().longValue());
@@ -1130,7 +1131,7 @@ public class CSVParserTest {
         // header timestamp must not change
         //
 
-        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/01/16 00:11:22").getTime(),
+        assertEquals(Constants.getDefaultTimestampFormat().parse("12/01/16 00:11:22").getTime(),
                 e.getNextTimedEventTimestamp().longValue());
     }
 

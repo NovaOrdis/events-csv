@@ -107,12 +107,12 @@ public class End2EndTest {
         assertEquals(Integer.class, fields.get(2).getType());
 
         TimedCSVLine e2 = (TimedCSVLine)allEvents.get(1);
-        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/01/16 00:00:00").getTime(), e2.getTime().longValue());
+        assertEquals(Constants.getDefaultTimestampFormat().parse("12/01/16 00:00:00").getTime(), e2.getTime().longValue());
         assertEquals("blue", e2.getProperty("color").getValue());
         assertEquals(10, e2.getProperty("size").getValue());
 
         TimedCSVLine e3 = (TimedCSVLine)allEvents.get(2);
-        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT.parse("12/01/16 00:00:01").getTime(), e3.getTime().longValue());
+        assertEquals(Constants.getDefaultTimestampFormat().parse("12/01/16 00:00:01").getTime(), e3.getTime().longValue());
         assertEquals("red", e3.getProperty("color").getValue());
         assertEquals(20, e3.getProperty("size").getValue());
 

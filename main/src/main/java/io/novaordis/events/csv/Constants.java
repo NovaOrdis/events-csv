@@ -32,10 +32,16 @@ public class Constants {
 
     public static final String DEFAULT_TIMESTAMP_FORMAT_LITERAL = "MM/dd/yy HH:mm:ss";
 
-    public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT =
-            new SimpleDateFormat(DEFAULT_TIMESTAMP_FORMAT_LITERAL);
-
     // Static ----------------------------------------------------------------------------------------------------------
+
+    /**
+     * We create the instance every time we need it instead of relying on a constant because SimpleDateFormat is not
+     * thread safe.
+     */
+    public static SimpleDateFormat getDefaultTimestampFormat() {
+
+        return new SimpleDateFormat(DEFAULT_TIMESTAMP_FORMAT_LITERAL);
+    }
 
     // Attributes ------------------------------------------------------------------------------------------------------
 

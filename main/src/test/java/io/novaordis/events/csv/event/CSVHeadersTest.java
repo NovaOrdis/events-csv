@@ -16,6 +16,11 @@
 
 package io.novaordis.events.csv.event;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Test;
+
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.LongProperty;
@@ -28,10 +33,6 @@ import io.novaordis.events.csv.Constants;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.CSVFieldImpl;
 import io.novaordis.events.csv.event.field.TimestampCSVField;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -118,7 +119,7 @@ public class CSVHeadersTest extends CSVEventTest {
         StringProperty p2 = (StringProperty)properties.get(1);
         assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "0", p2.getName());
         assertEquals(
-                TimedEvent.TIMESTAMP_PROPERTY_NAME + "(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT.toPattern() + ")",
+                TimedEvent.TIMESTAMP_PROPERTY_NAME + "(time:" + Constants.getDefaultTimestampFormat().toPattern() + ")",
                 p2.getString());
 
         StringProperty p3 = (StringProperty)properties.get(2);
@@ -151,7 +152,7 @@ public class CSVHeadersTest extends CSVEventTest {
         StringProperty p2 = (StringProperty)properties.get(1);
         assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "0", p2.getName());
         assertEquals(
-                TimedEvent.TIMESTAMP_PROPERTY_NAME + "(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT.toPattern() + ")",
+                TimedEvent.TIMESTAMP_PROPERTY_NAME + "(time:" + Constants.getDefaultTimestampFormat().toPattern() + ")",
                 p2.getString());
 
         StringProperty p3 = (StringProperty)properties.get(2);
@@ -232,7 +233,7 @@ public class CSVHeadersTest extends CSVEventTest {
         CSVField field6 = csvFields.get(0);
         assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, field6.getName());
         assertEquals(Long.class, field6.getType());
-        assertEquals(Constants.DEFAULT_TIMESTAMP_FORMAT, field6.getFormat());
+        assertEquals(Constants.getDefaultTimestampFormat(), field6.getFormat());
         assertTrue(field6.isTimestamp());
 
         CSVField field7 = csvFields.get(1);

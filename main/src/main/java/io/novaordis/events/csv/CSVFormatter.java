@@ -16,6 +16,14 @@
 
 package io.novaordis.events.csv;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.EventProperty;
 import io.novaordis.events.api.event.FaultEvent;
@@ -24,18 +32,11 @@ import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.event.TimestampProperty;
 import io.novaordis.events.api.metric.MetricDefinition;
-import io.novaordis.utilities.parsing.ParsingException;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.MetricDefinitionBasedCSVField;
 import io.novaordis.utilities.address.Address;
+import io.novaordis.utilities.parsing.ParsingException;
 import io.novaordis.utilities.time.Timestamp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Instances of this class convert events into comma-separated value lines containing event's properties values, usually
@@ -454,7 +455,7 @@ public class CSVFormatter {
                 }
                 else {
 
-                    s += timestamp.format(Constants.DEFAULT_TIMESTAMP_FORMAT);
+                    s += timestamp.format(Constants.getDefaultTimestampFormat());
                 }
             }
             else {
@@ -542,7 +543,7 @@ public class CSVFormatter {
             }
             else {
 
-                s += Constants.DEFAULT_TIMESTAMP_FORMAT.format(timestamp);
+                s += Constants.getDefaultTimestampFormat().format(timestamp);
             }
 
             if (!orderedProperties.isEmpty()) {

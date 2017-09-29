@@ -16,17 +16,18 @@
 
 package io.novaordis.events.csv.event;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.Test;
+
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.event.TimestampProperty;
 import io.novaordis.events.csv.Constants;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -130,7 +131,7 @@ public class TimedCSVLineTest extends CSVEventTest {
 
         String line = e.getPreferredRepresentation(",");
 
-        String expected = Constants.DEFAULT_TIMESTAMP_FORMAT.format(1001L) + ", 2002, something, 1, 2, 3.3, true";
+        String expected = Constants.getDefaultTimestampFormat().format(1001L) + ", 2002, something, 1, 2, 3.3, true";
 
         assertEquals(expected, line);
     }
