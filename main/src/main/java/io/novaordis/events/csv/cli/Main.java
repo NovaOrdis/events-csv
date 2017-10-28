@@ -54,7 +54,7 @@ public class Main {
 
             if (runtime.getConfiguration().isHelp()) {
 
-                displayHelpAndExit();
+                displayHelp();
                 return;
             }
 
@@ -79,7 +79,7 @@ public class Main {
 
     // Private ---------------------------------------------------------------------------------------------------------
 
-    private static void displayHelpAndExit() throws UserErrorException {
+    private static void displayHelp() throws UserErrorException {
 
         String content = InLineHelp.get();
 
