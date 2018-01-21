@@ -862,7 +862,7 @@ public class CSVParserTest {
 
         TimedCSVLine e4 = (TimedCSVLine)events.get(3);
         assertEquals(5, e4.getProperties().size()); // includes line number
-        assertEquals(11.11f, e4.getFloatProperty("weight").getFloat().floatValue(), 0.00001);
+        assertEquals(11.11f, e4.getFloatProperty("weight").getFloat(), 0.00001);
         assertEquals(10, e4.getIntegerProperty("index").getInteger().intValue());
         assertEquals("nine", e4.getStringProperty("something").getString());
         Long time2 = e4.getTime();
