@@ -75,7 +75,7 @@ public class NonTimedCSVLineTest extends CSVEventTest {
 
         String line = e.getPreferredRepresentationHeader(",");
 
-        String expected = "line-number(long), A(string), B(int), C(long), D(float), E(boolean)";
+        String expected = "line(long), A(string), B(int), C(long), D(float), E(boolean)";
 
         assertEquals(expected, line);
     }

@@ -348,7 +348,7 @@ public class CSVParserTest {
     @Test
     public void parse_FormatPresent_TimedEvent_TimestampFirstInLine() throws Exception {
 
-        String format = "timestamp(time:MMM-dd yyyy HH:mm:ss), brand(string), count(int)";
+        String format = "time(time:MMM-dd yyyy HH:mm:ss), brand(string), count(int)";
 
         CSVParser parser = new CSVParser(format);
 
@@ -385,7 +385,7 @@ public class CSVParserTest {
     @Test
     public void parse_FormatPresent_TimedEvent_TimestampNotFirstInLine() throws Exception {
 
-        CSVParser parser = new CSVParser("brand(string), timestamp(time:MMM-dd yyyy HH:mm:ss), count(int)");
+        CSVParser parser = new CSVParser("brand(string), time(time:MMM-dd yyyy HH:mm:ss), count(int)");
 
         List<Event> result = parser.parse(1L, "BMW, Jan-01 2016 12:01:01, 7", null);
         assertEquals(1, result.size());
@@ -707,7 +707,7 @@ public class CSVParserTest {
 
         assertNull(parser.getFormat());
 
-        String headerLine = "# timestamp, blue, green(int)";
+        String headerLine = "# time, blue, green(int)";
 
         //
         // because we're deferring issuing the header to give it a chance to collect the timestamp of the subsequent
@@ -729,7 +729,7 @@ public class CSVParserTest {
 
         StringProperty p2 = (StringProperty)properties.get(1);
         assertEquals(CSVHeaders.HEADER_NAME_PREFIX + 0, p2.getName());
-        assertTrue(p2.getString().contains("timestamp"));
+        assertTrue(p2.getString().contains("time"));
 
         StringProperty p3 = (StringProperty)properties.get(2);
         assertEquals(CSVHeaders.HEADER_NAME_PREFIX + 1, p3.getName());
@@ -774,7 +774,7 @@ public class CSVParserTest {
 
         String[] content = new String[] {
 
-                "# timestamp(MM/dd/yy HH:mm:ss),       color, size(int)",
+                "# time(MM/dd/yy HH:mm:ss),       color, size(int)",
                 "12/25/16 13:00:00, blue,  10",
         };
 
@@ -818,10 +818,10 @@ public class CSVParserTest {
 
         String[] content = new String[] {
 
-                "# timestamp(MM/dd/yy HH:mm:ss),       color, size(int)",
+                "# time(MM/dd/yy HH:mm:ss),       color, size(int)",
                 "12/25/16 13:00:01, blue,  10",
                 "",
-                "# weight(float), index(int), something, timestamp(yy/MM/dd HH:mm:ss)",
+                "# weight(float), index(int), something, time(yy/MM/dd HH:mm:ss)",
                 "11.11, 10, nine, 15/12/30 14:15:16, this will be discarded",
         };
 
@@ -993,7 +993,7 @@ public class CSVParserTest {
 
         String[] content = new String[] {
 
-                "# timestamp, something",
+                "# time, something",
                 "12/01/16 00:11:22, something else",
                 "12/01/16 00:11:23, extra line to make sure there is no leftover state"
         };
@@ -1015,7 +1015,7 @@ public class CSVParserTest {
         CSVHeaders e = (CSVHeaders)events2.get(0);
         List<CSVField> fields = e.getFields();
         assertEquals(2, fields.size());
-        assertEquals("timestamp", fields.get(0).getName());
+        assertEquals("time", fields.get(0).getName());
         assertEquals("something", fields.get(1).getName());
         assertEquals(1L, e.getLineNumber().longValue());
 
@@ -1056,7 +1056,7 @@ public class CSVParserTest {
 
         String[] content = new String[] {
 
-                "# timestamp, something",
+                "# time, something",
                 "",
                 "        ",
                 "",
@@ -1099,7 +1099,7 @@ public class CSVParserTest {
         CSVHeaders e = (CSVHeaders)events5.get(0);
         List<CSVField> fields = e.getFields();
         assertEquals(2, fields.size());
-        assertEquals("timestamp", fields.get(0).getName());
+        assertEquals("time", fields.get(0).getName());
         assertEquals("something", fields.get(1).getName());
         assertEquals(1L, e.getLineNumber().longValue());
 
@@ -1174,7 +1174,7 @@ public class CSVParserTest {
 
         assertNull(p.getFormat());
 
-        CSVFormat format = new CSVFormat("a, timestamp, b");
+        CSVFormat format = new CSVFormat("a, time, b");
 
         p.setFormat(format);
 
@@ -1206,7 +1206,7 @@ public class CSVParserTest {
 
         CSVParser p = new CSVParser();
 
-        CSVFormat format = new CSVFormat("a, timestamp, b");
+        CSVFormat format = new CSVFormat("a, time, b");
         p.setFormat(format);
         assertEquals(format, p.getFormat());
 
@@ -1416,7 +1416,7 @@ public class CSVParserTest {
 
         int index = 7;
 
-        CSVField header = new TimestampCSVField("timestamp", new UTCMillisecondsLongTimestampFormat());
+        CSVField header = new TimestampCSVField("time", new UTCMillisecondsLongTimestampFormat());
 
         long value = 1503522092L;
         String token = Long.toString(value);

@@ -427,9 +427,7 @@ public class CSVFormatterTest {
 
         output = c.format(me);
 
-        expected =
-                "# timestamp, field-1\n" +
-                        Constants.getDefaultTimestampFormat().format(eventTime) + ", YYY\n";
+        expected = "# time, field-1\n" + Constants.getDefaultTimestampFormat().format(eventTime) + ", YYY\n";
 
         assertEquals(expected, output);
 
@@ -482,9 +480,7 @@ public class CSVFormatterTest {
 
         output = c.format(me);
 
-        expected =
-                "# timestamp, field-1\n" +
-                        Constants.getDefaultTimestampFormat().format(eventTime) + ", YYY\n";
+        expected =  "# time, field-1\n" + Constants.getDefaultTimestampFormat().format(eventTime) + ", YYY\n";
 
         assertEquals(expected, output);
 

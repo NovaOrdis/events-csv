@@ -16,6 +16,11 @@
 
 package io.novaordis.events.csv.end2end;
 
+import java.io.File;
+import java.util.List;
+
+import org.junit.Test;
+
 import io.novaordis.events.api.event.EndOfStreamEvent;
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.cli.EventParserRuntime;
@@ -27,10 +32,6 @@ import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.csv.event.TimedCSVLine;
 import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
-import org.junit.Test;
-
-import java.io.File;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -99,7 +100,7 @@ public class End2EndTest {
 
         List<CSVField> fields = e.getFields();
         assertEquals(3, fields.size());
-        assertEquals("timestamp", fields.get(0).getName());
+        assertEquals("time", fields.get(0).getName());
         assertEquals(Long.class, fields.get(0).getType());
         assertEquals("color", fields.get(1).getName());
         assertEquals(String.class, fields.get(1).getType());
@@ -161,7 +162,7 @@ public class End2EndTest {
 
         List<CSVField> fields = e.getFields();
         assertEquals(3, fields.size());
-        assertEquals("timestamp", fields.get(0).getName());
+        assertEquals("time", fields.get(0).getName());
         assertEquals(Long.class, fields.get(0).getType());
         assertEquals("color", fields.get(1).getName());
         assertEquals(String.class, fields.get(1).getType());

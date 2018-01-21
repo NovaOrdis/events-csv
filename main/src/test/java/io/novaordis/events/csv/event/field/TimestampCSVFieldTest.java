@@ -245,7 +245,7 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
     public void toSpecification_Timestamp_NoFormat() throws Exception {
 
         TimestampCSVField f = new TimestampCSVField();
-        assertEquals("timestamp(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL + ")", f.getSpecification());
+        assertEquals("time(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL + ")", f.getSpecification());
     }
 
     @Test
@@ -253,7 +253,7 @@ public class TimestampCSVFieldTest extends CSVFieldTest {
 
         SimpleDateFormat fmt = new SimpleDateFormat("yy/MM/dd hh:mm");
         TimestampCSVField f = new TimestampCSVField(fmt);
-        assertEquals("timestamp(time:yy/MM/dd hh:mm)", f.getSpecification());
+        assertEquals("time(time:yy/MM/dd hh:mm)", f.getSpecification());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

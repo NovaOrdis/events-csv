@@ -16,12 +16,13 @@
 
 package io.novaordis.events.csv.event.field;
 
-import io.novaordis.events.csv.CSVFormatException;
-import org.junit.Test;
-
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.junit.Test;
+
+import io.novaordis.events.csv.CSVFormatException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -132,11 +133,11 @@ public class CSVFieldFactoryTest {
     @Test
     public void fromSpecification_Timestamp_NoFormat() throws Exception {
 
-        String specification = "timestamp";
+        String specification = "time";
 
         TimestampCSVField f = (TimestampCSVField)CSVFieldFactory.fromSpecification(specification);
 
-        assertEquals("timestamp", f.getName());
+        assertEquals("time", f.getName());
         assertEquals(Long.class, f.getType());
         assertTrue(f.isTimestamp());
 
@@ -151,30 +152,30 @@ public class CSVFieldFactoryTest {
     @Test
     public void fromSpecification_Timestamp_Long() throws Exception {
 
-        String specification = "timestamp(long)";
+        String specification = "time(long)";
 
         TimestampCSVField f = (TimestampCSVField)CSVFieldFactory.fromSpecification(specification);
 
-        assertEquals("timestamp", f.getName());
+        assertEquals("time", f.getName());
         assertEquals(Long.class, f.getType());
         assertTrue(f.isTimestamp());
         UTCMillisecondsLongTimestampFormat format = (UTCMillisecondsLongTimestampFormat)f.getFormat();
         assertNotNull(format);
 
         String specification2 = f.getSpecification();
-        assertEquals("timestamp(time:long)", specification2);
+        assertEquals("time(time:long)", specification2);
     }
 
     @Test
     public void fromSpecification_Timestamp_Time_SimpleDateFormat() throws Exception {
 
-        String specification = "timestamp(time:yy/MM/dd HH:mm:ss)";
+        String specification = "time(time:yy/MM/dd HH:mm:ss)";
 
         TimestampCSVField f = (TimestampCSVField)CSVFieldFactory.fromSpecification(specification);
 
         assertTrue(f.isTimestamp());
 
-        assertEquals("timestamp", f.getName());
+        assertEquals("time", f.getName());
         assertEquals(Long.class, f.getType());
         assertTrue(f.isTimestamp());
 
@@ -192,13 +193,13 @@ public class CSVFieldFactoryTest {
     @Test
     public void fromSpecification_Timestamp_SimpleDateFormat() throws Exception {
 
-        String specification = "timestamp(yy/MM/dd HH:mm:ss)";
+        String specification = "time(yy/MM/dd HH:mm:ss)";
 
         TimestampCSVField f = (TimestampCSVField)CSVFieldFactory.fromSpecification(specification);
 
         assertTrue(f.isTimestamp());
 
-        assertEquals("timestamp", f.getName());
+        assertEquals("time", f.getName());
         assertEquals(Long.class, f.getType());
 
         Format format = f.getFormat();
@@ -211,19 +212,19 @@ public class CSVFieldFactoryTest {
         assertEquals("yy/MM/dd HH:mm:ss", sdf.toPattern());
 
         String specification2 = f.getSpecification();
-        assertEquals("timestamp(time:yy/MM/dd HH:mm:ss)", specification2);
+        assertEquals("time(time:yy/MM/dd HH:mm:ss)", specification2);
     }
 
     @Test
     public void fromSpecification_Timestamp_SimpleDateFormat2() throws Exception {
 
-        String specification = "timestamp(HH:mm:ss)";
+        String specification = "time(HH:mm:ss)";
 
         TimestampCSVField f = (TimestampCSVField)CSVFieldFactory.fromSpecification(specification);
 
         assertTrue(f.isTimestamp());
 
-        assertEquals("timestamp", f.getName());
+        assertEquals("time", f.getName());
         assertEquals(Long.class, f.getType());
 
         Format format = f.getFormat();
@@ -235,7 +236,7 @@ public class CSVFieldFactoryTest {
         assertEquals("HH:mm:ss", sdf.toPattern());
 
         String specification2 = f.getSpecification();
-        assertEquals("timestamp(time:HH:mm:ss)", specification2);
+        assertEquals("time(time:HH:mm:ss)", specification2);
     }
 
     @Test
@@ -243,7 +244,7 @@ public class CSVFieldFactoryTest {
 
         try {
 
-            CSVFieldFactory.fromSpecification("timestamp(time:blah)");
+            CSVFieldFactory.fromSpecification("time(time:blah)");
         }
         catch(CSVFormatException e) {
 

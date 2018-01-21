@@ -104,7 +104,7 @@ public class CSVHeadersTest extends CSVEventTest {
     @Test
     public void constructor2() throws Exception {
 
-        CSVFormat f = new CSVFormat("timestamp, A, B");
+        CSVFormat f = new CSVFormat("time, A, B");
         List<CSVField> fields = f.getFields();
         CSVHeaders h = new CSVHeaders(7L, fields);
 
@@ -137,7 +137,7 @@ public class CSVHeadersTest extends CSVEventTest {
         //
         // convenience trailing missing field acceptable
         //
-        CSVFormat f = new CSVFormat("timestamp, A, ");
+        CSVFormat f = new CSVFormat("time, A, ");
         List<CSVField> fields = f.getFields();
         CSVHeaders h = new CSVHeaders(7L, fields);
 
@@ -267,7 +267,7 @@ public class CSVHeadersTest extends CSVEventTest {
         CSVHeaders headers = new CSVHeaders();
 
         headers.setLongProperty("some-random-property-1", 1L);
-        headers.setStringProperty(CSVHeaders.HEADER_NAME_PREFIX + 0, "timestamp");
+        headers.setStringProperty(CSVHeaders.HEADER_NAME_PREFIX + 0, "time");
         headers.setLongProperty("some-random-property-2", 2L);
         headers.setStringProperty(CSVHeaders.HEADER_NAME_PREFIX + 1, "some string");
         headers.setLongProperty("some-random-property-3", 3L);

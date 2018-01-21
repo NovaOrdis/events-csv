@@ -423,7 +423,7 @@ public class HeadersTest extends ProcedureTest {
 
         Headers headersProcedure = new Headers(0, Collections.emptyList(), new ByteArrayOutputStream());
 
-        List<CSVField> fields = new CSVFormat("timestamp, A, B, C").getFields();
+        List<CSVField> fields = new CSVFormat("time, A, B, C").getFields();
 
         CSVHeaders headersEvent = new CSVHeaders(777L, fields);
 
@@ -431,7 +431,7 @@ public class HeadersTest extends ProcedureTest {
 
         String expected =
                 "line 777 header:\n" +
-                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  0: time(time:MM/dd/yy HH:mm:ss)\n" +
                         "  2: A(string)\n" +
                         "  3: B(string)\n" +
                         "  4: C(string)\n";
@@ -448,7 +448,7 @@ public class HeadersTest extends ProcedureTest {
 
         Headers headersProcedure = new Headers(0, Collections.emptyList(), new ByteArrayOutputStream());
 
-        List<CSVField> fields = new CSVFormat("A, B, timestamp, C").getFields();
+        List<CSVField> fields = new CSVFormat("A, B, time, C").getFields();
 
         CSVHeaders headersEvent = new CSVHeaders(777L, fields);
 
@@ -461,7 +461,7 @@ public class HeadersTest extends ProcedureTest {
                 "line 777 header:\n" +
                         "  2: A(string)\n" +
                         "  3: B(string)\n" +
-                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  0: time(time:MM/dd/yy HH:mm:ss)\n" +
                         "  4: C(string)\n";
 
         String actual = new String(((ByteArrayOutputStream)headersProcedure.getOutputStream()).toByteArray());
@@ -476,7 +476,7 @@ public class HeadersTest extends ProcedureTest {
 
         Headers headersProcedure = new Headers(0, Collections.emptyList(), new ByteArrayOutputStream());
 
-        List<CSVField> fields = new CSVFormat("timestamp, A, B, C").getFields();
+        List<CSVField> fields = new CSVFormat("time, A, B, C").getFields();
 
         CSVHeaders headersEvent = new CSVHeaders(777L, fields);
 
@@ -490,7 +490,7 @@ public class HeadersTest extends ProcedureTest {
 
         String expected =
                 "line 777 header:\n" +
-                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  0: time(time:MM/dd/yy HH:mm:ss)\n" +
                         "  2: A(string)\n" +
                         "  3: B(string)\n" +
                         "  4: C(string)\n" +
@@ -514,7 +514,7 @@ public class HeadersTest extends ProcedureTest {
 
         assertTrue(procedure.isFirst());
 
-        CSVHeaders e = new CSVHeaders(777L, new CSVFormat("timestamp, A, B, C").getFields());
+        CSVHeaders e = new CSVHeaders(777L, new CSVFormat("time, A, B, C").getFields());
 
         assertFalse(procedure.isExitLoop());
 
@@ -524,7 +524,7 @@ public class HeadersTest extends ProcedureTest {
 
         String expected =
                 "line 777 header:\n" +
-                        "  0: timestamp(time:MM/dd/yy HH:mm:ss)\n" +
+                        "  0: time(time:MM/dd/yy HH:mm:ss)\n" +
                         "  2: A(string)\n" +
                         "  3: B(string)\n" +
                         "  4: C(string)\n";
@@ -701,7 +701,7 @@ public class HeadersTest extends ProcedureTest {
 
         List<Property> headerProperties = Arrays.asList(
                 new LongProperty(Event.LINE_PROPERTY_NAME, 1001L),
-                new StringProperty("header_0", "timestamp(time:long)"),
+                new StringProperty("header_0", "time(time:long)"),
                 new StringProperty("header_1", "name(string)"),
                 new StringProperty("header_2", "counter(int)")
         );
@@ -712,8 +712,8 @@ public class HeadersTest extends ProcedureTest {
 
         PropertyInfo p = pis.get(0);
         assertEquals(0, p.getIndex());
-        assertEquals("timestamp", p.getPropertyName());
-        assertEquals("timestamp(time:long)", p.getFieldSpecification());
+        assertEquals("time", p.getPropertyName());
+        assertEquals("time(time:long)", p.getFieldSpecification());
 
         PropertyInfo p2 = pis.get(1);
         assertEquals(2, p2.getIndex());
@@ -738,7 +738,7 @@ public class HeadersTest extends ProcedureTest {
                 new StringProperty("header_0", "itemid(string)"),
                 new StringProperty("header_1", "ns(string)"),
                 new StringProperty("header_2", "value(string)"),
-                new StringProperty("header_3", "timestamp(time:long)")
+                new StringProperty("header_3", "time(time:long)")
         );
 
         List<PropertyInfo> pis = Headers.toCorrespondingPropertyInfo(headerProperties);
@@ -759,7 +759,7 @@ public class HeadersTest extends ProcedureTest {
 
         PropertyInfo p4 = pis.get(3);
         assertEquals(0, p4.getIndex());
-        assertEquals("timestamp", p4.getPropertyName());
+        assertEquals("time", p4.getPropertyName());
     }
 
     @Test
@@ -775,7 +775,7 @@ public class HeadersTest extends ProcedureTest {
                 new StringProperty("header_0", "itemid(string)"),
                 new StringProperty("header_1", "ns(string)"),
                 new StringProperty("header_2", "value(string)"),
-                new StringProperty("header_3", "timestamp(time:long)"),
+                new StringProperty("header_3", "time(time:long)"),
                 new StringProperty("header_4", "count(int)")
         );
 
@@ -797,7 +797,7 @@ public class HeadersTest extends ProcedureTest {
 
         PropertyInfo p4 = pis.get(3);
         assertEquals(0, p4.getIndex());
-        assertEquals("timestamp", p4.getPropertyName());
+        assertEquals("time", p4.getPropertyName());
 
         PropertyInfo p5 = pis.get(4);
         assertEquals(5, p5.getIndex());
@@ -844,14 +844,14 @@ public class HeadersTest extends ProcedureTest {
 
         try {
 
-            h.setRegularExpressionLiteral(null);
+            h.setRegularExpressionLiteral("(");
 
             fail("should have thrown exception");
         }
         catch(IllegalArgumentException e) {
 
             String msg = e.getMessage();
-            assertTrue(msg.contains("null regular expression literal"));
+            assertTrue(msg.contains("Unclosed group"));
         }
     }
 

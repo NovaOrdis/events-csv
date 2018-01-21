@@ -103,7 +103,7 @@ public class TimedCSVLineTest extends CSVEventTest {
         assertEquals(3, properties2.size());
 
         TimestampProperty p = (TimestampProperty)properties2.get(0);
-        assertEquals("timestamp", p.getName());
+        assertEquals("time", p.getName());
         assertEquals(7L, ((Long)p.getValue()).longValue());
 
         LongProperty p2 = (LongProperty)properties2.get(1);
@@ -150,8 +150,8 @@ public class TimedCSVLineTest extends CSVEventTest {
 
         String line = e.getPreferredRepresentationHeader(",");
 
-        String expected = "timestamp(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL +
-                "), line-number(long), A(string), B(int), C(long), D(float), E(boolean)";
+        String expected = "time(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL +
+                "), line(long), A(string), B(int), C(long), D(float), E(boolean)";
 
         assertEquals(expected, line);
     }

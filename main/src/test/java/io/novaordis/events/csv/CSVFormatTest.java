@@ -144,7 +144,7 @@ public class CSVFormatTest {
     @Test
     public void constructor_typed() throws Exception {
 
-        CSVFormat csvFormat = new CSVFormat("timestamp(time:yy/MM/dd HH:mm:ss), count(int), duration(long), path");
+        CSVFormat csvFormat = new CSVFormat("time(time:yy/MM/dd HH:mm:ss), count(int), duration(long), path");
 
         List<CSVField> fields = csvFormat.getFields();
 
@@ -152,7 +152,7 @@ public class CSVFormatTest {
 
         CSVField f = fields.get(0);
         assertEquals(Long.class, f.getType());
-        assertEquals("timestamp", f.getName());
+        assertEquals("time", f.getName());
 
         CSVField f2 = fields.get(1);
         assertEquals(Integer.class, f2.getType());
@@ -262,7 +262,7 @@ public class CSVFormatTest {
     @Test
     public void constructor_Timestamp() throws Exception {
 
-        CSVFormat format = new CSVFormat("timestamp");
+        CSVFormat format = new CSVFormat("time");
 
         List<CSVField> fields = format.getFields();
 
@@ -456,7 +456,7 @@ public class CSVFormatTest {
         f.addField(new CSVFieldImpl("something", String.class));
         f.addField(new CSVFieldImpl("counter", Integer.class));
 
-        assertEquals("timestamp(time:MM/dd/yy HH:mm:ss), something(string), counter(int)", f.toPattern());
+        assertEquals("time(time:MM/dd/yy HH:mm:ss), something(string), counter(int)", f.toPattern());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
