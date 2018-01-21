@@ -91,7 +91,7 @@ function main() {
 
     debug "java_bin: ${java_bin}"
     debug "classpath: ${classpath}"
-    debug "args: ${args}"
+    debug "args before post-processing: ${args}"
 
     #
     # re-assemble the command line, by re-initializing the positional parameters, and pass it to the underlying process
@@ -108,3 +108,72 @@ function main() {
 }
 
 main "$@"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

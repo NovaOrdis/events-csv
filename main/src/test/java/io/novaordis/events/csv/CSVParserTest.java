@@ -227,7 +227,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("a, b, c");
 
-        List<Event> result = parser.parse(7L, "A, B, C");
+        List<Event> result = parser.parse(7L, "A, B, C", null);
         assertEquals(1, result.size());
 
         GenericEvent event = (GenericEvent)result.get(0);
@@ -239,7 +239,7 @@ public class CSVParserTest {
         assertEquals(4, properties.size());
 
         LongProperty p0 = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p0.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p0.getName());
         assertEquals(7L, p0.getValue());
 
         StringProperty p = (StringProperty)properties.get(1);
@@ -260,7 +260,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("a, b, c");
 
-        List<Event> result = parser.parse(7L, "A, B, C, D");
+        List<Event> result = parser.parse(7L, "A, B, C, D", null);
         assertEquals(1, result.size());
 
         GenericEvent event = (GenericEvent)result.get(0);
@@ -272,7 +272,7 @@ public class CSVParserTest {
         assertEquals(4, properties.size());
 
         LongProperty p0 = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p0.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p0.getName());
         assertEquals(7L, p0.getValue());
 
         StringProperty p = (StringProperty)properties.get(1);
@@ -293,7 +293,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("a, b, c");
 
-        List<Event> result = parser.parse(1L, "A, B");
+        List<Event> result = parser.parse(1L, "A, B", null);
         assertEquals(1, result.size());
 
         GenericEvent event = (GenericEvent)result.get(0);
@@ -304,7 +304,7 @@ public class CSVParserTest {
         assertEquals(3, properties.size());
 
         LongProperty p0 = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p0.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p0.getName());
         assertEquals(1L, p0.getValue());
 
         StringProperty p = (StringProperty)properties.get(1);
@@ -321,7 +321,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("brand(string), count(int)");
 
-        List<Event> result = parser.parse(5L, "Audi, 5");
+        List<Event> result = parser.parse(5L, "Audi, 5", null);
         assertEquals(1, result.size());
 
         GenericEvent event = (GenericEvent)result.get(0);
@@ -333,7 +333,7 @@ public class CSVParserTest {
         assertEquals(3, properties.size());
 
         LongProperty p0 = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p0.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p0.getName());
         assertEquals(5L, p0.getValue());
 
         StringProperty p = (StringProperty)properties.get(1);
@@ -352,7 +352,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser(format);
 
-        List<Event> result = parser.parse(1L, "Jan-01 2016 12:01:01, BMW, 7");
+        List<Event> result = parser.parse(1L, "Jan-01 2016 12:01:01, BMW, 7", null);
         assertEquals(1, result.size());
 
         TimedCSVLine event = (TimedCSVLine)result.get(0);
@@ -370,7 +370,7 @@ public class CSVParserTest {
         assertEquals("01/01/16 12:01:01", Constants.getDefaultTimestampFormat().format(p.getValue()));
 
         LongProperty p2 = (LongProperty)properties.get(1);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p2.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p2.getName());
         assertEquals(1L, p2.getValue());
 
         StringProperty p3 = (StringProperty)properties.get(2);
@@ -387,7 +387,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser("brand(string), timestamp(time:MMM-dd yyyy HH:mm:ss), count(int)");
 
-        List<Event> result = parser.parse(1L, "BMW, Jan-01 2016 12:01:01, 7");
+        List<Event> result = parser.parse(1L, "BMW, Jan-01 2016 12:01:01, 7", null);
         assertEquals(1, result.size());
 
         GenericTimedEvent event = (GenericTimedEvent)result.get(0);
@@ -405,7 +405,7 @@ public class CSVParserTest {
         assertEquals("01/01/16 12:01:01", Constants.getDefaultTimestampFormat().format(p.getValue()));
 
         LongProperty p2 = (LongProperty)properties.get(1);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p2.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p2.getName());
         assertEquals(1L, p2.getValue());
 
         StringProperty p3 = (StringProperty)properties.get(2);
@@ -424,7 +424,7 @@ public class CSVParserTest {
 
         String line = "something, \"something, else\"";
 
-        List<Event> result = parser.parse(77L, line);
+        List<Event> result = parser.parse(77L, line, null);
         assertEquals(1, result.size());
 
         GenericEvent e = (GenericEvent)result.get(0);
@@ -450,7 +450,7 @@ public class CSVParserTest {
 
         String line = "\"blah\", \"blah blah\"";
 
-        List<Event> result = parser.parse(77L, line);
+        List<Event> result = parser.parse(77L, line, null);
         assertEquals(1, result.size());
 
         GenericEvent e = (GenericEvent)result.get(0);
@@ -474,7 +474,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser();
 
-        List<Event> events = parser.parse(1L, null);
+        List<Event> events = parser.parse(1L, null, null);
         assertTrue(events.isEmpty());
     }
 
@@ -483,7 +483,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser();
 
-        List<Event> events = parser.parse(1L, "");
+        List<Event> events = parser.parse(1L, "", null);
         assertTrue(events.isEmpty());
     }
 
@@ -492,7 +492,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser();
 
-        List<Event> events = parser.parse(1L, "    ");
+        List<Event> events = parser.parse(1L, "    ", null);
         assertTrue(events.isEmpty());
     }
 
@@ -501,7 +501,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser();
 
-        List<Event> events = parser.parse(7L, "  ,  ");
+        List<Event> events = parser.parse(7L, "  ,  ", null);
 
         assertEquals(1, events.size());
 
@@ -511,7 +511,7 @@ public class CSVParserTest {
         assertEquals(3, properties.size());
 
         LongProperty p = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p.getName());
         assertEquals(7L, p.getLong().longValue());
 
         UndefinedTypeProperty p2 = (UndefinedTypeProperty)properties.get(1);
@@ -528,7 +528,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser();
 
-        List<Event> events = parser.parse(7L, "a,,b");
+        List<Event> events = parser.parse(7L, "a,,b", null);
 
         assertEquals(1, events.size());
 
@@ -538,7 +538,7 @@ public class CSVParserTest {
         assertEquals(4, properties.size());
 
         LongProperty p = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p.getName());
         assertEquals(7L, p.getLong().longValue());
 
         StringProperty p2 = (StringProperty)properties.get(1);
@@ -559,7 +559,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser();
 
-        List<Event> events = parser.parse(7L, "a,,b,");
+        List<Event> events = parser.parse(7L, "a,,b,", null);
 
         assertEquals(1, events.size());
 
@@ -569,7 +569,7 @@ public class CSVParserTest {
         assertEquals(5, properties.size());
 
         LongProperty p = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p.getName());
         assertEquals(7L, p.getLong().longValue());
 
         StringProperty p2 = (StringProperty)properties.get(1);
@@ -594,7 +594,7 @@ public class CSVParserTest {
 
         CSVParser parser = new CSVParser();
 
-        List<Event> events = parser.parse(7L, "   \"   \"");
+        List<Event> events = parser.parse(7L, "   \"   \"", null);
 
         assertEquals(1, events.size());
 
@@ -604,7 +604,7 @@ public class CSVParserTest {
         assertEquals(2, properties.size());
 
         LongProperty p = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p.getName());
         assertEquals(7L, p.getLong().longValue());
 
         StringProperty p2 = (StringProperty)properties.get(1);
@@ -628,7 +628,7 @@ public class CSVParserTest {
 
         for(int i = 0; i < content.length; i ++) {
 
-            List<Event> es = parser.parse(i + 1, content[i]);
+            List<Event> es = parser.parse(i + 1, content[i], null);
             events.addAll(es);
         }
 
@@ -642,7 +642,7 @@ public class CSVParserTest {
         assertEquals(6, properties.size());
 
         TimestampProperty p = (TimestampProperty)properties.get(0);
-        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, p.getName());
+        assertEquals(TimedEvent.TIME_PROPERTY_NAME, p.getName());
         //
         // original format does not survive storage of the property in the event
         //
@@ -650,7 +650,7 @@ public class CSVParserTest {
         assertEquals("12/25/16 13:00:00", Constants.getDefaultTimestampFormat().format(p.getValue()));
 
         LongProperty p2 = (LongProperty)properties.get(1);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p2.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p2.getName());
         assertEquals(1L, p2.getLong().longValue());
 
         StringProperty p3 = (StringProperty)properties.get(2);
@@ -682,7 +682,7 @@ public class CSVParserTest {
 
         try {
 
-            parser.parse(7L, headerLine);
+            parser.parse(7L, headerLine, null);
             fail("should have thrown exception");
         }
         catch(ParsingException e) {
@@ -713,7 +713,7 @@ public class CSVParserTest {
         // because we're deferring issuing the header to give it a chance to collect the timestamp of the subsequent
         // event, we need to close the parser to get the header
         //
-        assertTrue(parser.parse(7L, headerLine).isEmpty());
+        assertTrue(parser.parse(7L, headerLine, null).isEmpty());
 
         List<Event> events = parser.close(7L);
 
@@ -784,7 +784,7 @@ public class CSVParserTest {
 
         for(int i = 0; i < content.length; i ++) {
 
-            List<Event> es = parser.parse(i + 1, content[i]);
+            List<Event> es = parser.parse(i + 1, content[i], null);
             events.addAll(es);
         }
 
@@ -831,7 +831,7 @@ public class CSVParserTest {
 
         for(int i = 0; i < content.length; i ++) {
 
-            List<Event> es = parser.parse(i + 1, content[i]);
+            List<Event> es = parser.parse(i + 1, content[i], null);
             events.addAll(es);
         }
 
@@ -884,13 +884,13 @@ public class CSVParserTest {
 
         int lineNumber = 1;
 
-        List<Event> events = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events.isEmpty());
 
         lineNumber = 2;
 
-        List<Event> events2 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events2 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertEquals(2, events2.size());
 
@@ -908,7 +908,7 @@ public class CSVParserTest {
 
         lineNumber = 3;
 
-        List<Event> events3 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events3 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertEquals(1, events3.size());
 
@@ -935,31 +935,31 @@ public class CSVParserTest {
 
         int lineNumber = 1;
 
-        List<Event> events = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events.isEmpty());
 
         lineNumber = 2;
 
-        List<Event> events2 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events2 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events2.isEmpty());
 
         lineNumber = 3;
 
-        List<Event> events3 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events3 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events3.isEmpty());
 
         lineNumber = 4;
 
-        List<Event> events4 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events4 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events4.isEmpty());
 
         lineNumber = 5;
 
-        List<Event> events5 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events5 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertEquals(2, events5.size());
 
@@ -977,7 +977,7 @@ public class CSVParserTest {
 
         lineNumber = 6;
 
-        List<Event> events6 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events6 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertEquals(1, events6.size());
 
@@ -1002,13 +1002,13 @@ public class CSVParserTest {
 
         int lineNumber = 1;
 
-        List<Event> events = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events.isEmpty());
 
         lineNumber = 2;
 
-        List<Event> events2 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events2 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertEquals(2, events2.size());
 
@@ -1033,7 +1033,7 @@ public class CSVParserTest {
 
         lineNumber = 3;
 
-        List<Event> events3 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events3 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertEquals(1, events3.size());
 
@@ -1068,31 +1068,31 @@ public class CSVParserTest {
 
         int lineNumber = 1;
 
-        List<Event> events = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events.isEmpty());
 
         lineNumber = 2;
 
-        List<Event> events2 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events2 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events2.isEmpty());
 
         lineNumber = 3;
 
-        List<Event> events3 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events3 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events3.isEmpty());
 
         lineNumber = 4;
 
-        List<Event> events4 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events4 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events4.isEmpty());
 
         lineNumber = 5;
 
-        List<Event> events5 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events5 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertEquals(2, events5.size());
 
@@ -1117,7 +1117,7 @@ public class CSVParserTest {
 
         lineNumber = 6;
 
-        List<Event> events6 = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events6 = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertEquals(1, events6.size());
 
@@ -1147,7 +1147,7 @@ public class CSVParserTest {
 
         int lineNumber = 1;
 
-        List<Event> events = parser.parse(lineNumber, content[lineNumber - 1]);
+        List<Event> events = parser.parse(lineNumber, content[lineNumber - 1], null);
 
         assertTrue(events.isEmpty());
 
@@ -1193,7 +1193,7 @@ public class CSVParserTest {
         assertEquals(String.class, f.getType());
 
         TimestampCSVField f2 = (TimestampCSVField)headers.get(1);
-        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, f2.getName());
+        assertEquals(TimedEvent.TIME_PROPERTY_NAME, f2.getName());
         assertEquals(Long.class, f2.getType());
 
         CSVField f3 = headers.get(2);
@@ -1274,7 +1274,7 @@ public class CSVParserTest {
     public void propertyListToCSVEvent_NoTimestamp() throws Exception {
 
         List<Property> properties = Arrays.asList(
-                new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 7L), new StringProperty("field_0", "something"));
+                new LongProperty(Event.LINE_PROPERTY_NAME, 7L), new StringProperty("field_0", "something"));
 
         NonTimedCSVLine csvLine = (NonTimedCSVLine)CSVParser.
                 propertyListToCSVEvent(new MutableBoolean(false), properties);
@@ -1285,7 +1285,7 @@ public class CSVParserTest {
         assertEquals(2, properties2.size());
 
         LongProperty p = (LongProperty)properties2.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p.getName());
         assertEquals(7L, p.getValue());
 
         StringProperty p2 = (StringProperty)properties2.get(1);
@@ -1316,7 +1316,7 @@ public class CSVParserTest {
         Property p = properties.get(0);
 
         TimestampProperty tp = (TimestampProperty) p;
-        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, tp.getName());
+        assertEquals(TimedEvent.TIME_PROPERTY_NAME, tp.getName());
         assertEquals("12/25/16 13:00:00", tp.getFormat().format(tp.getValue()));
     }
 
@@ -1430,7 +1430,7 @@ public class CSVParserTest {
         Property p = properties.get(0);
 
         TimestampProperty tp = (TimestampProperty) p;
-        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, tp.getName());
+        assertEquals(TimedEvent.TIME_PROPERTY_NAME, tp.getName());
 
         assertEquals(value, tp.getValue());
     }

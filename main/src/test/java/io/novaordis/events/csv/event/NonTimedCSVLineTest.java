@@ -16,8 +16,9 @@
 
 package io.novaordis.events.csv.event;
 
-import io.novaordis.events.api.event.Event;
 import org.junit.Test;
+
+import io.novaordis.events.api.event.Event;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,7 +47,7 @@ public class NonTimedCSVLineTest extends CSVEventTest {
 
         NonTimedCSVLine e = new NonTimedCSVLine();
 
-        e.setLongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 1001L);
+        e.setLongProperty(Event.LINE_PROPERTY_NAME, 1001L);
         e.setStringProperty("A", "something");
         e.setIntegerProperty("B", 1);
         e.setLongProperty("C", 2L);
@@ -65,7 +66,7 @@ public class NonTimedCSVLineTest extends CSVEventTest {
 
         NonTimedCSVLine e = new NonTimedCSVLine();
 
-        e.setLongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 1001L);
+        e.setLongProperty(Event.LINE_PROPERTY_NAME, 1001L);
         e.setStringProperty("A", "something");
         e.setIntegerProperty("B", 1);
         e.setLongProperty("C", 2L);

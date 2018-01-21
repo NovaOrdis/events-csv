@@ -44,7 +44,7 @@ public class TimestampCSVField extends CSVFieldImpl {
 
     public TimestampCSVField() {
 
-        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, Constants.getDefaultTimestampFormat());
+        super(TimedEvent.TIME_PROPERTY_NAME, Long.class, Constants.getDefaultTimestampFormat());
     }
 
     public TimestampCSVField(String name) {
@@ -54,7 +54,7 @@ public class TimestampCSVField extends CSVFieldImpl {
 
     public TimestampCSVField(DateFormat format) {
 
-        super(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class, format);
+        super(TimedEvent.TIME_PROPERTY_NAME, Long.class, format);
     }
 
     public TimestampCSVField(String name, DateFormat format) {

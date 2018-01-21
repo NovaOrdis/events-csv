@@ -16,6 +16,14 @@
 
 package io.novaordis.events.csv;
 
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
@@ -28,16 +36,10 @@ import io.novaordis.events.csv.event.CSVHeaders;
 import io.novaordis.events.csv.event.NonTimedCSVLine;
 import io.novaordis.events.csv.event.TimedCSVLine;
 import io.novaordis.events.csv.event.field.CSVField;
+import io.novaordis.events.query.Query;
 import io.novaordis.utilities.parsing.ParsingException;
 import io.novaordis.utilities.time.Timestamp;
 import io.novaordis.utilities.time.TimestampImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * A CSV parser.
@@ -151,7 +153,7 @@ public class CSVParser extends ParserBase {
     // Protected -------------------------------------------------------------------------------------------------------
 
     @Override
-    protected List<Event> parse(long lineNumber, String line) throws ParsingException {
+    protected List<Event> parse(long lineNumber, String line, Query query) throws ParsingException {
 
         if (line == null) {
 
@@ -229,7 +231,7 @@ public class CSVParser extends ParserBase {
 
         final List<Property> properties = new ArrayList<>();
 
-        properties.add(new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, lineNumber));
+        properties.add(new LongProperty(Event.LINE_PROPERTY_NAME, lineNumber));
 
         //
         // we're prepared to handle the situation when no format was installed (no header line detected so far)
@@ -411,7 +413,7 @@ public class CSVParser extends ParserBase {
                     // normalize timestamp property name, needed in case of CSV introspection
                     //
 
-                    tp.setName(TimedEvent.TIMESTAMP_PROPERTY_NAME);
+                    tp.setName(TimedEvent.TIME_PROPERTY_NAME);
                 }
             }
         }

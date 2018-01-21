@@ -101,7 +101,7 @@ public class TimedCSVLine extends GenericTimedEvent implements CSVEvent {
     @Override
     public String getPreferredRepresentationHeader(String fieldSeparator) {
 
-        String s = TimedEvent.TIMESTAMP_PROPERTY_NAME +
+        String s = TimedEvent.TIME_PROPERTY_NAME +
                 CSVFieldImpl.typeToCommandLineLiteral(Date.class, Constants.getDefaultTimestampFormat());
 
         boolean first = true;

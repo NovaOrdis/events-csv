@@ -76,12 +76,12 @@ public class CSVHeadersTest extends CSVEventTest {
         assertEquals(6, properties.size());
 
         LongProperty p = (LongProperty)properties.get(0);
-        assertEquals(GenericEvent.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(GenericEvent.LINE_PROPERTY_NAME, p.getName());
         assertEquals(7L, p.getLong().longValue());
 
         StringProperty p2 = (StringProperty)properties.get(1);
         assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "0", p2.getName());
-        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME + "(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL + ")",
+        assertEquals(TimedEvent.TIME_PROPERTY_NAME + "(time:" + Constants.DEFAULT_TIMESTAMP_FORMAT_LITERAL + ")",
                 p2.getString());
 
         StringProperty p3 = (StringProperty)properties.get(2);
@@ -113,13 +113,13 @@ public class CSVHeadersTest extends CSVEventTest {
         assertEquals(4, properties.size());
 
         LongProperty p = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p.getName());
         assertEquals(7L, p.getLong().longValue());
 
         StringProperty p2 = (StringProperty)properties.get(1);
         assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "0", p2.getName());
         assertEquals(
-                TimedEvent.TIMESTAMP_PROPERTY_NAME + "(time:" + Constants.getDefaultTimestampFormat().toPattern() + ")",
+                TimedEvent.TIME_PROPERTY_NAME + "(time:" + Constants.getDefaultTimestampFormat().toPattern() + ")",
                 p2.getString());
 
         StringProperty p3 = (StringProperty)properties.get(2);
@@ -146,13 +146,13 @@ public class CSVHeadersTest extends CSVEventTest {
         assertEquals(3, properties.size());
 
         LongProperty p = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p.getName());
         assertEquals(7L, p.getLong().longValue());
 
         StringProperty p2 = (StringProperty)properties.get(1);
         assertEquals(CSVHeaders.HEADER_NAME_PREFIX + "0", p2.getName());
         assertEquals(
-                TimedEvent.TIMESTAMP_PROPERTY_NAME + "(time:" + Constants.getDefaultTimestampFormat().toPattern() + ")",
+                TimedEvent.TIME_PROPERTY_NAME + "(time:" + Constants.getDefaultTimestampFormat().toPattern() + ")",
                 p2.getString());
 
         StringProperty p3 = (StringProperty)properties.get(2);
@@ -172,7 +172,7 @@ public class CSVHeadersTest extends CSVEventTest {
         assertEquals(4, properties.size());
 
         LongProperty p = (LongProperty)properties.get(0);
-        assertEquals(Event.LINE_NUMBER_PROPERTY_NAME, p.getName());
+        assertEquals(Event.LINE_PROPERTY_NAME, p.getName());
         assertEquals(7L, p.getLong().longValue());
 
         StringProperty p2 = (StringProperty)properties.get(1);
@@ -231,7 +231,7 @@ public class CSVHeadersTest extends CSVEventTest {
         assertEquals(5, csvFields.size());
 
         CSVField field6 = csvFields.get(0);
-        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, field6.getName());
+        assertEquals(TimedEvent.TIME_PROPERTY_NAME, field6.getName());
         assertEquals(Long.class, field6.getType());
         assertEquals(Constants.getDefaultTimestampFormat(), field6.getFormat());
         assertTrue(field6.isTimestamp());
@@ -284,7 +284,7 @@ public class CSVHeadersTest extends CSVEventTest {
         assertEquals(5, csvFields.size());
 
         CSVField field6 = csvFields.get(0);
-        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, field6.getName());
+        assertEquals(TimedEvent.TIME_PROPERTY_NAME, field6.getName());
         assertTrue(field6.isTimestamp());
 
         CSVField field7 = csvFields.get(1);

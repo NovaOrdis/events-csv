@@ -16,6 +16,16 @@
 
 package io.novaordis.events.csv.procedures.headers;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.junit.Test;
+
 import io.novaordis.events.api.event.EndOfStreamEvent;
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
@@ -30,15 +40,6 @@ import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.procedures.CSVProcedureFactory;
 import io.novaordis.events.csv.procedures.ProcedureTest;
 import io.novaordis.utilities.UserErrorException;
-import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -699,7 +700,7 @@ public class HeadersTest extends ProcedureTest {
     public void toCorrespondingPropertyIndex_Production() throws Exception {
 
         List<Property> headerProperties = Arrays.asList(
-                new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 1001L),
+                new LongProperty(Event.LINE_PROPERTY_NAME, 1001L),
                 new StringProperty("header_0", "timestamp(time:long)"),
                 new StringProperty("header_1", "name(string)"),
                 new StringProperty("header_2", "counter(int)")
@@ -733,7 +734,7 @@ public class HeadersTest extends ProcedureTest {
         //
 
         List<Property> headerProperties = Arrays.asList(
-                new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 1001L),
+                new LongProperty(Event.LINE_PROPERTY_NAME, 1001L),
                 new StringProperty("header_0", "itemid(string)"),
                 new StringProperty("header_1", "ns(string)"),
                 new StringProperty("header_2", "value(string)"),
@@ -770,7 +771,7 @@ public class HeadersTest extends ProcedureTest {
 
 
         List<Property> headerProperties = Arrays.asList(
-                new LongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 1001L),
+                new LongProperty(Event.LINE_PROPERTY_NAME, 1001L),
                 new StringProperty("header_0", "itemid(string)"),
                 new StringProperty("header_1", "ns(string)"),
                 new StringProperty("header_2", "value(string)"),

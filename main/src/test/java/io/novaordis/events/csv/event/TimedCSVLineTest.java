@@ -122,7 +122,7 @@ public class TimedCSVLineTest extends CSVEventTest {
 
         TimedCSVLine e = new TimedCSVLine(1001L);
 
-        e.setLongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 2002L);
+        e.setLongProperty(Event.LINE_PROPERTY_NAME, 2002L);
         e.setStringProperty("A", "something");
         e.setIntegerProperty("B", 1);
         e.setLongProperty("C", 2L);
@@ -141,7 +141,7 @@ public class TimedCSVLineTest extends CSVEventTest {
 
         TimedCSVLine e = new TimedCSVLine(1001L);
 
-        e.setLongProperty(Event.LINE_NUMBER_PROPERTY_NAME, 2002L);
+        e.setLongProperty(Event.LINE_PROPERTY_NAME, 2002L);
         e.setStringProperty("A", "something");
         e.setIntegerProperty("B", 1);
         e.setLongProperty("C", 2L);

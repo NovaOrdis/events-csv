@@ -17,6 +17,11 @@
 package io.novaordis.events.csv.event.field;
 
 
+import java.text.DateFormat;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import io.novaordis.events.api.event.DateProperty;
 import io.novaordis.events.api.event.DoubleProperty;
 import io.novaordis.events.api.event.FloatProperty;
@@ -25,11 +30,6 @@ import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.Property;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.event.TimedEvent;
-
-import java.text.DateFormat;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * A CSVField implementation based on a string definition, similar to "test-field-name (int)"
@@ -306,7 +306,7 @@ public class CSVFieldImpl implements CSVField {
      */
     private void timestampFieldConsistencyCheck() throws IllegalArgumentException {
 
-        if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(name) && !getClass().equals(TimestampCSVField.class)) {
+        if (TimedEvent.TIME_PROPERTY_NAME.equals(name) && !getClass().equals(TimestampCSVField.class)) {
 
             throw new IllegalArgumentException(
                     "CSVFieldImpl cannot be used to represent timestamp fields, use TimestampCSVField");

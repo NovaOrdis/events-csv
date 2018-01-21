@@ -16,14 +16,15 @@
 
 package io.novaordis.events.csv.event.field;
 
-import io.novaordis.events.api.event.TimedEvent;
-import io.novaordis.events.csv.CSVFormatException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.novaordis.events.api.event.TimedEvent;
+import io.novaordis.events.csv.CSVFormatException;
 
 /**
  * A static class that builds CSVField instances from their string field specification. The reverse operation
@@ -128,7 +129,7 @@ public class CSVFieldFactory {
             }
         }
 
-        if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(name)) {
+        if (TimedEvent.TIME_PROPERTY_NAME.equals(name)) {
 
             TimestampCSVField f = new TimestampCSVField(name);
 

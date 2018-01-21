@@ -16,6 +16,14 @@
 
 package io.novaordis.events.csv.event.field;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.novaordis.events.api.event.DateProperty;
 import io.novaordis.events.api.event.DoubleProperty;
 import io.novaordis.events.api.event.FloatProperty;
@@ -23,13 +31,6 @@ import io.novaordis.events.api.event.IntegerProperty;
 import io.novaordis.events.api.event.LongProperty;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.event.TimedEvent;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -68,7 +69,7 @@ public class CSVFieldImplTest extends CSVFieldTest {
 
         try {
 
-            new CSVFieldImpl(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class);
+            new CSVFieldImpl(TimedEvent.TIME_PROPERTY_NAME, Long.class);
             fail("should have thrown exception");
         }
         catch(IllegalArgumentException e) {
@@ -83,7 +84,7 @@ public class CSVFieldImplTest extends CSVFieldTest {
 
         try {
 
-            new CSVFieldImpl(TimedEvent.TIMESTAMP_PROPERTY_NAME, Long.class);
+            new CSVFieldImpl(TimedEvent.TIME_PROPERTY_NAME, Long.class);
             fail("should have thrown exception");
         }
         catch(IllegalArgumentException e) {

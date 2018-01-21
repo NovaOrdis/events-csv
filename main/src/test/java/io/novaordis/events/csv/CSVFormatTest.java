@@ -16,6 +16,10 @@
 
 package io.novaordis.events.csv;
 
+import java.util.List;
+
+import org.junit.Test;
+
 import io.novaordis.events.api.event.PropertyFactory;
 import io.novaordis.events.api.event.TimedEvent;
 import io.novaordis.events.api.metric.MockAddress;
@@ -23,9 +27,6 @@ import io.novaordis.events.csv.event.field.CSVField;
 import io.novaordis.events.csv.event.field.CSVFieldFactory;
 import io.novaordis.events.csv.event.field.CSVFieldImpl;
 import io.novaordis.events.csv.event.field.TimestampCSVField;
-import org.junit.Test;
-
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -418,7 +419,7 @@ public class CSVFormatTest {
 
         CSVField fd = fields.get(0);
 
-        assertEquals(TimedEvent.TIMESTAMP_PROPERTY_NAME, fd.getName());
+        assertEquals(TimedEvent.TIME_PROPERTY_NAME, fd.getName());
 
         Class c = fd.getType();
 

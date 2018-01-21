@@ -644,7 +644,7 @@ public class CSVFormatter {
             // if it's a timed event, always start with the timestamp
             //
 
-            s += TimedEvent.TIMESTAMP_PROPERTY_NAME;
+            s += TimedEvent.TIME_PROPERTY_NAME;
             if (!properties.isEmpty()) {
                 s += ", ";
             }

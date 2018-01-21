@@ -52,7 +52,9 @@ public class Headers extends TextOutputProcedure {
 
     public static final String[] COMMAND_LINE_LABELS = { "header", "headers" };
 
+    @SuppressWarnings("WeakerAccess")
     public static final String FIRST_COMMAND_LINE_MODIFIER = "--first";
+    @SuppressWarnings("WeakerAccess")
     public static final String LAST_COMMAND_LINE_MODIFIER = "--last";
 
     // Static ----------------------------------------------------------------------------------------------------------
@@ -301,7 +303,7 @@ public class Headers extends TextOutputProcedure {
                 propertyName = fieldSpecification.substring(0, j);
             }
 
-            if (TimedEvent.TIMESTAMP_PROPERTY_NAME.equals(propertyName)) {
+            if (TimedEvent.TIME_PROPERTY_NAME.equals(propertyName)) {
 
                 //
                 // timestamp property - it will aways be on the first position in storage in the data events
@@ -329,7 +331,7 @@ public class Headers extends TextOutputProcedure {
             //noinspection Convert2streamapi
             for(PropertyInfo pi: pis) {
 
-                if (!pi.getPropertyName().equals(TimedEvent.TIMESTAMP_PROPERTY_NAME)) {
+                if (!pi.getPropertyName().equals(TimedEvent.TIME_PROPERTY_NAME)) {
 
                     pi.incrementIndex();
                 }
